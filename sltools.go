@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./slt"
+	"bitbucket.org/brunetto/sltools/slt"
 )
 
 func main() {
