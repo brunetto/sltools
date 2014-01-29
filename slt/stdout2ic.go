@@ -20,6 +20,7 @@ func Stdout2Ic (inFileName, fileN string) (outFileName string) {
 	extension = filepath.Ext(inFileName)
 	baseName = strings.TrimSuffix(file, extension)
 	baseName = strings.TrimPrefix(baseName, "new_")
+	baseName = baseName[:strings.LastIndex(baseName, "-")] // to remove the last round number
 	outFileName = filepath.Join(dir, baseName) + "-IC-" + fileN + extension //FIXME detectare nOfFiles
 	return outFileName
 }
