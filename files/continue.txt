@@ -1,0 +1,96 @@
+(Particle
+	root particle
+	here, nesting 1
+	system_time = 0
+
+	(Particle
+
+		nesting 2
+
+		(Particle
+
+			nesting 3
+
+		)Particle
+
+		nesting 2
+
+	)Particle
+
+	nesting 1
+
+	(Particle
+		
+		nesting 2
+
+	)Particle
+	
+	nesting 1
+
+	after that, nesting 0
+	
+)Particle
+(Particle
+	root particle
+	here, nesting 1
+	system_time = 1
+
+	(Particle
+
+		nesting 2
+
+		(Particle
+
+			nesting 3
+
+		)Particle
+
+		nesting 2
+
+	)Particle
+
+	nesting 1
+
+	(Particle
+		
+		nesting 2
+
+	)Particle
+	
+	nesting 1
+
+	after that, nesting 0
+	
+)Particle
+(Particle
+	root particle
+	here, nesting 1
+	system_time = 2
+
+	(Particle
+
+		nesting 2
+
+		(Particle
+
+			nesting 3
+
+		)Particle
+
+		nesting 2
+
+	)Particle
+
+	nesting 1
+
+	(Particle
+		
+		nesting 2
+
+	)Particle
+	
+	nesting 1
+
+	after that, nesting 0
+)Particle
+)Particle
