@@ -10,7 +10,7 @@ import (
 // if Verb { ...
 var Verb bool 
 
-var SltCmd = &cobra.Command{
+var SlToolsCmd = &cobra.Command{
 	Use:   "sltools",
 	Short: "Tools for StarLab simulation management",
 	Long: `...`,
@@ -108,22 +108,24 @@ var StichOutputCmd = &cobra.Command{
 
 func InitCommands() () {
 
-	SltCmd.AddCommand(VersionCmd)
-	ContinueCmd.Flags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
+	SlToolsCmd.AddCommand(VersionCmd)
+	SlToolsCmd.Flags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	
-	SltCmd.AddCommand(ContinueCmd)
+	SlteCmd.AddCommand(CreateScriptCmd)
+	
+	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.AddCommand(ContinueAllCmd)
 	ContinueCmd.AddCommand(CreateScriptCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
 	ContinueCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
 	
-	SltCmd.AddCommand(InstallSLCmd)
+	SlToolsCmd.AddCommand(InstallSLCmd)
 	
-	SltCmd.AddCommand(DryInstallSLCmd)
+	SlToolsCmd.AddCommand(DryInstallSLCmd)
 	
-	SltCmd.AddCommand(DownloadSLCmd)
+	SlToolsCmd.AddCommand(DownloadSLCmd)
 	
-	SltCmd.AddCommand(StichOutputCmd)
+	SlToolsCmd.AddCommand(StichOutputCmd)
 	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inputFileTmpl", "i", "", 
 			"STDOUT template name (the STDOUT name without the extention and the )")
 	

@@ -5,5 +5,7 @@ import (
 )
 
 func CreateScripts () () {
-	log.Println("Sorry, I'm not ready yet")
+	CreateKira ()
+	CreatePBS ()
+	
 }
