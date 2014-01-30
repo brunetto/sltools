@@ -33,25 +33,14 @@ var (
 	fileN string
 )
 
-var ContinueCmd = &cobra.Command{
+var Out2ICCmd = &cobra.Command{
 	Use:   "continue",
 	Short: "Prepare the new ICs from the last STDOUT",
 	Long:  `StarLab can restart a simulation from the last complete output.
 	The continue command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Continue(inFileName, fileN)
-	},
-}
-
-var ContinueAllCmd = &cobra.Command{
-	Use:   "all",
-	Short: "Prepare the new ICs from all the last STDOUTs",
-	Long:  `StarLab can restart a simulation from the last complete output.
-	The continue command prepare the new ICs parsing all the last STDOUTs and writing
-	the last complete snapshot to the new input file.`,
-	Run: func(cmd *cobra.Command, args []string) {
-	    ContinueAll()
+		Out2IC(inFileName, fileN)
 	},
 }
 
@@ -111,13 +100,11 @@ func InitCommands() () {
 	SlToolsCmd.AddCommand(VersionCmd)
 	SlToolsCmd.Flags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	
-	SlteCmd.AddCommand(CreateScriptCmd)
+	SlToolsCmd.AddCommand(CreateScriptCmd)
 	
-	SlToolsCmd.AddCommand(ContinueCmd)
-	ContinueCmd.AddCommand(ContinueAllCmd)
-	ContinueCmd.AddCommand(CreateScriptCmd)
-	ContinueCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
-	ContinueCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
+	SlToolsCmd.AddCommand(Out2ICCmd)
+	Out2ICCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
+	Out2ICCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
 	
 	SlToolsCmd.AddCommand(InstallSLCmd)
 	
