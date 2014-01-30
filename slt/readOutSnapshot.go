@@ -41,7 +41,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*OutSnapshot, error) {
 	)
 
 	// Init snapshot container
-	snap.Data = make([]string, 1)
+	snap.Data = make([]string, 0)
 	snap.Integrity = false
 	snap.NestingLevel = 0
 	
