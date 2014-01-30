@@ -7,7 +7,7 @@ import (
 func main() {
 	
 	slt.InitCommands()
-	slt.SltCmd.Execute()
+	slt.SlToolsCmd.Execute()
 	
 } // END MAIN
 

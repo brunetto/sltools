@@ -1,7 +1,7 @@
 package slt
 
 import (
-	"log"
+// 	"log"
 )
 
 func CreateScripts () () {

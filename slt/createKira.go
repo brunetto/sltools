@@ -17,10 +17,11 @@ func CreateKira () () {
 	kiraString := "echo $PWD\n" + 
 				  "echo $LD_LIBRARY_PATH\n" + 
 				  kiraBinPath + " -t 500 -d 1 -D 1 -b 1 -f 0.3 \\\n"+ " -n 10 -e 0.000 -B " + randomString + " \\\n" +
-				  "< " + folderName + " " + initCondFile + " \\\n"
-				  "> " + folderName + " " + stdOutFile + " \\\n"
+				  "< " + folderName + " " + initCondFile + " \\\n" +
+				  "> " + folderName + " " + stdOutFile + " \\\n" +
 				  "2> " + folderName + " " + stdErrFile + " \n"
 						
 	log.Println(kiraString)
+	log.Println("ciao")
 	
 }
