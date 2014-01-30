@@ -3,7 +3,7 @@ package slt
 import (
 	"bitbucket.org/brunetto/goutils/readfile"
 	"bufio"
-// 	"fmt"
+	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -73,7 +73,11 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*OutSnapshot, error) {
 		// (root particle complete) and if true, return
 		if snap.NestingLevel == 0 {
 			snap.Integrity = true
-			log.Print("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			if Verb {
+				log.Print("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			} else {
+				fmt.Print("\rTimestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			}
 			return snap, err
 		}
 	}	

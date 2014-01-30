@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+// Package-wise verbosity
+// use with:
+// if Verb { ...
+var Verb bool 
+
 var SltCmd = &cobra.Command{
 	Use:   "sltools",
 	Short: "Tools for StarLab simulation management",
@@ -104,6 +109,7 @@ var StichOutputCmd = &cobra.Command{
 func InitCommands() () {
 
 	SltCmd.AddCommand(VersionCmd)
+	ContinueCmd.Flags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	
 	SltCmd.AddCommand(ContinueCmd)
 	ContinueCmd.AddCommand(ContinueAllCmd)
