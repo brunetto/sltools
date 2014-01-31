@@ -61,7 +61,6 @@ var CreateScriptsCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("pippo")
 		CreateScripts(icsName, machine, userName, randomNumber, simTime, pName)
 	},
 }
