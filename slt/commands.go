@@ -33,25 +33,36 @@ var (
 	fileN string
 )
 
-var Out2ICCmd = &cobra.Command{
-	Use:   "continue",
+var Out2ICsCmd = &cobra.Command{
+	Use:   "out2ics",
 	Short: "Prepare the new ICs from the last STDOUT",
 	Long:  `StarLab can restart a simulation from the last complete output.
 	The continue command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Out2IC(inFileName, fileN)
+		Out2ICs(inFileName, fileN)
 	},
 }
 
-var CreateScriptCmd = &cobra.Command{
+
+var (
+	icsName string
+	machine string
+	userName string
+	randomNumber string
+	simTime string
+	pName string
+	)
+
+var CreateScriptsCmd = &cobra.Command{
 	Use:   "createScripts",
 	Short: "Prepare the new ICs from all the last STDOUTs",
 	Long:  `StarLab can restart a simulation from the last complete output.
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		CreateScripts()
+		fmt.Println("pippo")
+		CreateScripts(icsName, machine, userName, randomNumber, simTime, pName)
 	},
 }
 
@@ -87,7 +98,7 @@ var (
 )
 
 var StichOutputCmd = &cobra.Command{
-	Use:   "downloadSL",
+	Use:   "stichOutput",
 	Short: "Only download SL",
 	Long:  `...`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -98,13 +109,19 @@ var StichOutputCmd = &cobra.Command{
 func InitCommands() () {
 
 	SlToolsCmd.AddCommand(VersionCmd)
-	SlToolsCmd.Flags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
+	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	
-	SlToolsCmd.AddCommand(CreateScriptCmd)
+	SlToolsCmd.AddCommand(CreateScriptsCmd)
+	CreateScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
+	CreateScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
+	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
+	CreateScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
+	CreateScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
+	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
-	SlToolsCmd.AddCommand(Out2ICCmd)
-	Out2ICCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
-	Out2ICCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
+	SlToolsCmd.AddCommand(Out2ICsCmd)
+	Out2ICsCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
+	Out2ICsCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
 	
 	SlToolsCmd.AddCommand(InstallSLCmd)
 	
