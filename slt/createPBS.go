@@ -50,7 +50,7 @@ func CreatePBS (pName string) () {
 				"#PBS -l walltime=24:00:00\n" +
 				"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +
 				modules +
-				"sh "+ filepath.Join(absFolderName, kiraOutName) +".sh"
+				"sh "+ filepath.Join(absFolderName, kiraOutName)
 
 	pbsOutName = "PBS-" + baseName + ".sh"
 	
