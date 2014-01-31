@@ -43,7 +43,7 @@ func CreatePBS (pName string) () {
 		log.Fatal("Uknown machine name ", machine)
 	}
 	
-	pbsString = `#!/bin/bash` +
+	pbsString = `#!/bin/bash\n` +
 				"#PBS -N r" + comb + " " + run + " " + rnd + "\n" +
 				"#PBS -A " + pName + "\n" +
 				"#PBS -q longpar\n" +
