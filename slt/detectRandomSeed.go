@@ -22,7 +22,7 @@ func DetectRandomSeed(inFileName string) (randomSeed string) {
 		stdErrName string
 	)
 	
-	stdErrName = strings.TrimPrefix(inFileName, "n")
+	stdErrName = "err-" + strings.TrimPrefix(inFileName, "out")
 	
 	// Open file & create reader
 	if inFile, err = os.Open(stdErrName); err != nil {log.Fatal(err)}
