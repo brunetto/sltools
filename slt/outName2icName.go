@@ -21,6 +21,6 @@ func OutName2ICName (inFileName, fileN string) (outFileName string) {
 	baseName = strings.TrimSuffix(file, extension)
 	baseName = strings.TrimPrefix(baseName, "out-")
 	baseName = baseName[:strings.LastIndex(baseName, "-rnd")] // to remove the last round number
-	outFileName = filepath.Join(dir, "IC-" + baseName) + "-rnd" + fileN + extension //FIXME detectare nOfFiles
+	outFileName = filepath.Join(dir, "ics-" + baseName) + "-rnd" + fileN + extension //FIXME detectare nOfFiles
 	return outFileName
 }

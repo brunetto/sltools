@@ -26,8 +26,8 @@ func CreatePBS (pName string) () {
 					"module load boost/1.53.0--gnu--4.6.3\n" +
 					"module load cuda\n\n" +
 					"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
-					"/cineca/prod/compilers/pgi/12.10/none/linux86-64/2012/" +
-					"cuda/CUDA-x86-SDK/common/\n" +
+					"/cineca/prod/compilers/cuda/5.0.35/none/lib64:" +
+					"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
 					"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
 					"/eurora/home/userexternal/mmapelli/\n\n"
 	} else if machine == "plx" {
@@ -36,8 +36,9 @@ func CreatePBS (pName string) () {
 					"module load profile/advanced\n" +
 					"module load boost/1.41.0--intel--11.1--binary\n" +
 					"module load cuda/4.0\n\n" +
-					"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/5.0.35/none/lib64:" +
-					"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
+					"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/4.0/none/lib:" +
+					"/cineca/prod/libraries/boost/1.41.0/intel--11.1--binary/lib:" + 
+					"/cineca/prod/compilers/intel/11.1/binary/lib/intel64\n" +
 					"export LD_LIBRARY_PATH\n\n"
 	} else {
 		log.Fatal("Uknown machine name ", machine)
