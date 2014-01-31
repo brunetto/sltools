@@ -44,7 +44,7 @@ func CreatePBS (pName string) () {
 	}
 	
 	pbsString = `#!/bin/bash\n` +
-				"#PBS -N r" + comb + " " + run + " " + rnd + "\n" +
+				"#PBS -N r" + comb + "-" + run + "-" + rnd + "\n" +
 				"#PBS -A " + pName + "\n" +
 				"#PBS -q longpar\n" +
 				"#PBS -l walltime=24:00:00\n" +
