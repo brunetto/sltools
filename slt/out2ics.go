@@ -26,6 +26,7 @@ func Out2ICs (inFileName string, fileN string) (string, string) {
 		simulationStop int64 = 500
 		thisTimestep int64 = 0
 		randomSeed string
+		remainingTime int64
 	)
 	
 	tGlob0 := time.Now()
@@ -96,5 +97,5 @@ func Out2ICs (inFileName string, fileN string) (string, string) {
 	fmt.Println()
 	log.Println("Wall time for continue ", tGlob1.Sub(tGlob0))
 	
-	return strconv.Itoa(remainingTime), randomSeed
+	return strconv.Itoa(int(remainingTime)), randomSeed
 }
