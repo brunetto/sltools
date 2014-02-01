@@ -8,7 +8,6 @@ import (
 )
 
 func CreatePBS (pName string) () {
-	log.Println(pName)
 	
 	var (
 		pbsFile *os.File

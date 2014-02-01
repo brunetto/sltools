@@ -65,6 +65,17 @@ var CreateScriptsCmd = &cobra.Command{
 	},
 }
 
+var ContinueCmd = &cobra.Command{
+	Use:   "continue",
+	Short: "Prepare the new ICs from all the last STDOUTs",
+	Long:  `StarLab can restart a simulation from the last complete output.
+	The continue command prepare the new ICs parsing all the last STDOUTs and writing
+	the last complete snapshot to the new input file.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		Continue(inFileName, machine, userName, pName)
+	},
+}
+
 var InstallSLCmd = &cobra.Command{
 	Use:   "installSL",
 	Short: "Download and install SL",
@@ -116,6 +127,12 @@ func InitCommands() () {
 	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
 	CreateScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
 	CreateScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
+	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
+	
+	SlToolsCmd.AddCommand(ContinueCmd)
+	CreateScriptsCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
+	CreateScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
+	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
 	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
 	SlToolsCmd.AddCommand(Out2ICsCmd)
