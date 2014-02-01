@@ -3,18 +3,31 @@ package slt
 import (
 	"log"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 
 // Create the output file name that will be the new IC for the restart
-func OutName2ICName (inFileName, fileN string) (outFileName string) {
+func OutName2ICName (inFileName/*, fileN string*/) (outFileName string) {
 	var (
 		extension string
 		baseName string
 		file string
 		dir string
+		outRegString string = `out-cineca-comb(\d+)-NCM(\d+)-fPB(\d+)` + 
+							`-W(\d)-Z(\d+)-run(\d+)-rnd(\d+).txt`
+		outRegexp *regexp.Regexp = regexp.MustCompile(outRegString)
+		outRegResult []string
 	)
+	
+	outRegResult = outRegexp.FindStringSubmatch(inFileName); 
+	if outRegResult == nil {
+		log.Fatal("Can't find parameters in out name")
+	}
+	
+	// Retrieve the round number and increment it
+	rnd  = strconv.Atoi(strconv.Parseint(icsRegResult[7], 10, 64) + 1)
 	
 	dir = filepath.Dir(inFileName)
 	file = filepath.Base(inFileName)
@@ -23,7 +36,7 @@ func OutName2ICName (inFileName, fileN string) (outFileName string) {
 	baseName = strings.TrimPrefix(baseName, "out-")
 	// FIXME: use regexp to check the name
 	baseName = baseName[:strings.LastIndex(baseName, "-rnd")] // to remove the last round number
-	outFileName = filepath.Join(dir, "ics-" + baseName) + "-rnd" + LeftPad(fileN, "0", 2) + extension //FIXME detectare nOfFiles
+	outFileName = filepath.Join(dir, "ics-" + baseName) + "-rnd" + LeftPad(rnd, "0", 2) + extension //FIXME detectare nOfFiles
 	return outFileName
 }
 

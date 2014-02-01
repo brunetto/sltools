@@ -40,7 +40,7 @@ var Out2ICsCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Out2ICs(inFileName, fileN)
+		Out2ICs(inFileName/*, fileN*/)
 	},
 }
 
@@ -137,7 +137,7 @@ func InitCommands() () {
 	
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "inputFile", "i", "", "Last STDOUT to be used as input")
-	Out2ICsCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
+// 	Out2ICsCmd.Flags().StringVarP(&fileN, "fileN", "n", "", "Number to be attached to the new IC file name")
 	
 	SlToolsCmd.AddCommand(InstallSLCmd)
 	

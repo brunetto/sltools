@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Out2ICs (inFileName string, fileN string) (string, string) {
+func Out2ICs (inFileName string/*, fileN string*/) (string, string, string) {
 	// FIXME: generate ICs with templates
 	// http://golang.org/pkg/text/template/
 	// filepath.Glob(pattern string) (matches []string, err error)
@@ -35,11 +35,11 @@ func Out2ICs (inFileName string, fileN string) (string, string) {
 		log.Fatal("You need to specify an input file with the -i flag!!!")
 	}
 	
-	if fileN == "" {
-		log.Fatal("You need to specify a number for the new ICs with the -n flag!!!")
-	}
+// 	if fileN == "" {
+// 		log.Fatal("You need to specify a number for the new ICs with the -n flag!!!")
+// 	}
 	
-	outFileName = OutName2ICName (inFileName, fileN)	
+	outFileName = OutName2ICName (inFileName/*, fileN*/)	
 	log.Println("Output file will be ", outFileName)
 	
 	log.Println("Opening input and output files...")
@@ -97,5 +97,5 @@ func Out2ICs (inFileName string, fileN string) (string, string) {
 	fmt.Println()
 	log.Println("Wall time for continue ", tGlob1.Sub(tGlob0))
 	
-	return strconv.Itoa(int(remainingTime)), randomSeed
+	return strconv.Itoa(int(remainingTime)), randomSeed, outFileName
 }

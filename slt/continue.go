@@ -6,11 +6,7 @@ func Continue (inFileName, machine, userName, pName string) {
 		randomNumber string
 	)
 	
-	simTime, randomNumber = Out2ICs (inFileName, fileN)
-	// creare il nome delle ics da quello dello stdout
-	icsName = ...
-	CreateScripts (icsName, machine, userName, randomNumber, simTime, pName string)
-	
-	
-	
+	simTime, randomNumber, icsName = Out2ICs (inFileName/*, fileN*/)
+	CreateScripts (icsName, machine, userName, randomNumber, simTime, pName)
+		
 }
