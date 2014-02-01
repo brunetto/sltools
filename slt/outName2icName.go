@@ -21,8 +21,6 @@ func OutName2ICName (inFileName, fileN string) (outFileName string) {
 	extension = filepath.Ext(inFileName)
 	baseName = strings.TrimSuffix(file, extension)
 	baseName = strings.TrimPrefix(baseName, "out-")
-	log.Println(baseName)
-	log.Println(strings.LastIndex(baseName, "-rnd"))
 	// FIXME: use regexp to check the name
 	baseName = baseName[:strings.LastIndex(baseName, "-rnd")] // to remove the last round number
 	outFileName = filepath.Join(dir, "ics-" + baseName) + "-rnd" + LeftPad(fileN, "0", 2) + extension //FIXME detectare nOfFiles
@@ -36,5 +34,5 @@ func LeftPad(str, pad string, length int) (string) {
 	} else {
 		repeat = (length - len(str)) / len(pad)
 	}
-	return strings.Repeat(pad, repeat)	
+	return strings.Repeat(pad, repeat) + str
 }
