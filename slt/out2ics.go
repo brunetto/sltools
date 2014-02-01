@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Out2ICs (inFileName string, fileN string) () {
+func Out2ICs (inFileName string, fileN string) (string, string) {
 	// FIXME: generate ICs with templates
 	// http://golang.org/pkg/text/template/
 	// filepath.Glob(pattern string) (matches []string, err error)
@@ -79,7 +79,8 @@ func Out2ICs (inFileName string, fileN string) () {
 	// Info
 	log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)
 	thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
-	log.Println("Set -t flag to ", simulationStop - thisTimestep)
+	remainingTime = simulationStop - thisTimestep
+	log.Println("Set -t flag to ", remainingTime)
 	
 	// Write last complete snapshot to file
 	log.Println("Writing snapshot to ", outFileName)
@@ -94,4 +95,6 @@ func Out2ICs (inFileName string, fileN string) () {
 	tGlob1 := time.Now()
 	fmt.Println()
 	log.Println("Wall time for continue ", tGlob1.Sub(tGlob0))
+	
+	return strconv.Itoa(remainingTime), randomSeed
 }
