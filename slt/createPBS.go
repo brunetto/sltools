@@ -36,9 +36,10 @@ func CreatePBS (pName string) () {
 					"module load profile/advanced\n" +
 					"module load boost/1.41.0--intel--11.1--binary\n" +
 					"module load cuda/4.0\n\n" +
-					"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/4.0/none/lib:" +
-					"/cineca/prod/libraries/boost/1.41.0/intel--11.1--binary/lib:" + 
-					"/cineca/prod/compilers/intel/11.1/binary/lib/intel64\n" +
+					"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/4.0/none/lib64:" + 
+					      "/cineca/prod/compilers/cuda/4.0/none/lib:/cineca/prod/" + 
+					      "libraries/boost/1.41.0/intel--11.1--binary/lib:/cineca/" + 
+						  "prod/compilers/intel/11.1/binary/lib/intel64\n" +
 					"export LD_LIBRARY_PATH\n\n"
 	} else {
 		log.Fatal("Uknown machine name ", machine)
