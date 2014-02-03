@@ -55,6 +55,7 @@ func CreatePBS (pName string) () {
 
 	pbsOutName = "PBS-" + baseName + ".sh"
 	
+	log.Println("Write PBS launch script to ", pbsOutName)
 	if pbsFile, err = os.Create(pbsOutName); err != nil {log.Fatal(err)}
 	defer pbsFile.Close()
 	

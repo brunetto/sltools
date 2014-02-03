@@ -56,10 +56,10 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 	
 	scratch = "/gpfs/scratch/userexternal/" + userName
 	
-	log.Println("Extracting parameters from ICs")
+	log.Println("Extracting parameters from ICs name")
 	icsRegResult = icsRegexp.FindStringSubmatch(icsName); 
 	if icsRegResult == nil {
-		log.Fatal("Can't find parameters in ICs name")
+		log.Fatal("Can't find parameters in ICs name ", icsName)
 	}
 	
 	comb = icsRegResult[1]
@@ -77,6 +77,8 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 				 fpb + "-W" + w + "-Z" + z + "-run" + run + "-rnd" + rnd
 				 
 	kiraOutName = "kiraLaunch-" + baseName + ".sh"
+	
+	log.Println("Creating kira and PBS scripts")
 	
 	CreateKira (randomNumber, simTime)
 	CreatePBS (pName)

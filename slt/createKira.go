@@ -40,7 +40,8 @@ func CreateKira (randomNumber, simTime string) () {
 				  "<  " + filepath.Join(absFolderName, icsName) + " \\\n" +
 				  ">  " + filepath.Join(absFolderName, stdOutFile) + " \\\n" +
 				  "2> " + filepath.Join(absFolderName, stdErrFile) + " \n"
-	
+	 
+	log.Println("Write kira launch script to ", kiraOutName)
 	if kiraFile, err = os.Create(kiraOutName); err != nil {log.Fatal(err)}
 	defer kiraFile.Close()
 	
