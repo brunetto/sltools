@@ -25,9 +25,56 @@ var (
 							`-W(\d)-Z(\d+)-run(\d+)-rnd(\d+).txt`
 	icsRegexp *regexp.Regexp = regexp.MustCompile(icsRegString)
 	icsRegResult []string
+	conf *Config
 	)
 
 func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName string) () {
+	
+	if ConfName != "" {
+		conf = new(Config)
+		conf.ReadConf(confName)
+		if Verb {
+			log.Println("Loaded:")
+			conf.Print()
+		}
+	}
+	
+	if icsName == "" {
+		log.Println("You must specify icsName!!!")
+		log.Fatal("Type 'sltools help createScripts' for help.")
+	}
+	if machine == "" {
+		if ConfName == "" {
+		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+		log.Fatal("Type 'sltools help createScripts' for help.")
+		} else {
+			machine = conf.Machine
+		}
+	}
+	if  userName == "" {
+		if ConfName == "" {
+		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+		log.Fatal("Type 'sltools help createScripts' for help.")
+		} else {
+			userName = conf.UserName
+		}
+	}
+	if pName == ""  {
+		if ConfName == "" {
+		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+		log.Fatal("Type 'sltools help createScripts' for help.")
+		} else {
+			pName = conf.PName
+		}
+	}
+	
+	if machine == "eurora" {
+		home = "/eurora/home/userexternal/" + userName
+	} else if machine == "plx" {
+		home = "/plx/userexternal/" + userName
+	} else {
+		log.Fatal("Uknown machine name ", machine)
+	}
 	
 	if Verb {
 		log.Println("You inserted: " )
@@ -36,22 +83,6 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 		fmt.Println("random = ", randomNumber)
 		fmt.Println("time = ", simTime)
 		fmt.Println("userName = ", userName)
-	}
-	
-	if icsName == "" ||
-		machine == "" ||
-		userName == "" ||
-		pName == "" {
-			log.Println("You must specify icsName, machine, user!!!")
-			log.Fatal("Type 'sltools help createScripts' for help.")
-		}
-	
-	if machine == "eurora" {
-		home = "/eurora/home/userexternal/" + userName
-	} else if machine == "plx" {
-		home = "/plx/userexternal/" + userName
-	} else {
-		log.Fatal("Uknown machine name ", machine)
 	}
 	
 	scratch = "/gpfs/scratch/userexternal/" + userName

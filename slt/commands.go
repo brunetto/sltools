@@ -3,12 +3,14 @@ package slt
 import (
 	"github.com/spf13/cobra"
 	"fmt"
+	"log"
 )
 
 // Package-wise verbosity
 // use with:
 // if Verb { ...
 var Verb bool 
+var ConfName string
 
 var SlToolsCmd = &cobra.Command{
 	Use:   "sltools",
@@ -25,6 +27,46 @@ var VersionCmd = &cobra.Command{
 	Long:  `All software has versions. This is sltools'`,
 	Run: func(cmd *cobra.Command, args []string) {
 	fmt.Println("StarLab Tools v0.2")
+	},
+}
+
+var ReadConfCmd = &cobra.Command{
+	Use:   "readConf",
+	Short: "Read and print the configuration file",
+	Long:  `Read and print the configuration specify by the -c flag.
+It must be in the form of a JSON file like:
+
+{
+	"Runs": 10,
+	"Comb": 18, 
+	"Ncm" : 10000,
+	"Fpb" : 0.10,
+	"W"   : 5,
+	"Z"   : 0.20,
+	"EndTime" : 500,
+	"Machine" : "plx",
+	"UserName" : "bziosi00",
+	"PName": "IscrC_VMStars" 
+}
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := new(Config)
+		conf.ReadConf(ConfName)
+		if Verb {
+			log.Println("Config:")
+			conf.Print()
+		}
+	},
+}
+
+var binFolder string
+
+var CreateICCmd = &cobra.Command{
+	Use:   "createICs",
+	Short: "Create ICs",
+	Long:  `Create initial conditions from the JSON config file.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		CreateICs(confName string, binFolder string)
 	},
 }
 
@@ -76,33 +118,6 @@ var ContinueCmd = &cobra.Command{
 	},
 }
 
-var InstallSLCmd = &cobra.Command{
-	Use:   "installSL",
-	Short: "Download and install SL",
-	Long:  `...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		InstallSL()
-	},
-}
-
-var DryInstallSLCmd = &cobra.Command{
-	Use:   "dryInstallSL",
-	Short: "Only install SL",
-	Long:  `...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		DryInstallSL()
-	},
-}
-
-var DownloadSLCmd = &cobra.Command{
-	Use:   "downloadSL",
-	Short: "Only download SL",
-	Long:  `...`,
-	Run: func(cmd *cobra.Command, args []string) {
-		DownloadSL()
-	},
-}
-
 var (
 	inFileTmpl string
 )
@@ -120,36 +135,37 @@ func InitCommands() () {
 
 	SlToolsCmd.AddCommand(VersionCmd)
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
-	SlToolsCmd.PersistentFlags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-	SlToolsCmd.PersistentFlags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
-	SlToolsCmd.PersistentFlags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
-	SlToolsCmd.PersistentFlags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
+// 	SlToolsCmd.PersistentFlags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
+// 	SlToolsCmd.PersistentFlags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
+// 	SlToolsCmd.PersistentFlags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
+// 	SlToolsCmd.PersistentFlags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
+	SlToolsCmd.PersistentFlags().StringVarP(&ConfName, "confName", "c", "", "Name of the JSON config file")
+	
+	SlToolsCmd.AddCommand(ReadConfCmd)
+	
+	SlToolsCmd.AddCommand(CreateICCmd)
+	CreateICCmd.Flags().StringVarP(&binFolder, "binFolder", "b", "", "Folder containing the binaries to create ICs")
+	
+	SlToolsCmd.AddCommand(ContinueCmd)
+	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
+	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
+	ContinueCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
+	ContinueCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
+	
+	SlToolsCmd.AddCommand(Out2ICsCmd)
+	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")	
 	
 	SlToolsCmd.AddCommand(CreateScriptsCmd)
 	CreateScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
-// 	CreateScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
-// 	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
+	CreateScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
+	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
 	CreateScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
 	CreateScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
-// 	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
+	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
-	SlToolsCmd.AddCommand(ContinueCmd)
-// 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-// 	CreateScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
-// 	CreateScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
-// 	CreateScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
-	
-	SlToolsCmd.AddCommand(Out2ICsCmd)
-// 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-	
-	SlToolsCmd.AddCommand(InstallSLCmd)
-	
-	SlToolsCmd.AddCommand(DryInstallSLCmd)
-	
-	SlToolsCmd.AddCommand(DownloadSLCmd)
 	
 	SlToolsCmd.AddCommand(StichOutputCmd)
-	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inputFileTmpl", "i", "", 
+	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inTmpl", "i", "", 
 			"STDOUT template name (the STDOUT name without the extention and the )")
 	
 }

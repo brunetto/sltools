@@ -5,9 +5,10 @@
 	"Fpb" : 0.10,
 	"W"   : 5,
 	"Z"   : 0.20,
-	"EndTime" : 500
+	"EndTime" : 500,
 	"Machine" : "plx",
 	"UserName" : "bziosi00",
-	"PName": "IscrC_VMStars" 
+	"PName": "IscrC_VMStars",  
+	"BinFolder": "/gpfs/scratch/userexternal/bziosi00/eurora-parameterSpace/bin"
 }
 
