@@ -3,13 +3,14 @@ package slt
 import (
 	"log"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
 
 // Create the output file name that will be the new IC for the restart
-func OutName2ICName (inFileName/*, fileN string*/) (outFileName string) {
+func OutName2ICName (inFileName string/*, fileN string*/) (outFileName string) {
 	var (
 		extension string
 		baseName string
@@ -27,7 +28,8 @@ func OutName2ICName (inFileName/*, fileN string*/) (outFileName string) {
 	}
 	
 	// Retrieve the round number and increment it
-	rnd  = strconv.Atoi(strconv.Parseint(icsRegResult[7], 10, 64) + 1)
+	temp, _ := strconv.ParseInt(outRegResult[7], 10, 64)
+	rnd  = strconv.Itoa(int(temp + 1))
 	
 	dir = filepath.Dir(inFileName)
 	file = filepath.Base(inFileName)

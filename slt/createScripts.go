@@ -41,10 +41,8 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 	if icsName == "" ||
 		machine == "" ||
 		userName == "" ||
-		randomNumber == "" ||
-		pName == "" ||
-		simTime == "" {
-			log.Println("You must specify icsName, machine, user, randomNumber, time!!!")
+		pName == "" {
+			log.Println("You must specify icsName, machine, user!!!")
 			log.Fatal("Type 'sltools help createScripts' for help.")
 		}
 	

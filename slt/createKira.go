@@ -21,6 +21,7 @@ func CreateKira (randomNumber, simTime string) () {
 	
 	if rnd == "00" {
 		randomString = ""
+		simTime = "500"
 	} else {
 		randomString = "-s " + randomNumber
 	}
