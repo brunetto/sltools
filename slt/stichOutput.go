@@ -7,6 +7,7 @@ import (
 )
 
 func StichOutput (inFileTmpl string) () {
+	if Debug {Whoami(true)}
 	
 	var (
 	)

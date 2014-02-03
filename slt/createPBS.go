@@ -7,16 +7,22 @@ import (
 	"path/filepath"
 )
 
-func CreatePBS (pName string) () {
+func CreatePBS (pbsOutName string, pName string) () {
+	if Debug {Whoami(true)}
 	
 	var (
 		pbsFile *os.File
 		pbsWriter *bufio.Writer
-		pbsOutName string
 		pbsString string
 		err error
 		modules string
 	)
+	
+	if machine == "" {
+		if ConfName != "" {
+			machine = conf.Machine
+		}
+	}
 	
 	if machine == "eurora" {
 		modules = "module purge\n" +
@@ -53,8 +59,7 @@ func CreatePBS (pName string) () {
 				modules +
 				"sh "+ filepath.Join(absFolderName, kiraOutName)
 
-	pbsOutName = "PBS-" + baseName + ".sh"
-	
+
 	log.Println("Write PBS launch script to ", pbsOutName)
 	if pbsFile, err = os.Create(pbsOutName); err != nil {log.Fatal(err)}
 	defer pbsFile.Close()

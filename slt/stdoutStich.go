@@ -12,6 +12,7 @@ import (
 )
 
 func StdOutStich (inFileTmpl string) () {
+	if Debug {Whoami(true)}
 	
 	var (
 		inFile *os.File

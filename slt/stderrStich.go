@@ -13,6 +13,7 @@ import (
 )
 
 func StdErrStich (inFileTmpl string) () {
+	if Debug {Whoami(true)}
 	// FIXME: generate ICs with templates
 	// http://golang.org/pkg/text/template/
 	// filepath.Glob(pattern string) (matches []string, err error)

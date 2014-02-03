@@ -33,7 +33,7 @@ type ParamSlice []*ParamStruct
 
 
 func LoadParams (paramFile string) (parameters ParamSlice) {
-	
+	if Debug {Whoami(true)}
 	var (
 		fileObj *os.File
 		nReader *bufio.Reader 

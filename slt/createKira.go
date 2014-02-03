@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 )
 
-func CreateKira (randomNumber, simTime string) () {
+func CreateKira (kiraOutName string, randomNumber, simTime string) () {
+	if Debug {Whoami(true)}
 	var (
 		kiraFile *os.File
 		kiraWriter *bufio.Writer

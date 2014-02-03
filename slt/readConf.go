@@ -18,20 +18,22 @@ type Config struct {
 	UserName string
 	PName string
 	EndTime int
-	BinFolder
+	BinFolder string
 }
 
 func (conf *Config) ReadConf (confName string) () {
+	if Debug {Whoami(true)}
 	var (
 		confFile []byte
 		err error
 	)
 	if confName == "" {log.Fatal("You must specify a JSON config file")}
 	if confFile, err = ioutil.ReadFile(confName); err != nil {log.Fatal(err)}
-	if err = json.Unmarshal(confFile, conf); err != nil {log.Fatal("parse config: ", err)}
+	if err = json.Unmarshal(confFile, conf); err != nil {log.Fatal("Parse config: ", err)}
 }
 
 func (conf *Config) Print () () {
+	if Debug {Whoami(true)}
 	fmt.Println("Numer of realizations:\t\t", conf.Runs)
 	fmt.Println("Combination number:\t\t", conf.Comb)
 	fmt.Println("Number of center of mass:\t", conf.Ncm)

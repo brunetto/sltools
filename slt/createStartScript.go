@@ -21,6 +21,7 @@ var (
 	absFolderName string
 	baseName string
 	kiraOutName string
+	pbsOutName string
 	icsRegString string = `ics-cineca-comb(\d+)-NCM(\d+)-fPB(\d+)` + 
 							`-W(\d)-Z(\d+)-run(\d+)-rnd(\d+).txt`
 	icsRegexp *regexp.Regexp = regexp.MustCompile(icsRegString)
@@ -28,11 +29,12 @@ var (
 	conf *Config
 	)
 
-func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName string) () {
+func CreateStartScripts (icsName, machine, userName, randomNumber, simTime, pName string) () {
+	if Debug {Whoami(true)}
 	
-	if ConfName != "" {
+	if ConfName == "" {
 		conf = new(Config)
-		conf.ReadConf(confName)
+		conf.ReadConf(ConfName)
 		if Verb {
 			log.Println("Loaded:")
 			conf.Print()
@@ -40,29 +42,29 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 	}
 	
 	if icsName == "" {
-		log.Println("You must specify icsName!!!")
-		log.Fatal("Type 'sltools help createScripts' for help.")
+			log.Println("You must specify icsName!!!")
+			log.Fatal("Type 'sltools help createScripts' for help.")
 	}
 	if machine == "" {
 		if ConfName == "" {
-		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-		log.Fatal("Type 'sltools help createScripts' for help.")
+			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+			log.Fatal("Type 'sltools help createScripts' for help.")
 		} else {
 			machine = conf.Machine
 		}
 	}
 	if  userName == "" {
 		if ConfName == "" {
-		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-		log.Fatal("Type 'sltools help createScripts' for help.")
+			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+			log.Fatal("Type 'sltools help createScripts' for help.")
 		} else {
 			userName = conf.UserName
 		}
 	}
 	if pName == ""  {
 		if ConfName == "" {
-		log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-		log.Fatal("Type 'sltools help createScripts' for help.")
+			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
+			log.Fatal("Type 'sltools help createScripts' for help.")
 		} else {
 			pName = conf.PName
 		}
@@ -108,10 +110,11 @@ func CreateScripts (icsName, machine, userName, randomNumber, simTime, pName str
 				 fpb + "-W" + w + "-Z" + z + "-run" + run + "-rnd" + rnd
 				 
 	kiraOutName = "kiraLaunch-" + baseName + ".sh"
+	pbsOutName = "PBS-" + baseName + ".sh"
 	
 	log.Println("Creating kira and PBS scripts")
 	
-	CreateKira (randomNumber, simTime)
-	CreatePBS (pName)
+	CreateKira (kiraOutName, randomNumber, simTime)
+	CreatePBS (pbsOutName, pName)
 	
 }

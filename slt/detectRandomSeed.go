@@ -12,6 +12,7 @@ import (
 )
 
 func DetectRandomSeed(inFileName string) (randomSeed string) {
+	if Debug {Whoami(true)}
 	var (
 		line string
 		regRandomSeed = regexp.MustCompile(`initial random seed\s*=\s*(\d+)`)

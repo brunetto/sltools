@@ -11,6 +11,7 @@ import (
 
 // Create the output file name that will be the new IC for the restart
 func OutName2ICName (inFileName string/*, fileN string*/) (outFileName string) {
+	if Debug {Whoami(true)}
 	var (
 		extension string
 		baseName string

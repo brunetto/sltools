@@ -19,6 +19,7 @@ type ErrSnapshot struct {
 // Pick the snapshot line by line and write it to the
 // output file
 func (snap *ErrSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
+	if Debug {Whoami(true)}
 	for _, line := range snap.Lines {
 		_, err = nWriter.WriteString(line+"\n")
 		if err = nWriter.Flush(); err != nil {log.Fatal(err)}
@@ -29,6 +30,7 @@ func (snap *ErrSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
 
 // This function read one and only one snapshot at a time
 func ReadErrSnapshot(nReader *bufio.Reader) (*ErrSnapshot, error) {
+	if Debug {Whoami(true)}
 	var (
 		snap *ErrSnapshot = new(ErrSnapshot)
 		line string
