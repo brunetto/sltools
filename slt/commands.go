@@ -161,7 +161,6 @@ func InitCommands() () {
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
-	
 	SlToolsCmd.AddCommand(StichOutputCmd)
 	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inTmpl", "i", "", 
 			"STDOUT template name (the STDOUT name without the extention and the )")

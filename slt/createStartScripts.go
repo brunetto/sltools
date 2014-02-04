@@ -32,13 +32,11 @@ var (
 func CreateStartScripts (icsName, machine, userName, randomNumber, simTime, pName string) () {
 	if Debug {Whoami(true)}
 	
-	if ConfName == "" {
-		conf = new(Config)
-		conf.ReadConf(ConfName)
-		if Verb {
-			log.Println("Loaded:")
-			conf.Print()
-		}
+	conf = new(Config)
+	conf.ReadConf(ConfName)
+	if Verb {
+		log.Println("Loaded:")
+		conf.Print()
 	}
 	
 	if icsName == "" {

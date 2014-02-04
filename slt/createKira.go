@@ -18,6 +18,7 @@ func CreateKira (kiraOutName string, randomNumber, simTime string) () {
 		kiraBinPath string
 		stdOutFile string
 		stdErrFile string
+		icsName string
 	)
 	
 	if rnd == "00" {
@@ -31,6 +32,7 @@ func CreateKira (kiraOutName string, randomNumber, simTime string) () {
 	
 	stdOutFile = "out-" + baseName + ".txt"
 	stdErrFile = "err-" + baseName + ".txt"
+	icsName = "ics-" + baseName + ".txt"
 	
 	// I know I can use `` but I don't like the string not to be align with the 
 	// rest of the code
