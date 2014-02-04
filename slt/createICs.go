@@ -90,19 +90,22 @@ func CreateICs (binFolder string) () {
 	folderName = "cineca-comb" + comb + "-run1_" + runs + "-NCM" + ncm + "-fPB" + fpb + "-W" + w + "-Z" + z
 	log.Println("Create folder and change to it:", folderName)
 	if err = os.Mkdir(folderName, 0700); err != nil {log.Fatal("Can't create folder ", err)}
+	// Copy config file inside folder to be read and for backup
+	_, err = CopyFile(ConfName, filepath.Join(folderName, ConfName))
 	if err = os.Chdir(folderName); err!= nil {
 		log.Println("Error while entering in folder ", folderName)
 		log.Fatal(err)
 	}
 	
 	// Create the scripts and run them
-	for runIdx :=1; runIdx<conf.Runs+1; runIdx++ {
+	for runIdx :=1; runIdx<2/*conf.Runs+1*/; runIdx++ {
 		baseName = "cineca-comb" + comb + "-NCM" + ncm + "-fPB" +
 					fpb + "-W" + w + "-Z" + z + "-run" +  
 					LeftPad(strconv.Itoa(runIdx), "0", 2) + "-rnd00"
 		outIcsName = filepath.Join(/*folderName, */"ics-" + baseName + ".txt")
 		outIcsScriptName = filepath.Join(/*folderName,*/ "create_IC-" + baseName + ".sh")
 		icsCmd = icsBaseCmd + outIcsName
+		log.Println(icsCmd)
 		
 		// Write the script file
 		if icsScriptFile, err = os.Create(outIcsScriptName); err != nil {log.Fatal(err)}
@@ -114,15 +117,19 @@ func CreateICs (binFolder string) () {
 		}
 		
 		// Run it
-		log.Println("Creating ICs files with: bash", outIcsScriptName)
-		bashCmd := exec.Command("bash", outIcsScriptName)
-// 		bashCmd := exec.Command("../run", "create_IC-cineca-comb18-NCM10000-fPB020-W5-Z010-run01-rnd00.sh")
+// 		log.Println("Creating ICs files with: bash", outIcsScriptName)
+// 		bashCmd := exec.Command("bash", outIcsScriptName)
+		log.Println("Creating ICs files with: bash", "create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh")
+		if _, err := os.Stat("create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh"); err == nil {
+			log.Printf("file exists; processing...")
+		}
+		bashCmd := exec.Command("/bin/bash", "create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh")
 		bashCmd.Stdout = os.Stdout
 		bashCmd.Stderr = os.Stderr
 		if err := bashCmd.Run(); err != nil {
 			log.Fatal(err)
 		}
-		
+	
 		// Create kiraLaunch and PBSlaunch scripts with the same functions used in Continue
 		CreateStartScripts ("ics-" + baseName + ".txt", conf.Machine, conf.UserName, "", strconv.Itoa(conf.EndTime), conf.PName)
 		

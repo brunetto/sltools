@@ -1,7 +1,8 @@
 package slt
 
-
-
+import (
+	"log"
+)
 
 func InitVars() {
 // Check for configuration file passed by -c flag

@@ -2,6 +2,7 @@ package slt
 
 import (
 	"bufio"
+	"compress/gzip"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +16,7 @@ func StdOutStich (inFileTmpl string) () {
 	if Debug {Whoami(true)}
 	
 	var (
+		fZip *gzip.Reader
 		inFile *os.File
 		inFiles []string
 		outFileName string
@@ -56,9 +58,25 @@ func StdOutStich (inFileTmpl string) () {
 	sort.Strings(inFiles)
 	
 	for _, inFileName := range inFiles {
-		if inFile, err = os.Open(inFileName); err != nil {panic(err)}
+		if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
 		defer inFile.Close()
-		nReader = bufio.NewReader(inFile)
+		ext = filepath.Ext(inFileName)
+		switch ext {
+			case "txt":{
+				nReader = bufio.NewReader(inFile)
+			}
+			case "gz": {
+				fZip, err = gzip.NewReader(fileStruct)
+				if err != nil {
+				log.Fatal("Can't open %s: error: %s\n", inFile, err)
+				os.Exit(1)
+				}
+				nReader = bufio.NewReader(fZip)
+			}
+			default: {
+				log.Fatal("Unrecognized file type", inFile)
+			}
+		}
 		for {
 			if outSnapshot, err = ReadOutSnapshot(nReader); err != nil {continue}
 			if outSnapshot.Integrity == true {

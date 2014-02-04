@@ -2,6 +2,7 @@ package slt
 
 import (
 	"bufio"
+	"compress/gzip"
 	"fmt"
 	"log"
 	"os"
@@ -19,6 +20,7 @@ func StdErrStich (inFileTmpl string) () {
 	// filepath.Glob(pattern string) (matches []string, err error)
 	
 	var (
+		fZip *gzip.Reader
 		inFile *os.File
 		inFiles []string
 		outFileName string
@@ -29,6 +31,7 @@ func StdErrStich (inFileTmpl string) () {
 		errSnapshot *ErrSnapshot
 		timestep int64
 		timesteps = make([]int64, 0)
+		ext string
 	)
 	
 	tGlob0 := time.Now()
@@ -57,16 +60,33 @@ func StdErrStich (inFileTmpl string) () {
 	
 	log.Println("Globbing and sorting STDERR input files")
 	// Open infiles
-	if inFiles, err = filepath.Glob(strings.TrimPrefix(inFileTmpl, "n")); err != nil {
+	if inFiles, err = filepath.Glob("err"+strings.TrimPrefix(inFileTmpl, "out")); err != nil {
 		log.Fatal("Error globbing STDERR files for output stiching: ", err)
 	}
 	// FIXME: take into account .gz files
 	sort.Strings(inFiles)
 	
 	for _, inFileName := range inFiles {
-		if inFile, err = os.Open(inFileName); err != nil {panic(err)}
+		if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
 		defer inFile.Close()
-		nReader = bufio.NewReader(inFile)
+		ext = filepath.Ext(inFileName)
+		switch ext {
+			case "txt":{
+				nReader = bufio.NewReader(inFile)
+			}
+			case "gz": {
+				fZip, err = gzip.NewReader(fileStruct)
+				if err != nil {
+				log.Fatal("Can't open %s: error: %s\n", inFile, err)
+				os.Exit(1)
+				}
+				nReader = bufio.NewReader(fZip)
+			}
+			default: {
+				log.Fatal("Unrecognized file type", inFile)
+			}
+		}
+
 		for {
 			if errSnapshot, err = ReadErrSnapshot(nReader); err != nil {continue}
 			if errSnapshot.Integrity == true {
