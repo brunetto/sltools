@@ -38,7 +38,7 @@ func CreateKira (kiraOutName string, randomNumber, simTime string) () {
 	// rest of the code
 	kiraString = "echo $PWD\n" + 
 				  "echo $LD_LIBRARY_PATH\n" + 
-				  kiraBinPath + " -t " + simTime + " -d 1 -D 1 -b 1 -f 0.3 \\\n" + 
+				  kiraBinPath + " -t " + simTime + " -d 1 -D 1 -b 1 -f 0 \\\n" + 
 				  " -n 10 -e 0.000 -B " + randomString + " \\\n" +
 				  "<  " + filepath.Join(absFolderName, icsName) + " \\\n" +
 				  ">  " + filepath.Join(absFolderName, stdOutFile) + " \\\n" +

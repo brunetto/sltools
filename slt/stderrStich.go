@@ -75,7 +75,7 @@ func StdErrStich (inFileTmpl string) () {
 				nReader = bufio.NewReader(inFile)
 			}
 			case "gz": {
-				fZip, err = gzip.NewReader(fileStruct)
+				fZip, err = gzip.NewReader(inFile)
 				if err != nil {
 				log.Fatal("Can't open %s: error: %s\n", inFile, err)
 				os.Exit(1)

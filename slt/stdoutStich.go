@@ -27,6 +27,7 @@ func StdOutStich (inFileTmpl string) () {
 		outSnapshot *OutSnapshot
 		timestep int64
 		timesteps = make([]int64, 0)
+		ext string
 	)
 	
 	tGlob0 := time.Now()
@@ -66,7 +67,7 @@ func StdOutStich (inFileTmpl string) () {
 				nReader = bufio.NewReader(inFile)
 			}
 			case "gz": {
-				fZip, err = gzip.NewReader(fileStruct)
+				fZip, err = gzip.NewReader(inFile)
 				if err != nil {
 				log.Fatal("Can't open %s: error: %s\n", inFile, err)
 				os.Exit(1)

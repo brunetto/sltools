@@ -76,6 +76,7 @@ func CreateICs (binFolder string) () {
 	
 	// Base ICs script commands in a string
 	icsBaseCmd = "#!/bin/bash\n" +
+			"set -e -u\n" +
 			makeking + " -n " + ncm + " -w " + w + " -i -u \\\n" +
 			"| " + makemass + " -f 8  -l 0.1 -u 150 \\\n" +
 			"| " + makesecondary + " -f " + strconv.FormatFloat(conf.Fpb, 'f', 2, 64) + 
@@ -118,12 +119,12 @@ func CreateICs (binFolder string) () {
 		
 		// Run it
 // 		log.Println("Creating ICs files with: bash", outIcsScriptName)
-// 		bashCmd := exec.Command("bash", outIcsScriptName)
 		log.Println("Creating ICs files with: bash", "create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh")
 		if _, err := os.Stat("create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh"); err == nil {
 			log.Printf("file exists; processing...")
 		}
-		bashCmd := exec.Command("/bin/bash", "create_IC-cineca-comb20-NCM10000-fPB010-W9-Z010-run01-rnd00.sh")
+		bashCmd := exec.Command("bash", "-x", outIcsScriptName)
+// 		bashCmd := exec.Command("/bin/bash", "-c", "sleep 3000")
 		bashCmd.Stdout = os.Stdout
 		bashCmd.Stderr = os.Stderr
 		if err := bashCmd.Run(); err != nil {
