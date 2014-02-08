@@ -1,0 +1,14 @@
+{
+	"Runs": 10,
+	"Comb": 16, 
+	"Ncm" : 10000,
+	"Fpb" : 0.05,
+	"W"   : 5,
+	"Z"   : 0.10,
+	"EndTime" : 500,
+	"Machine" : "plx",
+	"UserName" : "bziosi00",
+	"PName": "IscrC_VMStars",  
+	"BinFolder": "/home/ziosi/Dropbox/Research/PhD_Mapelli/4-ParameterSpace/Simulations/CINECA_SCRATCH/bin/"
+}
+

@@ -154,14 +154,16 @@ func InitVars(ConfName string) (*ConfigStruct) {
 	// or for the standard default config.json
 	if ConfName == "" {
 		log.Println("No JSON configuration file provided by the user")
-	} else if _, err := os.Stat("conf.json"); err == nil {
-		log.Println("Search for default json configuration file conf.json")
-		log.Printf("conf.json exists, I will read it")
-		ConfName = "conf.json"
-	} else {
-		log.Println("Search for default json configuration file conf.json")
+		fmt.Println("Search for default json configuration file conf.json")
+		if _, err := os.Stat("conf.json"); err == nil {
+			fmt.Printf("conf.json exists, I will read it")
+			ConfName = "conf.json"
+		} else {
 		log.Fatal("No json configuration file proided via the -c flag nor default config.json found in this folder.")
 	}
+	} else {
+		log.Println("Reading parameters form ", ConfName)
+	} 
 	
 	// Read conf file and create conf struct
 	log.Println("Read configuration form ", ConfName)
