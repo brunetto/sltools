@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func CreatePBS (pbsOutName string, pName string) () {
+func CreatePBS (pbsOutName string, kiraOutName string, absFolderName string, run string, rnd string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	
 	var (
@@ -18,13 +18,7 @@ func CreatePBS (pbsOutName string, pName string) () {
 		modules string
 	)
 	
-	if machine == "" {
-		if ConfName != "" {
-			machine = conf.Machine
-		}
-	}
-	
-	if machine == "eurora" {
+	if conf.Machine == "eurora" {
 		modules = "module purge\n" +
 					"module load profile/advanced\n" +
 					"module load gnu/4.6.3\n" +
@@ -35,7 +29,7 @@ func CreatePBS (pbsOutName string, pName string) () {
 					"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
 					"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
 					"/eurora/home/userexternal/mmapelli/\n\n"
-	} else if machine == "plx" {
+	} else if conf.Machine == "plx" {
 		modules = "module purge\n" +
 					"module load gnu/4.1.2\n" +
 					"module load profile/advanced\n" +
@@ -47,19 +41,18 @@ func CreatePBS (pbsOutName string, pName string) () {
 						  "prod/compilers/intel/11.1/binary/lib/intel64\n" +
 					"export LD_LIBRARY_PATH\n\n"
 	} else {
-		log.Fatal("Uknown machine name ", machine)
+		log.Fatal("Uknown machine name ", conf.Machine)
 	}
 	
 	pbsString = "#!/bin/bash\n" +
-				"#PBS -N r" + comb + "-" + run + "-" + rnd + "\n" +
-				"#PBS -A " + pName + "\n" +
+				"#PBS -N r" + conf.CombStr() + "-" + run + "-" + rnd + "\n" +
+				"#PBS -A " + conf.PName + "\n" +
 				"#PBS -q longpar\n" +
 				"#PBS -l walltime=24:00:00\n" +
 				"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +
 				modules +
 				"sh "+ filepath.Join(absFolderName, kiraOutName)
-
-
+				
 	log.Println("Write PBS launch script to ", pbsOutName)
 	if pbsFile, err = os.Create(pbsOutName); err != nil {log.Fatal(err)}
 	defer pbsFile.Close()
@@ -68,5 +61,4 @@ func CreatePBS (pbsOutName string, pName string) () {
 	defer pbsWriter.Flush()
 	
 	pbsWriter.WriteString(pbsString)
-				
 }

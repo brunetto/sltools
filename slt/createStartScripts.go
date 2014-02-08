@@ -7,112 +7,56 @@ import (
 	"regexp"
 )
 
-var (
-	home string
-	scratch string
-	comb string
-	ncm string
-	w string
-	z string
-	run string
-	rnd string
-	fpb string
-	thisFolder string
-	absFolderName string
-	baseName string
-	kiraOutName string
-	pbsOutName string
-	icsRegString string = `ics-cineca-comb(\d+)-NCM(\d+)-fPB(\d+)` + 
-							`-W(\d)-Z(\d+)-run(\d+)-rnd(\d+).txt`
-	icsRegexp *regexp.Regexp = regexp.MustCompile(icsRegString)
-	icsRegResult []string
-	conf *Config
-	)
 
-func CreateStartScripts (icsName, machine, userName, randomNumber, simTime, pName string) () {
+func CreateStartScripts (icsName, randomNumber, simTime string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
+
+	var (
+		home string
+		scratch string
+		run string
+		rnd string
+		runString string
+		thisFolder string
+		absFolderName string
+		kiraOutName string
+		pbsOutName string
+		icsRegString string = `ics-`+conf.BaseName()+`-run(\d+)-rnd(\d+).txt`
+		icsRegexp *regexp.Regexp = regexp.MustCompile(icsRegString)
+		icsRegResult []string
+	)
 	
-	conf = new(Config)
-	conf.ReadConf(ConfName)
-	if Verb {
-		log.Println("Loaded:")
-		conf.Print()
-	}
-	
-	if icsName == "" {
-			log.Println("You must specify icsName!!!")
-			log.Fatal("Type 'sltools help createScripts' for help.")
-	}
-	if machine == "" {
-		if ConfName == "" {
-			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-			log.Fatal("Type 'sltools help createScripts' for help.")
-		} else {
-			machine = conf.Machine
-		}
-	}
-	if  userName == "" {
-		if ConfName == "" {
-			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-			log.Fatal("Type 'sltools help createScripts' for help.")
-		} else {
-			userName = conf.UserName
-		}
-	}
-	if pName == ""  {
-		if ConfName == "" {
-			log.Println("You must specify the machine name via CLI or in a proper JSON config file!!!")
-			log.Fatal("Type 'sltools help createScripts' for help.")
-		} else {
-			pName = conf.PName
-		}
-	}
-	
-	if machine == "eurora" {
-		home = "/eurora/home/userexternal/" + userName
-	} else if machine == "plx" {
-		home = "/plx/userexternal/" + userName
+	if conf.Machine == "eurora" {
+		home = "/eurora/home/userexternal/" + conf.UserName
+	} else if conf.Machine == "plx" {
+		home = "/plx/userexternal/" + conf.UserName
 	} else {
-		log.Fatal("Uknown machine name ", machine)
+		log.Println("Uknown machine name ", conf.Machine)
+		log.Fatal("I don't know how to create the home folder path")
 	}
 	
-	if Verb {
-		log.Println("You inserted: " )
-		fmt.Println("icsName = ", icsName)
-		fmt.Println("machine = ", machine)
-		fmt.Println("random = ", randomNumber)
-		fmt.Println("time = ", simTime)
-		fmt.Println("userName = ", userName)
-	}
+	scratch = "/gpfs/scratch/userexternal/" + conf.UserName
 	
-	scratch = "/gpfs/scratch/userexternal/" + userName
-	
-	log.Println("Extracting parameters from ICs name")
+	log.Println("Extracting parameters from ICs name assuming regexp:")
+	fmt.Println(icsRegString)
 	icsRegResult = icsRegexp.FindStringSubmatch(icsName); 
 	if icsRegResult == nil {
 		log.Fatal("Can't find parameters in ICs name ", icsName)
 	}
 	
-	comb = icsRegResult[1]
-	ncm  = icsRegResult[2]
-	fpb  = icsRegResult[3]
-	w    = icsRegResult[4]
-	z    = icsRegResult[5]
-	run  = icsRegResult[6]
-	rnd  = icsRegResult[7]
+	run  = icsRegResult[1]
+	rnd  = icsRegResult[2]
 	
-	thisFolder = "cineca-comb" + comb + "-run1_10-NCM" + ncm + "-fPB" + 
-					fpb + "-W" + w + "-Z" + z
-	absFolderName = filepath.Join(scratch, machine+"-parameterSpace", thisFolder)
-	baseName = "cineca-comb" + comb + "-NCM" + ncm + "-fPB" +
-				 fpb + "-W" + w + "-Z" + z + "-run" + run + "-rnd" + rnd
-				 
-	kiraOutName = "kiraLaunch-" + baseName + ".sh"
-	pbsOutName = "PBS-" + baseName + ".sh"
+	thisFolder = "cineca-comb" + conf.CombStr() + "-run1_10-NCM" + conf.NcmStr() + "-fPB" + 
+					conf.FpbCmpStr() + "-W" + conf.WStr() + "-Z" + conf.ZCmpStr()
+	absFolderName = filepath.Join(scratch, conf.Machine + "-parameterSpace", thisFolder)
+	
+	runString = "-run" + run + "-rnd" + rnd
+	kiraOutName = "kiraLaunch-" + conf.BaseName() + runString + ".sh"
+	pbsOutName = "PBS-" + conf.BaseName() + runString + ".sh"
 	
 	log.Println("Creating kira and PBS scripts")
 	
-	CreateKira (kiraOutName, randomNumber, simTime)
-	CreatePBS (pbsOutName, pName)
-	
+	CreateKira (kiraOutName, absFolderName, home, run, rnd, randomNumber, simTime, conf)
+	CreatePBS (pbsOutName, kiraOutName, absFolderName, run, rnd, conf)
 }

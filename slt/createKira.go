@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func CreateKira (kiraOutName string, randomNumber, simTime string) () {
+func CreateKira (kiraOutName, absFolderName, home, run, rnd, randomNumber, simTime string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	var (
 		kiraFile *os.File
@@ -30,9 +30,9 @@ func CreateKira (kiraOutName string, randomNumber, simTime string) () {
 	
 	kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
 	
-	stdOutFile = "out-" + baseName + ".txt"
-	stdErrFile = "err-" + baseName + ".txt"
-	icsName = "ics-" + baseName + ".txt"
+	stdOutFile = "out-" + conf.BaseName() + ".txt"
+	stdErrFile = "err-" + conf.BaseName() + ".txt"
+	icsName = "ics-" + conf.BaseName() + ".txt"
 	
 	// I know I can use `` but I don't like the string not to be align with the 
 	// rest of the code
@@ -43,7 +43,7 @@ func CreateKira (kiraOutName string, randomNumber, simTime string) () {
 				  "<  " + filepath.Join(absFolderName, icsName) + " \\\n" +
 				  ">  " + filepath.Join(absFolderName, stdOutFile) + " \\\n" +
 				  "2> " + filepath.Join(absFolderName, stdErrFile) + " \n"
-	 
+	
 	log.Println("Write kira launch script to ", kiraOutName)
 	if kiraFile, err = os.Create(kiraOutName); err != nil {log.Fatal(err)}
 	defer kiraFile.Close()

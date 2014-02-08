@@ -3,7 +3,6 @@ package slt
 import (
 	"github.com/spf13/cobra"
 	"fmt"
-	"log"
 )
 
 // Package-wise verbosity
@@ -27,7 +26,7 @@ var VersionCmd = &cobra.Command{
 	Short: "Print the version number of slt",
 	Long:  `All software has versions. This is sltools'`,
 	Run: func(cmd *cobra.Command, args []string) {
-	fmt.Println("StarLab Tools v0.2")
+	fmt.Println("StarLab Tools v0.3")
 	},
 }
 
@@ -51,23 +50,21 @@ It must be in the form of a JSON file like:
 }
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := new(Config)
-		conf.ReadConf(ConfName)
+		conf := InitVars(ConfName)
 		if Verb {
-			log.Println("Config:")
+			fmt.Println("Config:")
 			conf.Print()
 		}
 	},
 }
-
-var binFolder string
 
 var CreateICCmd = &cobra.Command{
 	Use:   "createICs",
 	Short: "Create ICs",
 	Long:  `Create initial conditions from the JSON config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		CreateICs(binFolder)
+		conf := InitVars(ConfName)
+		CreateICs(conf)
 	},
 }
 
@@ -83,18 +80,15 @@ var Out2ICsCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Out2ICs(inFileName/*, fileN*/)
+		Out2ICs(inFileName)
 	},
 }
 
 
 var (
 	icsName string
-	machine string
-	userName string
 	randomNumber string
 	simTime string
-	pName string
 	)
 
 var CreateStartScriptsCmd = &cobra.Command{
@@ -104,7 +98,8 @@ var CreateStartScriptsCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		CreateStartScripts(icsName, machine, userName, randomNumber, simTime, pName)
+		conf := InitVars(ConfName)
+		CreateStartScripts(icsName, randomNumber, simTime, conf)
 	},
 }
 
@@ -115,7 +110,8 @@ var ContinueCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Continue(inFileName, machine, userName, pName)
+		conf := InitVars(ConfName)
+		Continue(inFileName, conf)
 	},
 }
 
@@ -142,24 +138,17 @@ func InitCommands() () {
 	SlToolsCmd.AddCommand(ReadConfCmd)
 	
 	SlToolsCmd.AddCommand(CreateICCmd)
-	CreateICCmd.Flags().StringVarP(&binFolder, "binFolder", "b", "", "Folder containing the binaries to create ICs")
 	
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
-	ContinueCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
-	ContinueCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")	
 	
 	SlToolsCmd.AddCommand(CreateStartScriptsCmd)
 	CreateStartScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
-	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Low-case name of the machine where to run the simulation")
-	CreateStartScriptsCmd.Flags().StringVarP(&userName, "userName", "u", "", "User name on the machine where to run the simulation")
 	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
-	CreateStartScriptsCmd.Flags().StringVarP(&pName, "pName", "p", "", "Name of the project to which charge the hours")
 	
 	SlToolsCmd.AddCommand(StichOutputCmd)
 	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inTmpl", "i", "", 

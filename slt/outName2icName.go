@@ -21,6 +21,7 @@ func OutName2ICName (inFileName string/*, fileN string*/) (outFileName string) {
 							`-W(\d)-Z(\d+)-run(\d+)-rnd(\d+).txt`
 		outRegexp *regexp.Regexp = regexp.MustCompile(outRegString)
 		outRegResult []string
+		rnd string
 	)
 	
 	outRegResult = outRegexp.FindStringSubmatch(inFileName); 
@@ -30,7 +31,7 @@ func OutName2ICName (inFileName string/*, fileN string*/) (outFileName string) {
 	
 	// Retrieve the round number and increment it
 	temp, _ := strconv.ParseInt(outRegResult[7], 10, 64)
-	rnd  = strconv.Itoa(int(temp + 1))
+	rnd = strconv.Itoa(int(temp + 1))
 	
 	dir = filepath.Dir(inFileName)
 	file = filepath.Base(inFileName)

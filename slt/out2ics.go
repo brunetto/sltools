@@ -2,22 +2,22 @@ package slt
 
 import (
 	"bufio"
+	"compress/gzip"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
 
-func Out2ICs (inFileName string/*, fileN string*/) (string, string, string) {
+func Out2ICs (inFileName string) (string, string, string) {
 	if Debug {Whoami(true)}
-	// FIXME: generate ICs with templates
-	// http://golang.org/pkg/text/template/
-	// filepath.Glob(pattern string) (matches []string, err error)
 	
 	var (
 		outFileName string
 		inFile *os.File
+		fZip *gzip.Reader
 		outFile *os.File
 		err error
 		nReader *bufio.Reader
@@ -28,6 +28,7 @@ func Out2ICs (inFileName string/*, fileN string*/) (string, string, string) {
 		thisTimestep int64 = 0
 		randomSeed string
 		remainingTime int64
+		ext string
 	)
 	
 	tGlob0 := time.Now()
@@ -36,25 +37,36 @@ func Out2ICs (inFileName string/*, fileN string*/) (string, string, string) {
 		log.Fatal("You need to specify an input file with the -i flag!!!")
 	}
 	
-// 	if fileN == "" {
-// 		log.Fatal("You need to specify a number for the new ICs with the -n flag!!!")
-// 	}
-	
-	outFileName = OutName2ICName (inFileName/*, fileN*/)	
-	log.Println("Output file will be ", outFileName)
-	
+	// Open infile, both text or gzip
 	log.Println("Opening input and output files...")
-	// FIXME: take into account .gz files
-	
-	// Open files
 	if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
 	defer inFile.Close()
+	ext = filepath.Ext(inFileName)
+	switch ext {
+		case "txt":{
+			nReader = bufio.NewReader(inFile)
+		}
+		case "gz": {
+			fZip, err = gzip.NewReader(inFile)
+			if err != nil {
+			log.Fatal("Can't open %s: error: %s\n", inFile, err)
+			}
+			nReader = bufio.NewReader(fZip)
+		}
+		default: {
+			log.Fatal("Unrecognized file type", inFile)
+		}
+	}
+
+	// outFile name
+	outFileName = OutName2ICName (inFileName)	
+	log.Println("Output file will be ", outFileName)
 	
+	// Open outFile and outWriter
 	if outFile, err = os.Create(outFileName); err != nil {log.Fatal(err)}
 	defer outFile.Close()
 	
-	// Create reader and writerq
-	nReader = bufio.NewReader(inFile)
+	// Create writer
 	nWriter = bufio.NewWriter(outFile)
 	defer nWriter.Flush()
 	
