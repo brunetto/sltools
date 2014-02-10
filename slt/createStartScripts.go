@@ -5,7 +5,7 @@ import (
 	"log"
 	"path/filepath"
 	"regexp"
-	"time"
+// 	"time"
 )
 
 
@@ -27,7 +27,7 @@ func CreateStartScripts (icsName, randomNumber, simTime string, conf *ConfigStru
 		icsRegResult []string
 	)
 	
-	tGlob0 := time.Now()
+// 	tGlob0 := time.Now()
 	
 	if conf.Machine == "eurora" {
 		home = "/eurora/home/userexternal/" + conf.UserName
@@ -63,7 +63,8 @@ func CreateStartScripts (icsName, randomNumber, simTime string, conf *ConfigStru
 	CreateKira (kiraOutName, absFolderName, home, run, rnd, randomNumber, simTime, conf)
 	CreatePBS (pbsOutName, kiraOutName, absFolderName, run, rnd, conf)
 	
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for creating kira and PBS scripts ", tGlob1.Sub(tGlob0))
+// 	tGlob1 := time.Now()
+// 	fmt.Println()
+// 	log.Println("Wall time for creating kira and PBS scripts ", tGlob1.Sub(tGlob0))
+// 	fmt.Println()
 }

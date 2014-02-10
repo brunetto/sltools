@@ -1,0 +1,87 @@
+2014/02/10 14:30:48 Starting the creation of  ics-cineca-comb20-NCM10000-fPB010-W9-Z010-run07-rnd00.txt
+panic: runtime error: slice bounds out of range
+
+goroutine 108 [running]:
+bufio.(*Writer).ReadFrom(0xc200167180, 0xc20007a4e0, 0xc200161aa0, 0x52, 0x0, ...)
+        /usr/local/go/src/pkg/bufio/bufio.go:593 +0x119
+io.Copy(0xc2000b6b70, 0xc200167180, 0xc20007a4e0, 0xc200161aa0, 0x0, ...)
+        /usr/local/go/src/pkg/io/io.go:340 +0xa3
+os/exec.func·003(0x517800, 0xc20018c8c0)
+        /usr/local/go/src/pkg/os/exec/exec.go:207 +0x60
+os/exec.func·004(0xc20019c800)
+        /usr/local/go/src/pkg/os/exec/exec.go:276 +0x2a
+created by os/exec.(*Cmd).Start
+        /usr/local/go/src/pkg/os/exec/exec.go:277 +0x732
+
+goroutine 1 [syscall]:
+syscall.Syscall6()
+        /usr/local/go/src/pkg/syscall/asm_linux_amd64.s:41 +0x5
+syscall.wait4(0xf00, 0xc200161b40, 0x0, 0xc20017ff30, 0x100000001, ...)
+        /usr/local/go/src/pkg/syscall/zerrors_linux_amd64.go:1640 +0x7b
+syscall.Wait4(0xf00, 0xc2000732ac, 0x0, 0xc20017ff30, 0x0, ...)
+        /usr/local/go/src/pkg/syscall/syscall_linux.go:222 +0x6c
+os.(*Process).wait(0xc20019c260, 0x45d1f5, 0x0, 0x0)
+        /usr/local/go/src/pkg/os/exec_unix.go:22 +0xea
+os.(*Process).Wait(0xc20019c260, 0xc200086b01, 0x2, 0x2)
+        /usr/local/go/src/pkg/os/doc.go:43 +0x25
+os/exec.(*Cmd).Wait(0xc2001753c0, 0x0, 0x0)
+        /usr/local/go/src/pkg/os/exec/exec.go:310 +0x197
+bitbucket.org/brunetto/sltools/slt.CreateICs(0xc20008b480)
+        /home/ziosi/Dropbox/DCode/go/src/bitbucket.org/brunetto/sltools/slt/createICs.go:189 +0x39be
+bitbucket.org/brunetto/sltools/slt.func·004(0x681c60, 0xc2000860a0, 0x0, 0x2)
+        /home/ziosi/Dropbox/DCode/go/src/bitbucket.org/brunetto/sltools/slt/commands.go:67 +0x43
+github.com/spf13/cobra.(*Command).execute(0x681c60, 0xc20005e020, 0x2, 0x2, 0x0, ...)
+        /home/ziosi/Dropbox/DCode/go/src/github.com/spf13/cobra/command.go:273 +0x114
+github.com/spf13/cobra.(*Command).findAndExecute(0x6819c0, 0xc20005e010, 0x3, 0x3, 0x0, ...)
+        /home/ziosi/Dropbox/DCode/go/src/github.com/spf13/cobra/command.go:259 +0xa6
+github.com/spf13/cobra.(*Command).Execute(0x6819c0, 0x0, 0x0)
+        /home/ziosi/Dropbox/DCode/go/src/github.com/spf13/cobra/command.go:308 +0x63c
+main.main()
+        /home/ziosi/Dropbox/DCode/go/src/bitbucket.org/brunetto/sltools/sltools.go:15 +0x55
+
+goroutine 106 [syscall]:
+syscall.Syscall()
+        /usr/local/go/src/pkg/syscall/asm_linux_amd64.s:15 +0x5
+syscall.read(0x1a, 0xc20017cffd, 0x3, 0x3, 0x14, ...)
+        /usr/local/go/src/pkg/syscall/zerrors_linux_amd64.go:2337 +0x70
+syscall.Read(0x1a, 0xc20017cffd, 0x3, 0x3, 0x14, ...)
+        /usr/local/go/src/pkg/syscall/syscall_unix.go:132 +0x5a
+os.(*File).read(0xc2001619f0, 0xc20017cffd, 0x3, 0x3, 0x14, ...)
+        /usr/local/go/src/pkg/os/file_unix.go:174 +0x60
+os.(*File).Read(0xc2001619f0, 0xc20017cffd, 0x3, 0x3, 0x14, ...)
+        /usr/local/go/src/pkg/os/file.go:95 +0x96
+bufio.(*Writer).ReadFrom(0xc200167180, 0xc20007a4e0, 0xc2001619f0, 0x85, 0x0, ...)
+        /usr/local/go/src/pkg/bufio/bufio.go:593 +0x15b
+io.Copy(0xc2000b6b70, 0xc200167180, 0xc20007a4e0, 0xc2001619f0, 0x0, ...)
+        /usr/local/go/src/pkg/io/io.go:340 +0xa3
+os/exec.func·003(0x517800, 0xc20018cc40)
+        /usr/local/go/src/pkg/os/exec/exec.go:207 +0x60
+os/exec.func·004(0xc200086f40)
+        /usr/local/go/src/pkg/os/exec/exec.go:276 +0x2a
+created by os/exec.(*Cmd).Start
+        /usr/local/go/src/pkg/os/exec/exec.go:277 +0x732
+
+goroutine 107 [syscall]:
+syscall.Syscall()
+        /usr/local/go/src/pkg/syscall/asm_linux_amd64.s:16 +0x5
+syscall.read(0x20, 0xc200123000, 0x1000, 0x1000, 0x8, ...)
+        /usr/local/go/src/pkg/syscall/zerrors_linux_amd64.go:2337 +0x70
+syscall.Read(0x20, 0xc200123000, 0x1000, 0x1000, 0x0, ...)
+        /usr/local/go/src/pkg/syscall/syscall_unix.go:132 +0x5a
+os.(*File).read(0xc200161a78, 0xc200123000, 0x1000, 0x1000, 0x5532c0, ...)
+        /usr/local/go/src/pkg/os/file_unix.go:174 +0x60
+os.(*File).Read(0xc200161a78, 0xc200123000, 0x1000, 0x1000, 0x0, ...)
+        /usr/local/go/src/pkg/os/file.go:95 +0x96
+bufio.(*Writer).ReadFrom(0xc2001670c0, 0xc20007a4e0, 0xc200161a78, 0x0, 0x0, ...)
+        /usr/local/go/src/pkg/bufio/bufio.go:593 +0x15b
+io.Copy(0xc2000b6b70, 0xc2001670c0, 0xc20007a4e0, 0xc200161a78, 0x0, ...)
+        /usr/local/go/src/pkg/io/io.go:340 +0xa3
+os/exec.func·003(0x517800, 0xc20018ca80)
+        /usr/local/go/src/pkg/os/exec/exec.go:207 +0x60
+os/exec.func·004(0xc20019c280)
+        /usr/local/go/src/pkg/os/exec/exec.go:276 +0x2a
+created by os/exec.(*Cmd).Start
+        /usr/local/go/src/pkg/os/exec/exec.go:277 +0x732
+
+goroutine 88 [finalizer wait]:
+exit status 2

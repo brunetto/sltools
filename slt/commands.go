@@ -26,7 +26,7 @@ var VersionCmd = &cobra.Command{
 	Short: "Print the version number of slt",
 	Long:  `All software has versions. This is sltools'`,
 	Run: func(cmd *cobra.Command, args []string) {
-	fmt.Println("StarLab Tools v0.3")
+	fmt.Println("StarLab Tools v0.4")
 	},
 }
 
@@ -58,13 +58,15 @@ It must be in the form of a JSON file like:
 	},
 }
 
-var CreateICCmd = &cobra.Command{
+var RunICC bool
+var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
 	Short: "Create ICs",
 	Long:  `Create initial conditions from the JSON config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		CreateICs(conf)
+// 		CreateICsOld(conf)
 	},
 }
 
@@ -137,7 +139,8 @@ func InitCommands() () {
 	
 	SlToolsCmd.AddCommand(ReadConfCmd)
 	
-	SlToolsCmd.AddCommand(CreateICCmd)
+	SlToolsCmd.AddCommand(CreateICsCmd)
+	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
 	
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")

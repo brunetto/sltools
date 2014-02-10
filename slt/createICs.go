@@ -22,6 +22,11 @@ func CreateICs (conf *ConfigStruct) () {
 		outIcsScriptName string			// name for the ICs creation script
 		icsScriptFile *os.File			// file obj for the ICs script
 		icsScriptWriter *bufio.Writer	// writer for the ICs script
+		outIcsFile *os.File				// new ICs file
+		nIcsWriter *bufio.Writer		// writer for the ICs file
+		outIcsFileLog *os.File			// new ICs file creation log
+		nIcsWriterLog *bufio.Writer		// new ICs file creation log writer
+		written int 					// written bytes
 	)
 	
 	// Check we know where the binaries for the ICs are... not checking its existance
@@ -59,6 +64,29 @@ func CreateICs (conf *ConfigStruct) () {
 				"-W" + conf.WStr() + 
 				"-Z" + conf.ZCmpStr()
 					
+	
+	/* NEED TO FIND A WAY TO RERUN PROCESSES
+	// Creating commands and pipes
+	makekingCmd        := exec.Command(makeking, "-n", conf.NcmStr(), "-w", conf.WStr(), "-i", "-u")
+	makemassCmd        := exec.Command(makemass, "-f", "8", "-l", "0.1", "-u", "150")
+	makesecondaryCmd   := exec.Command(makesecondary, "-f", conf.FpbStr(), "-q", "-l", "0.1")
+	add_starCmd        := exec.Command(add_star, "-R", "1", "-Z", conf.ZStr())
+	scaleCmd           := exec.Command(scale, "-R", "1", "-M", "1")
+	makebinaryCmd      := exec.Command(makebinary, "-f", "2", "-o", "1", "-l", "1", "-u", "107836.09")
+	
+	
+	// makeking -> makemass
+	if makemassCmd.Stdin, err = makekingCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makemass: ", err)}
+	// makemass -> makesecondary
+	if makesecondaryCmd.Stdin, err = makemassCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makesecondary: ", err)}
+	// makesecondary -> add_star
+	if add_starCmd.Stdin, err = makesecondaryCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to add_star: ", err)}
+	// add_star -> scaleCmd
+	if scaleCmd.Stdin, err = add_starCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to scale: ", err)}
+	// scaleCmd -> makebinaryCmd
+	if makebinaryCmd.Stdin, err = scaleCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makebinary: ", err)}
+	*/
+	
 	log.Println("Create folder and change to it:", folderName)
 	if err = os.Mkdir(folderName, 0700); err != nil {log.Fatal("Can't create folder ", err)}
 	
@@ -70,8 +98,12 @@ func CreateICs (conf *ConfigStruct) () {
 		log.Fatal(err)
 	}
 	
-	// Create the scripts and run them
+	// Create the scripts
 	for runIdx :=1; runIdx<conf.Runs+1; runIdx++ {
+		/*
+		 * BASH SCRIPTS 
+		*/
+		// Complete bash script with output file
 		// Basename suffix
 		runString := "-run" +  	LeftPad(strconv.Itoa(runIdx), "0", 2) + "-rnd00"
 		// ICs final name
@@ -81,31 +113,106 @@ func CreateICs (conf *ConfigStruct) () {
 		// ICs creation script name
 		outIcsScriptName = "create_IC-" + conf.BaseName() + runString + ".sh"
 		
+		log.Println("Write ", outIcsScriptName)
 		// Write the script file
 		if icsScriptFile, err = os.Create(outIcsScriptName); err != nil {log.Fatal(err)}
 		defer icsScriptFile.Close()
 		icsScriptWriter = bufio.NewWriter(icsScriptFile)
 		defer icsScriptWriter.Flush()
-		if _, err = icsScriptWriter.WriteString(icsCmd); err != nil {
+		if written, err = icsScriptWriter.WriteString(icsCmd); err != nil {
 			log.Fatal("Error while writing ", outIcsScriptName, err)
 		}
+		icsScriptWriter.Flush()
+		log.Println("Written ", written, " on ", outIcsScriptName)
 		
-		// Run it
-		if _, err := os.Stat(outIcsScriptName); err == nil {
-			log.Println(outIcsScriptName, " exists, try to run")
-		}
-		// BUG: this does not work, damn it!!!:(
-		bashCmd := exec.Command("bash", "-x", outIcsScriptName)
-// 		bashCmd := exec.Command("/bin/bash", "-c", "sleep 3000") // this works, bastard!!!
-		bashCmd.Stdout = os.Stdout
-		bashCmd.Stderr = os.Stderr
-		if err := bashCmd.Run(); err != nil {
-			log.Fatal(err)
-		}
-	
 		// Create kiraLaunch and PBSlaunch scripts with the same functions used in Continue
 		icsRandomSeed := "" // let SL decide it
 		CreateStartScripts("ics-" + conf.BaseName() + runString + ".txt", icsRandomSeed, conf.EndTimeStr(), conf)
-		
+	}
+	
+	if RunICC {
+		log.Println("Also create ICs files running makeking etc")
+		// Sometimes it crashes, untill I find why, I create the scripts 
+		// and the run the binaries only if -C flag is activated
+		for runIdx :=1; runIdx<conf.Runs+1; runIdx++ {
+			/*
+			* ICs
+			*/
+			
+			// Basename suffix
+			runString := "-run" +  	LeftPad(strconv.Itoa(runIdx), "0", 2) + "-rnd00"
+			// ICs final name
+			outIcsName = "ics-" + conf.BaseName() + runString + ".txt"
+			// Add ICs final file name to ICs creation command
+			icsCmd = icsBaseCmd + outIcsName
+			// ICs creation script name
+			outIcsScriptName = "create_IC-" + conf.BaseName() + runString + ".sh"
+			
+			// REINIT PROCESSES BECAUSE I DON'T KNOW HOW TO RESTART THEM
+			// Creating commands and pipes
+			makekingCmd        := exec.Command(makeking, "-n", conf.NcmStr(), "-w", conf.WStr(), "-i", "-u")
+			makemassCmd        := exec.Command(makemass, "-f", "8", "-l", "0.1", "-u", "150")
+			makesecondaryCmd   := exec.Command(makesecondary, "-f", conf.FpbStr(), "-q", "-l", "0.1")
+			add_starCmd        := exec.Command(add_star, "-R", "1", "-Z", conf.ZStr())
+			scaleCmd           := exec.Command(scale, "-R", "1", "-M", "1")
+			makebinaryCmd      := exec.Command(makebinary, "-f", "2", "-o", "1", "-l", "1", "-u", "107836.09")
+			
+			
+			// makeking -> makemass
+			if makemassCmd.Stdin, err = makekingCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makemass: ", err)}
+			// makemass -> makesecondary
+			if makesecondaryCmd.Stdin, err = makemassCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makesecondary: ", err)}
+			// makesecondary -> add_star
+			if add_starCmd.Stdin, err = makesecondaryCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to add_star: ", err)}
+			// add_star -> scaleCmd
+			if scaleCmd.Stdin, err = add_starCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to scale: ", err)}
+			// scaleCmd -> makebinaryCmd
+			if makebinaryCmd.Stdin, err = scaleCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makebinary: ", err)}
+			
+			// Create ICs file and writer
+			if outIcsFile, err = os.Create(outIcsName); err != nil {log.Fatal(err)}
+			defer outIcsFile.Close()
+			nIcsWriter = bufio.NewWriter(outIcsFile)
+			defer nIcsWriter.Flush()
+			
+			// Create ICs log file and writer
+			if outIcsFileLog, err = os.Create("create-" + outIcsName + ".log"); err != nil {log.Fatal(err)}
+			defer outIcsFileLog.Close()
+			nIcsWriterLog = bufio.NewWriter(outIcsFileLog)
+			defer nIcsWriterLog.Flush()
+			
+			makemassCmd.Stderr = nIcsWriterLog
+			makesecondaryCmd.Stderr = nIcsWriterLog
+			add_starCmd.Stderr = nIcsWriterLog
+			scaleCmd.Stderr = nIcsWriterLog
+			makebinaryCmd.Stderr = nIcsWriterLog
+			
+			// Attach the file writer to the cmd stdout
+			makebinaryCmd.Stdout = nIcsWriter
+			
+			log.Println("Starting the creation of ", outIcsName)
+			if err = makekingCmd.Start(); err != nil {log.Fatal("Start makeking: ", err)}
+			if err = makemassCmd.Start(); err != nil {log.Fatal("Start makemass: ", err)}       
+			if err = makesecondaryCmd.Start(); err != nil {log.Fatal("Start makesecondary: ", err)}  
+			if err = add_starCmd.Start(); err != nil {log.Fatal("Start add_star: ", err)}       
+			if err = scaleCmd.Start(); err != nil {log.Fatal("Start scale: ", err)}          
+			if err = makebinaryCmd.Start(); err != nil {log.Fatal("Start makebinary: ", err)}     
+			
+			if err = makekingCmd.Wait(); err != nil {log.Fatal("Wait makeking: ", err)}
+			if err = makemassCmd.Wait(); err != nil {log.Fatal("Wait makemass: ", err)}       
+			if err = makesecondaryCmd.Wait(); err != nil {log.Fatal("Wait makesecondary: ", err)}  
+			if err = add_starCmd.Wait(); err != nil {log.Fatal("Wait add_Star: ", err)}       
+			if err = scaleCmd.Wait(); err != nil {log.Fatal("Wait scale: ", err)}          
+			if err = makebinaryCmd.Wait(); err != nil {log.Fatal("Wait makebinary: ", err)}     
+			
+			nIcsWriter.Flush()
+			nIcsWriterLog.Flush()
+			
+			log.Println("Wrote ", outIcsName)
+		}
+	} else {
+		fmt.Println()
+		log.Println("Created only ICs scripts")
+		fmt.Println()
 	}
 }
