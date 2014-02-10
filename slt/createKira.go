@@ -30,9 +30,11 @@ func CreateKira (kiraOutName, absFolderName, home, run, rnd, randomNumber, simTi
 	
 	kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
 	
-	stdOutFile = "out-" + conf.BaseName() + ".txt"
-	stdErrFile = "err-" + conf.BaseName() + ".txt"
-	icsName = "ics-" + conf.BaseName() + ".txt"
+	runString := "-run" + run + "-rnd" + rnd
+	
+	stdOutFile = "out-" + conf.BaseName() + runString + ".txt"
+	stdErrFile = "err-" + conf.BaseName() + runString + ".txt"
+	icsName = "ics-" + conf.BaseName() + runString + ".txt"
 	
 	// I know I can use `` but I don't like the string not to be align with the 
 	// rest of the code

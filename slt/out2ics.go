@@ -43,10 +43,10 @@ func Out2ICs (inFileName string) (string, string, string) {
 	defer inFile.Close()
 	ext = filepath.Ext(inFileName)
 	switch ext {
-		case "txt":{
+		case ".txt":{
 			nReader = bufio.NewReader(inFile)
 		}
-		case "gz": {
+		case ".gz": {
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
 			log.Fatal("Can't open %s: error: %s\n", inFile, err)
@@ -54,7 +54,8 @@ func Out2ICs (inFileName string) (string, string, string) {
 			nReader = bufio.NewReader(fZip)
 		}
 		default: {
-			log.Fatal("Unrecognized file type", inFile)
+			log.Println("Unrecognized file type", inFileName)
+			log.Fatal("with extention ", ext)
 		}
 	}
 
@@ -108,7 +109,7 @@ func Out2ICs (inFileName string) (string, string, string) {
 	
 	tGlob1 := time.Now()
 	fmt.Println()
-	log.Println("Wall time for continue ", tGlob1.Sub(tGlob0))
+	log.Println("Wall time for creating ICs from STDOUT ", tGlob1.Sub(tGlob0))
 	
 	return strconv.Itoa(int(remainingTime)), randomSeed, outFileName
 }

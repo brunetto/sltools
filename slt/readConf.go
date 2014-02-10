@@ -53,7 +53,7 @@ func (conf *ConfigStruct) ReadConf (confName string) () {
 	if conf.UserName == "" {log.Fatal("UserName field in configuation file is empty")}
 	if conf.PName == "" {log.Fatal("PName field in configuation file is empty")}
 	if conf.EndTime <= 0 {log.Fatal("EndTime field in configuation file is empty, zero or negative")}
-	fmt.Print("OK!")
+	fmt.Println("OK!")
 }
 
 // Print prints the configuration parameters.
@@ -160,9 +160,7 @@ func InitVars(ConfName string) (*ConfigStruct) {
 			ConfName = "conf.json"
 		} else {
 		log.Fatal("No json configuration file proided via the -c flag nor default config.json found in this folder.")
-	}
-	} else {
-		log.Println("Reading parameters form ", ConfName)
+		}
 	} 
 	
 	// Read conf file and create conf struct
