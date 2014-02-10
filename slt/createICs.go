@@ -2,6 +2,7 @@ package slt
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -148,7 +149,7 @@ func CreateICs (conf *ConfigStruct) () {
 			// ICs creation script name
 			outIcsScriptName = "create_IC-" + conf.BaseName() + runString + ".sh"
 			
-			// REINIT PROCESSES BECAUSE I DON'T KNOW HOW TO RESTART THEM
+			// REINIT PROCESSES BECAUSE EACH COMMAND IS A ONE-TIME CALL
 			// Creating commands and pipes
 			makekingCmd        := exec.Command(makeking, "-n", conf.NcmStr(), "-w", conf.WStr(), "-i", "-u")
 			makemassCmd        := exec.Command(makemass, "-f", "8", "-l", "0.1", "-u", "150")

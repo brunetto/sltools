@@ -76,7 +76,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*OutSnapshot, error) {
 		if snap.NestingLevel == 0 {
 			snap.Integrity = true
 			if Verb {
-				log.Print("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+				log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
 			} else {
 				fmt.Print("\rTimestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
 			}

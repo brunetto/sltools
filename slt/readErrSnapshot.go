@@ -85,7 +85,11 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*ErrSnapshot, error) {
 		// and update the nesting level 
 		if strings.Contains(line, endOfSnap) {
 			snap.Integrity = true
-			log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			if Verb {
+				log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			} else {
+				fmt.Print("\rTimestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
+			}
 			return snap, err
 		}
 	}	
