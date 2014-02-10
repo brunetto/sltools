@@ -100,7 +100,7 @@ func CreateICs (conf *ConfigStruct) () {
 	}
 	
 	// Create the scripts
-	for runIdx :=1; runIdx<conf.Runs+1; runIdx++ {
+	for runIdx:=0; runIdx<conf.Runs; runIdx++ {
 		/*
 		 * BASH SCRIPTS 
 		*/
@@ -135,7 +135,7 @@ func CreateICs (conf *ConfigStruct) () {
 		log.Println("Also create ICs files running makeking etc")
 		// Sometimes it crashes, untill I find why, I create the scripts 
 		// and the run the binaries only if -C flag is activated
-		for runIdx :=1; runIdx<conf.Runs+1; runIdx++ {
+		for runIdx:=0; runIdx<conf.Runs; runIdx++ {
 			/*
 			* ICs
 			*/
