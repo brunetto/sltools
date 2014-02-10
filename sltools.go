@@ -17,5 +17,6 @@ func main() {
 	tGlob1 := time.Now()
 	fmt.Println()
 	log.Println("Wall time for all ", tGlob1.Sub(tGlob0))
+	fmt.Println()
 } 
 
