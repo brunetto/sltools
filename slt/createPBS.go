@@ -51,7 +51,7 @@ func CreatePBS (pbsOutName string, kiraOutName string, absFolderName string, run
 				"#PBS -l walltime=24:00:00\n" +
 				"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +
 				modules +
-				"sh "+ filepath.Join(absFolderName, kiraOutName)
+				"sh "+ filepath.Join(absFolderName, kiraOutName) + "\n"
 				
 	log.Println("Write PBS launch script to ", pbsOutName)
 	if pbsFile, err = os.Create(pbsOutName); err != nil {log.Fatal(err)}
