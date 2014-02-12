@@ -10,7 +10,9 @@ import (
 func main() {
 	
 	tGlob0 := time.Now()
-	
+	fmt.Println("===========================================================")
+	fmt.Println("========================== START ==========================")
+	fmt.Println("===========================================================")
 	slt.InitCommands()
 	slt.SlToolsCmd.Execute()
 	
@@ -18,5 +20,8 @@ func main() {
 	fmt.Println()
 	log.Println("Wall time for all ", tGlob1.Sub(tGlob0))
 	fmt.Println()
+	fmt.Println("===========================================================")
+	fmt.Println("=========================== END ===========================")
+	fmt.Println("===========================================================")
 } 
 
