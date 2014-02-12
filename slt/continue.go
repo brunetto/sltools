@@ -19,7 +19,7 @@ func Continue (inFileName string, conf *ConfigStruct) {
 	)
 	
 	log.Println("Preparing to continue from ", inFileName)
-	simTime, randomNumber, icsName = Out2ICs (inFileName)
+	simTime, randomNumber, icsName = Out2ICs (inFileName, conf)
 	CreateStartScripts (icsName, randomNumber, simTime, conf)
 		
 }

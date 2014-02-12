@@ -82,7 +82,8 @@ var Out2ICsCmd = &cobra.Command{
 	The continue command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Out2ICs(inFileName)
+		conf := InitVars(ConfName)
+		Out2ICs(inFileName, conf)
 	},
 }
 

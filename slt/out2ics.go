@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func Out2ICs (inFileName string) (string, string, string) {
+func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 	if Debug {Whoami(true)}
 	
 	var (
@@ -60,7 +60,7 @@ func Out2ICs (inFileName string) (string, string, string) {
 	}
 
 	// outFile name
-	outFileName = OutName2ICName (inFileName)	
+	outFileName = OutName2ICName (inFileName, conf)	
 	log.Println("Output file will be ", outFileName)
 	
 	// Open outFile and outWriter
