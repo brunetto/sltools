@@ -80,6 +80,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*OutSnapshot, error) {
 			} else {
 				fmt.Print("\rTimestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
 			}
+			fmt.Println() // To leave a space after the non verbose print
 			return snap, err
 		}
 	}	
