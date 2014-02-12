@@ -92,6 +92,7 @@ func Out2ICs (inFileName string) (string, string, string) {
 		log.Fatal("Reading exit with error ", err)
 	}
 	// Info
+	fmt.Println() // To leave a space after the non verbose print
 	log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)
 	thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
 	remainingTime = simulationStop - thisTimestep
