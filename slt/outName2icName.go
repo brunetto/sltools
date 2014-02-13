@@ -30,7 +30,7 @@ func OutName2ICName (inFileName string, conf *ConfigStruct) (outFileName string)
 		log.Fatal("Can't find parameters in out name ", inFileName)
 	}
 	
-	rnd  = outRegResult[1]
+	run  = outRegResult[1]
 	rnd  = outRegResult[2]
 	
 	// Retrieve the round number and increment it

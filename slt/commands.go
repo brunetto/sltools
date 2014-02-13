@@ -12,6 +12,7 @@ var Verb bool
 var Debug bool
 var ConfName string
 
+// Root command
 var SlToolsCmd = &cobra.Command{
 	Use:   "sltools",
 	Short: "Tools for StarLab simulation management",
@@ -21,6 +22,7 @@ var SlToolsCmd = &cobra.Command{
 	},
 }
 
+// Print version
 var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of slt",
@@ -30,6 +32,7 @@ var VersionCmd = &cobra.Command{
 	},
 }
 
+// Load JSON configuration file
 var ReadConfCmd = &cobra.Command{
 	Use:   "readConf",
 	Short: "Read and print the configuration file",
@@ -58,6 +61,7 @@ It must be in the form of a JSON file like:
 	},
 }
 
+// Create ICs from JSON configuration file
 var RunICC bool
 var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
@@ -70,11 +74,11 @@ var CreateICsCmd = &cobra.Command{
 	},
 }
 
+// Create new ICs from STDOUT to restart the simulation
 var (
 	inFileName string
 	fileN string
 )
-
 var Out2ICsCmd = &cobra.Command{
 	Use:   "out2ics",
 	Short: "Prepare the new ICs from the last STDOUT",
@@ -87,13 +91,12 @@ var Out2ICsCmd = &cobra.Command{
 	},
 }
 
-
+// Create start scripts: kiraLaunch and PBSlaunch
 var (
 	icsName string
 	randomNumber string
 	simTime string
 	)
-
 var CreateStartScriptsCmd = &cobra.Command{
 	Use:   "createStartScripts",
 	Short: "Prepare the new ICs from all the last STDOUTs",
@@ -106,6 +109,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 	},
 }
 
+// Out2ICsCmd + CreateStartScriptsCmd
 var ContinueCmd = &cobra.Command{
 	Use:   "continue",
 	Short: "Prepare the new ICs from all the last STDOUTs",
@@ -118,10 +122,11 @@ var ContinueCmd = &cobra.Command{
 	},
 }
 
+// Stich STDOUT and STDERR from different round of the same simulation 
+// (if you restarded your simulation)
 var (
 	inFileTmpl string
 )
-
 var StichOutputCmd = &cobra.Command{
 	Use:   "stichOutput",
 	Short: "Only download SL",
@@ -131,6 +136,7 @@ var StichOutputCmd = &cobra.Command{
 	},
 }
 
+// Init commands and attach flags
 func InitCommands() () {
 
 	SlToolsCmd.AddCommand(VersionCmd)
