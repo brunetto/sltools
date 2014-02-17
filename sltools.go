@@ -22,6 +22,7 @@ func main() {
 	log.Println("Wall time for all ", tGlob1.Sub(tGlob0))
 	fmt.Println()
 	
+	fmt.Print("\x07") // Try to beep!!:)
 	fmt.Println("===========================================================")
 	fmt.Println("=========================== END ===========================")
 	fmt.Println("===========================================================")
