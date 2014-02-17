@@ -22,7 +22,7 @@ func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 		err error
 		nReader *bufio.Reader
 		nWriter *bufio.Writer
-		snapshots = make([]*OutSnapshot, 2)
+		snapshots = make([]*DumbSnapshot, 2)
 		snpN int
 		simulationStop int64 = 500
 		thisTimestep int64 = 0

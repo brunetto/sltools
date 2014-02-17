@@ -8,16 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"strconv"
 	"time"
 )
 
-func StdErrStich (inFileTmpl string) () {
+func StdErrStich (stdErrs, run string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
-	// FIXME: generate ICs with templates
-	// http://golang.org/pkg/text/template/
-	// filepath.Glob(pattern string) (matches []string, err error)
 	
 	var (
 		fZip *gzip.Reader
@@ -36,22 +32,18 @@ func StdErrStich (inFileTmpl string) () {
 	
 	tGlob0 := time.Now()
 	
-	if inFileTmpl == "" {
-		log.Fatal("You need to specify a STDOUT input file template with the -i flag!!!")
-	}
-		
 	//
 	// STDERR
 	//
 	
 	log.Println("Stich STDERR")
-	outFileName = strings.TrimPrefix(inFileTmpl, "n") + "-all.txt"	
+	outFileName = "err" + conf.BaseName() + "-run" + run + "-all.txt"	
 	log.Println("Output file will be ", outFileName)
 	
 	log.Println("Opening STDERR output file...")
 
 	// Open output file
-	if outFile, err = os.Create(outFileName); err != nil {panic(err)}
+	if outFile, err = os.Create(outFileName); err != nil {log.Fatal(err)}
 	defer outFile.Close()
 	
 	// Create reader and writerq
@@ -60,10 +52,10 @@ func StdErrStich (inFileTmpl string) () {
 	
 	log.Println("Globbing and sorting STDERR input files")
 	// Open infiles
-	if inFiles, err = filepath.Glob("err"+strings.TrimPrefix(inFileTmpl, "out")); err != nil {
+	if inFiles, err = filepath.Glob(stdErrs); err != nil {
 		log.Fatal("Error globbing STDERR files for output stiching: ", err)
 	}
-	// FIXME: take into account .gz files
+
 	sort.Strings(inFiles)
 	
 	for _, inFileName := range inFiles {

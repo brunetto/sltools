@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func StdOutStich (inFileTmpl string) () {
+func StdOutStich (stdOuts, run string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	
 	var (
@@ -32,18 +32,18 @@ func StdOutStich (inFileTmpl string) () {
 	
 	tGlob0 := time.Now()
 	
-	if inFileTmpl == "" {
-		log.Fatal("You need to specify a STDOUT input file template with the -i flag!!!")
-	}
+	//
+	// STDOUT
+	//
 	
 	log.Println("Stich STDOUT")
-	outFileName = inFileTmpl + "-all.txt"	
+	outFileName = "out" + conf.BaseName() + "-run" + run + "-all.txt"	
 	log.Println("Output file will be ", outFileName)
 	
 	log.Println("Opening STDOUT output file...")
 
 	// Open output file
-	if outFile, err = os.Create(outFileName); err != nil {panic(err)}
+	outFile, err = os.Create(outFileName); err != nil {log.Fatal(err)}
 	defer outFile.Close()
 	
 	// Create reader and writerq
@@ -52,10 +52,10 @@ func StdOutStich (inFileTmpl string) () {
 	
 	log.Println("Globbing and sorting STDOUT input files")
 	// Open infiles
-	if inFiles, err = filepath.Glob(inFileTmpl); err != nil {
+	if inFiles, err = filepath.Glob(stdOuts); err != nil {
 		log.Fatal("Error globbing STDOUT files for output stiching: ", err)
 	}
-	// FIXME: take into account .gz files
+
 	sort.Strings(inFiles)
 	
 	for _, inFileName := range inFiles {
@@ -78,6 +78,7 @@ func StdOutStich (inFileTmpl string) () {
 				log.Fatal("Unrecognized file type", inFile)
 			}
 		}
+		
 		for {
 			if outSnapshot, err = ReadOutSnapshot(nReader); err != nil {continue}
 			if outSnapshot.Integrity == true {
