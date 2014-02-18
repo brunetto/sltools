@@ -13,7 +13,7 @@ import (
 type DumbSnapshot struct {
 	Timestep string
 	Integrity bool
-	NestingLevel int = 0
+	NestingLevel int
 	Lines []string
 }
 
@@ -57,7 +57,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		}
 		
 		// Add line to the snapshots in memory
-		snap.Data = append(snap.Lines, line)
+		snap.Lines = append(snap.Lines, line)
 		
 		// Search for timestep number
 		if resSysTime = regSysTime.FindStringSubmatch(line); resSysTime != nil {
@@ -111,6 +111,7 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// Read line by line
 		if line, err = readfile.Readln(nReader); err != nil {
 			if err.Error() == "EOF" {
+				fmt.Println()
 				log.Println("File reading complete...")
 				log.Println("Timestep not complete.")
 				log.Println("Last ten lines:")

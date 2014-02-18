@@ -124,15 +124,13 @@ var ContinueCmd = &cobra.Command{
 
 // Stich STDOUT and STDERR from different round of the same simulation 
 // (if you restarded your simulation)
-var (
-	inFileTmpl string
-)
 var StichOutputCmd = &cobra.Command{
 	Use:   "stichOutput",
 	Short: "Only download SL",
 	Long:  `...`,
 	Run: func(cmd *cobra.Command, args []string) {
-		StichOutput (inFileTmpl)
+		conf := InitVars(ConfName)
+		StichOutput (inFileName, conf)
 	},
 }
 
@@ -161,8 +159,8 @@ func InitCommands() () {
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
 	
 	SlToolsCmd.AddCommand(StichOutputCmd)
-	StichOutputCmd.Flags().StringVarP(&inFileTmpl, "inTmpl", "i", "", 
-			"STDOUT template name (the STDOUT name without the extention and the )")
+	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", 
+			"STDOUT or STDERR name to find what to stich")
 	
 }
 
