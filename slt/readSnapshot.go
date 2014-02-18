@@ -111,18 +111,20 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// Read line by line
 		if line, err = readfile.Readln(nReader); err != nil {
 			if err.Error() == "EOF" {
-				fmt.Println()
-				log.Println("File reading complete...")
-				log.Println("Timestep not complete.")
-				log.Println("Last ten lines:")
-				dataEndIdx = len(snap.Lines)-1
-				
-				// Check that we have more than 10 lines
-				if dataEndIdx > 10 {
-					dataStartIdx = dataEndIdx - 10
-				}
-				for idx, row := range snap.Lines[dataStartIdx:dataEndIdx] {
-					fmt.Println(idx, ": ", row)
+				if Verb {
+					fmt.Println()
+					log.Println("File reading complete...")
+					log.Println("Timestep not complete.")
+					log.Println("Last ten lines:")
+					dataEndIdx = len(snap.Lines)-1
+					
+					// Check that we have more than 10 lines
+					if dataEndIdx > 10 {
+						dataStartIdx = dataEndIdx - 10
+					}
+					for idx, row := range snap.Lines[dataStartIdx:dataEndIdx] {
+						fmt.Println(idx, ": ", row)
+					}
 				}
 			} else {
 				log.Fatal("Non EOF error while reading ", err)

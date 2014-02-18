@@ -49,7 +49,7 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 		log.Println("Only stich STDERRs")
 	}
 	
-	if OnlyOut {
+	if !OnlyOut {
 	//
 	// STDERR
 	//
@@ -109,11 +109,11 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 	if Verb {
 		log.Println("Found:")
 		for idx, file := range inFiles {
-			fmt.Println(idx, file)
+			fmt.Println(idx, ": ", file)
 		}
 	}
 	
-	for _, inFileName := range inFiles {
+	/*FileLoop: */for _, inFileName := range inFiles {
 		if Verb {
 			log.Println("Working on ", inFileName)
 		}
@@ -137,26 +137,40 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 			}
 		}
 		
-		for {
+		SnapLoop: for {
 			if stdWhat == "out" {
-				// Why continue??? 
-				// FIXME, TODO: However, reading 2 snapshots at a time avoid 
-				// problems in comparing the timesteps the first time
-// 				if snapshot, err = ReadOutSnapshot(nReader); err != nil {continue}
-				if snapshot/*s[0]*/, err = ReadOutSnapshot(nReader); err != nil {break}
-				/*if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {break}*/
+				snapshot, err = ReadOutSnapshot(nReader)
 			} else if stdWhat == "err" {
-// 				if snapshot, err = ReadErrSnapshot(nReader); err != nil {continue}
-				if snapshot/*s[0]*/, err = ReadErrSnapshot(nReader); err != nil {break}
-// 				if snapshots[1], err = ReadErrSnapshot(nReader); err != nil {break}
+				snapshot, err = ReadErrSnapshot(nReader)
 			} else {
 				log.Fatal("Unrecognized stdWhat: ", stdWhat)
 			}
+			if err != nil {
+				if Verb {
+					log.Println("Incomplete snapshot, moving to the next file")
+				}
+				break SnapLoop
+			}
+			// -1 is the "ICs to 0" timestep, skipping
+			// I will skip this also because it creates problems of duplication 
+			// and timestep check
+			if snapshot.Timestep == "-1" {continue SnapLoop /*to the next timestep*/}
+			
+			// I will loose the last timestep on STDERR because it is probably not complete
+			// TODO: find out how to manage this
+			// BUG: I can't find a univoque way to define the last snapshot complete
 			if snapshot.Integrity == true {
 				timestep, err = strconv.ParseInt(snapshot.Timestep, 10, 64)
 				// Skip the first loop (=first timestep) with len = 0
 				if len(timesteps) > 0 {
 					if AbsInt(timestep - timesteps[len(timesteps)-1]) != 1 {
+						if Verb {
+							log.Println("Read timestep: ")
+							for _, ts := range timesteps {
+								fmt.Print(ts, " ")
+							}
+							fmt.Println()
+						}
 						log.Fatal("More that one timestep of distance between ", timesteps[len(timesteps)-1], " and ", timestep)
 					}
 				}
@@ -164,15 +178,18 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 				if err = snapshot.WriteSnapshot(nWriter); err != nil {
 					log.Fatal("Error while writing snapshot to file: ", err)
 				}
-			} else {
+			} else { 
+				// This shouldn't happend because of the break in reading the snapshots
+				// This shoud be a redundant check
+				// TODO: check if it is true!!!
 				fmt.Println("************************ ATTENTION *************************")
 				fmt.Println("************************************************************")
 				log.Println("Skipping incomplete snapshot at timestep", snapshot.Timestep)
 				fmt.Println("************************************************************")
 				fmt.Println("************************************************************")
 			}
-		}	
-	}
+		} // end reading snapshot from a single file loop
+	} // end reading file loop
 	
 	log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
 	fmt.Println(timesteps)
