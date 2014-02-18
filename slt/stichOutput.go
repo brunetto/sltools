@@ -163,7 +163,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 				timestep, err = strconv.ParseInt(snapshot.Timestep, 10, 64)
 				// Skip the first loop (=first timestep) with len = 0
 				if len(timesteps) > 0 {
-					if AbsInt(timestep - timesteps[len(timesteps)-1]) != 1 {
+					if AbsInt(timestep - timesteps[len(timesteps)-1]) > 1 {
 						if Verb {
 							log.Println("Read timestep: ")
 							for _, ts := range timesteps {
@@ -172,6 +172,9 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 							fmt.Println()
 						}
 						log.Fatal("More that one timestep of distance between ", timesteps[len(timesteps)-1], " and ", timestep)
+					} else if AbsInt(timestep - timesteps[len(timesteps)-1]) < 1 {
+						log.Println("Duplicated timestep ", timestep, ", continue.")
+						continue SnapLoop /*to the next timestep*/
 					}
 				}
 				timesteps = append(timesteps, timestep)
