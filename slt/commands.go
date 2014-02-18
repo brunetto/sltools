@@ -124,6 +124,10 @@ var ContinueCmd = &cobra.Command{
 
 // Stich STDOUT and STDERR from different round of the same simulation 
 // (if you restarded your simulation)
+var (
+	OnlyOut bool
+	OnlyErr bool
+)
 var StichOutputCmd = &cobra.Command{
 	Use:   "stichOutput",
 	Short: "Only download SL",
@@ -159,8 +163,8 @@ func InitCommands() () {
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
 	
 	SlToolsCmd.AddCommand(StichOutputCmd)
-	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", 
-			"STDOUT or STDERR name to find what to stich")
-	
+	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT or STDERR name to find what to stich")
+	StichOutputCmd.Flags().BoolVarP(&OnlyOut, "onlyOut", "O", false, "Only stich STDOUTs")
+	StichOutputCmd.Flags().BoolVarP(&OnlyErr, "onlyErr", "E", false, "Only stich STDERRs")
 }
 

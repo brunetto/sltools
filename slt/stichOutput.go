@@ -39,12 +39,17 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 	
 	log.Println("Stiching *-" + conf.BaseName() + `-run` + run + `-rnd*.txt`)
 	
+	if !OnlyErr {
 	//
 	// STDOUT
 	//
 	stdOuts = "out-" + conf.BaseName() + `-run` + run + `-rnd*.txt`
 	StdStich (stdOuts, run, "out", conf)
+	} else {
+		log.Println("Only stich STDERRs")
+	}
 	
+	if OnlyOut {
 	//
 	// STDERR
 	//
@@ -54,6 +59,9 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 	tGlob1 := time.Now()
 	fmt.Println()
 	log.Println("Wall time for stich output ", tGlob1.Sub(tGlob0))
+	} else {
+		log.Println("Only stich STDOUTs")
+	}
 }
 
 func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
