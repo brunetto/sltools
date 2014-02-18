@@ -193,7 +193,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 			}
 		} // end reading snapshot from a single file loop
 	} // end reading file loop
-	
+	fmt.Println("\n")
 	log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
 	fmt.Println(timesteps)
 		
