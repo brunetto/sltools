@@ -177,7 +177,7 @@ func CreateICs (conf *ConfigStruct) () {
 			defer nIcsWriter.Flush()
 			
 			// Create ICs log file and writer
-			if outIcsFileLog, err = os.Create("create-" + outIcsName + ".log"); err != nil {log.Fatal(err)}
+			if outIcsFileLog, err = os.Create("Create-" + outIcsName + ".log"); err != nil {log.Fatal(err)}
 			defer outIcsFileLog.Close()
 			nIcsWriterLog = bufio.NewWriter(outIcsFileLog)
 			defer nIcsWriterLog.Flush()
@@ -193,18 +193,22 @@ func CreateICs (conf *ConfigStruct) () {
 			
 			log.Println("Starting the creation of ", outIcsName)
 			if err = makekingCmd.Start(); err != nil {log.Fatal("Start makeking: ", err)}
-			if err = makemassCmd.Start(); err != nil {log.Fatal("Start makemass: ", err)}       
-			if err = makesecondaryCmd.Start(); err != nil {log.Fatal("Start makesecondary: ", err)}  
-			if err = add_starCmd.Start(); err != nil {log.Fatal("Start add_star: ", err)}       
-			if err = scaleCmd.Start(); err != nil {log.Fatal("Start scale: ", err)}          
-			if err = makebinaryCmd.Start(); err != nil {log.Fatal("Start makebinary: ", err)}     
-			
 			if err = makekingCmd.Wait(); err != nil {log.Fatal("Wait makeking: ", err)}
-			if err = makemassCmd.Wait(); err != nil {log.Fatal("Wait makemass: ", err)}       
-			if err = makesecondaryCmd.Wait(); err != nil {log.Fatal("Wait makesecondary: ", err)}  
-			if err = add_starCmd.Wait(); err != nil {log.Fatal("Wait add_Star: ", err)}       
-			if err = scaleCmd.Wait(); err != nil {log.Fatal("Wait scale: ", err)}          
-			if err = makebinaryCmd.Wait(); err != nil {log.Fatal("Wait makebinary: ", err)}     
+			
+			if err = makemassCmd.Start(); err != nil {log.Fatal("Start makemass: ", err)}       
+			if err = makemassCmd.Wait(); err != nil {log.Fatal("Wait makemass: ", err)}
+			
+			if err = makesecondaryCmd.Start(); err != nil {log.Fatal("Start makesecondary: ", err)}  
+			if err = makesecondaryCmd.Wait(); err != nil {log.Fatal("Wait makesecondary: ", err)}
+			
+			if err = add_starCmd.Start(); err != nil {log.Fatal("Start add_star: ", err)}       
+			if err = add_starCmd.Wait(); err != nil {log.Fatal("Wait add_Star: ", err)}
+			
+			if err = scaleCmd.Start(); err != nil {log.Fatal("Start scale: ", err)}          
+			if err = scaleCmd.Wait(); err != nil {log.Fatal("Wait scale: ", err)}
+			
+			if err = makebinaryCmd.Start(); err != nil {log.Fatal("Start makebinary: ", err)}     
+			if err = makebinaryCmd.Wait(); err != nil {log.Fatal("Wait makebinary: ", err)}
 			
 			nIcsWriter.Flush()
 			nIcsWriterLog.Flush()
