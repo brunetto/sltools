@@ -1,6 +1,7 @@
 package slt
 
 import (
+	"github.com/deckarep/golang-set" // goroutine and sync un-safe sets
 	"bufio"
 	"compress/gzip"
 	"fmt"
@@ -8,14 +9,94 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sync"
 	"sort"
 	"strconv"
 	"time"
 )
 
+func StichThemAll (conf *ConfigStruct) () {
+	if Debug {Whoami(true)}
+		
+	var (
+		wg sync.WaitGroup
+		inFiles []string
+		outRuns []string
+		errRuns []string
+		prefixes []string{"out-", "err-"}
+		outRegexp *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.txt`)
+		outRegResult []string
+		runs golang-sets.Set
+		nRuns []int64
+	)
+	
+	tGlob0 := time.Now()
+	
+	nRuns = make([]int64, 0)
+	
+	for idx:=0; idx<2; idx++ {
+		if inFiles, err = filepath.Glob(prefixes[idx]+conf.BaseName()+"*"); err != nil {
+			log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
+		}
+		sort.Strings(inFiles)
+		
+		runs = := NewSet()
+		
+		for _, inFileName := range inFiles {
+			// Find the run numbers
+			outRegResult = outRegexp.FindStringSubmatch(inFileName); 
+			if outRegResult == nil {
+				log.Fatal("Can't find parameters in out name ", inFileName)
+			}
+			runs.Add(outRegResult[1])
+		}
+		if Verb {
+			log.Println("Found runs:")
+			fmt.Println(runs.String())
+		}
+		nRuns.append(len(runs))
+	}
+	
+	// Check for missing run outputs
+	if nRuns[0] != nRuns[1] {
+			log.Println("WARNING, missing runs. Found ", nRuns[0], " STDOUT but ", nRuns[1], " STDERR.")
+	}
+	if nRuns[0] != conf.Runs {
+			log.Println("WARNING, missing runs. Found ", nRuns[0], " STDOUT of ", conf.Runs, " planned in config file.")
+	}
+	
+	log.Println("Found ", nRuns[0], " runs in this folder:")
+	fmt.Println(runs.String())
+	
+	for runIdx := range runs.Iter() {
+		name := "out-"+conf.BaseName()+"-run"+runIdx+"-rnd01.txt"
+		if Verb {
+			log.Println("Launching stich based on ", )
+		}
+		wg.Add(1)
+		go StichOutput (name, conf *ConfigStruct)
+	}
+	
+	// Wait for all the goroutine to finish
+	wg.Wait()
+	
+	tGlob1 := time.Now()
+	fmt.Println()
+	log.Println("Wall time for parallel stich all ", tGlob1.Sub(tGlob0))
+}
 
-
+// FIXME: Workaround to call StichOutput not in parallel 
+// because now StichOutput contain a call to wg.Done
+// and I don't want to import "sync" in command.go
+func StichOutputSingle (inFileName string, conf *ConfigStruct) () {
+	wg sync.WaitGroup
+	wg.Add(1)
+	go StichOutput (inFileName, conf)
+	wg.Wait()
+}
+	
 func StichOutput (inFileName string, conf *ConfigStruct) () {
+	defer wg.Done()
 	if Debug {Whoami(true)}
 	
 	var (

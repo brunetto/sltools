@@ -66,28 +66,6 @@ func CreateICs (conf *ConfigStruct) () {
 				"-Z" + conf.ZCmpStr()
 					
 	
-	/* NEED TO FIND A WAY TO RERUN PROCESSES
-	// Creating commands and pipes
-	makekingCmd        := exec.Command(makeking, "-n", conf.NcmStr(), "-w", conf.WStr(), "-i", "-u")
-	makemassCmd        := exec.Command(makemass, "-f", "8", "-l", "0.1", "-u", "150")
-	makesecondaryCmd   := exec.Command(makesecondary, "-f", conf.FpbStr(), "-q", "-l", "0.1")
-	add_starCmd        := exec.Command(add_star, "-R", "1", "-Z", conf.ZStr())
-	scaleCmd           := exec.Command(scale, "-R", "1", "-M", "1")
-	makebinaryCmd      := exec.Command(makebinary, "-f", "2", "-o", "1", "-l", "1", "-u", "107836.09")
-	
-	
-	// makeking -> makemass
-	if makemassCmd.Stdin, err = makekingCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makemass: ", err)}
-	// makemass -> makesecondary
-	if makesecondaryCmd.Stdin, err = makemassCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makesecondary: ", err)}
-	// makesecondary -> add_star
-	if add_starCmd.Stdin, err = makesecondaryCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to add_star: ", err)}
-	// add_star -> scaleCmd
-	if scaleCmd.Stdin, err = add_starCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to scale: ", err)}
-	// scaleCmd -> makebinaryCmd
-	if makebinaryCmd.Stdin, err = scaleCmd.StdoutPipe(); err != nil {log.Fatal("Create pipe to makebinary: ", err)}
-	*/
-	
 	log.Println("Create folder and change to it:", folderName)
 	if err = os.Mkdir(folderName, 0700); err != nil {log.Fatal("Can't create folder ", err)}
 	

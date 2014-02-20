@@ -134,7 +134,17 @@ var StichOutputCmd = &cobra.Command{
 	Long:  `...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
-		StichOutput (inFileName, conf)
+		StichOutputSingle (inFileName, conf)
+	},
+}
+
+var StichThemAllCmd = &cobra.Command{
+	Use:   "stichThemAll",
+	Short: "Stich all the outputs (STDOUTs and STDERRs) in the folder",
+	Long:  `...`,
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := InitVars(ConfName)
+		StichThemAll (conf)
 	},
 }
 
@@ -166,5 +176,7 @@ func InitCommands() () {
 	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT or STDERR name to find what to stich")
 	StichOutputCmd.Flags().BoolVarP(&OnlyOut, "onlyOut", "O", false, "Only stich STDOUTs")
 	StichOutputCmd.Flags().BoolVarP(&OnlyErr, "onlyErr", "E", false, "Only stich STDERRs")
+	
+	SlToolsCmd.AddCommand(StichThemAllCmd)
 }
 
