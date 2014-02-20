@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+
+
 func StichOutput (inFileName string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	
@@ -113,7 +115,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 		}
 	}
 	
-	/*FileLoop: */for _, inFileName := range inFiles {
+	for _, inFileName := range inFiles {
 		if Verb {
 			log.Println("Working on ", inFileName)
 		}
