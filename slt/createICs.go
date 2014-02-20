@@ -213,6 +213,23 @@ func CreateICs (conf *ConfigStruct) () {
 			nIcsWriter.Flush()
 			nIcsWriterLog.Flush()
 			
+			/*
+			 In case of problems, Dave Cheney suggest
+			 (https://groups.google.com/d/msg/golang-nuts/pBa-6ywQE8c/V9JOsXMENrAJ)
+			 to lock the log while writing
+			 
+			type W struct {
+				w io.Writer
+				sync.Mutex
+			}
+
+			func (w *W) Write(buf []byte) (int, error) {
+				w.Lock()
+				defer w.Unlock()
+				return w.w.Write(buf)
+			} 
+			 */
+			
 			log.Println("Wrote ", outIcsName)
 		}
 	} else {
