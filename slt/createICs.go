@@ -7,10 +7,64 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 	"strconv"
+	
+	"github.com/deckarep/golang-set"
 )
 
+func CreateAllICs () () {
+	if Debug {Whoami(true)}
+	
+	var (
+		wg sync.WaitGroup
+		confFiles []string
+		outRegexp *regexp.Regexp = regexp.MustCompile(`conf(\d+).json`)
+		outRegResult []string
+		 golang-sets.Set
+	)
+	
+	tGlob0 := time.Now()
+	
+	if confFiles, err = filepath.Glob("conf*.json"); err != nil {
+		log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
+	}
+	sort.Strings(confFiles)
+	
+	combs = NewSetFromSlice(confFiles)
+		
+	if Verb {
+		log.Println("Found ", len(combs), " unique config files:")
+		fmt.Println(combs.String())
+	}
+	
+	for comb := range combs.Iter() {
+		if Verb {
+			log.Println("Launching stich based on ", comb)
+		}
+		conf := InitVars(comb)
+		wg.Add(1)
+		go CreateICs(conf)
+	}
+	
+	// Wait for all the goroutine to finish
+	wg.Wait()
+	
+	tGlob1 := time.Now()
+	fmt.Println()
+	log.Println("Wall time for parallel stich all ", tGlob1.Sub(tGlob0))
+	
+}
+
+func CreateICsSingleWrap (conf *ConfigStruct) () {
+	wg sync.WaitGroup
+	wg.Add(1)
+	go CreateICs (conf)
+	wg.Wait()
+}
+
 func CreateICs (conf *ConfigStruct) () {
+	defer wg.Done()
 	if Debug {Whoami(true)}
 	
 	// This variables are private to this function

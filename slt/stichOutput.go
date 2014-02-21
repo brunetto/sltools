@@ -44,7 +44,7 @@ func StichThemAll (conf *ConfigStruct) () {
 		
 		for _, inFileName := range inFiles {
 			// Find the run numbers
-			outRegResult = outRegexp.FindStringSubmatch(inFileName); 
+			outRegResult = outRegexp.FindStringSubmatch(inFileName) 
 			if outRegResult == nil {
 				log.Fatal("Can't find parameters in out name ", inFileName)
 			}
@@ -71,7 +71,7 @@ func StichThemAll (conf *ConfigStruct) () {
 	for runIdx := range runs.Iter() {
 		name := "out-"+conf.BaseName()+"-run"+runIdx+"-rnd01.txt"
 		if Verb {
-			log.Println("Launching stich based on ", )
+			log.Println("Launching stich based on ", name)
 		}
 		wg.Add(1)
 		go StichOutput (name, conf *ConfigStruct)

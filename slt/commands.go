@@ -62,15 +62,22 @@ It must be in the form of a JSON file like:
 }
 
 // Create ICs from JSON configuration file
-var RunICC bool
+var (
+	RunICC bool
+	StichAll bool
+)
 var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
 	Short: "Create ICs",
 	Long:  `Create initial conditions from the JSON config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := InitVars(ConfName)
-		CreateICs(conf)
-// 		CreateICsOld(conf)
+		if ICsAll {
+			log.Println("Create all ICs following all the .json config files in this folder")
+			CreateAllICs()
+		} else {
+			conf := InitVars(ConfName)
+			CreateICsSingleWrap(conf)
+		}
 	},
 }
 
@@ -157,6 +164,7 @@ func InitCommands() () {
 	
 	SlToolsCmd.AddCommand(CreateICsCmd)
 	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
+	StichOutputCmd.Flags().BoolVarP(&ICsAll, "all", "A", false, "Create all the ICs according to the conf.json files in the local folder")
 	
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
