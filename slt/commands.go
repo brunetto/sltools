@@ -1,56 +1,65 @@
 package slt
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
+	
+	"github.com/spf13/cobra"
 )
 
-// Package-wise verbosity
-// use with:
+// Verb control the package-wise verbosity.
+// Use with:
 // if Verb { ...
 var Verb bool 
+// Debug activate the package-wise debug verbosity.
+// Use with:
+// if Verb { ...
 var Debug bool
+// ConfName is the name of the JSON configuration file.
 var ConfName string
 
-// Root command
+// SlToolsCmd is the main command.
 var SlToolsCmd = &cobra.Command{
 	Use:   "sltools",
 	Short: "Tools for StarLab simulation management",
-	Long: `...`,
+	Long: `SlTools would help in running simulations with StarLab.
+It can create the inital conditions if StarLab is compiled and the 
+necessary binaries are available.
+SlTools can also prepare ICs from the last snapshot and stich the 
+output.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Choose a sub-command or type sltools help for help.")
 	},
 }
 
-// Print version
+// VersionCmd print the sltools version.
 var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of slt",
-	Long:  `All software has versions. This is sltools'`,
+	Long:  `All software has versions. This is sltools' one.`,
 	Run: func(cmd *cobra.Command, args []string) {
-	fmt.Println("StarLab Tools v0.6")
+	fmt.Println("StarLab Tools v0.8")
 	},
 }
 
-// Load JSON configuration file
+// ReadConfCmd load the JSON configuration file.
 var ReadConfCmd = &cobra.Command{
 	Use:   "readConf",
 	Short: "Read and print the configuration file",
 	Long:  `Read and print the configuration specify by the -c flag.
-It must be in the form of a JSON file like:
+	It must be in the form of a JSON file like:
 
-{
-	"Runs": 10,
-	"Comb": 18, 
-	"Ncm" : 10000,
-	"Fpb" : 0.10,
-	"W"   : 5,
-	"Z"   : 0.20,
-	"EndTime" : 500,
-	"Machine" : "plx",
-	"UserName" : "bziosi00",
-	"PName": "IscrC_VMStars" 
-}
+	{
+		"Runs": 10,
+		"Comb": 18, 
+		"Ncm" : 10000,
+		"Fpb" : 0.10,
+		"W"   : 5,
+		"Z"   : 0.20,
+		"EndTime" : 500,
+		"Machine" : "plx",
+		"UserName" : "bziosi00",
+		"PName": "IscrC_VMStars" 
+	}
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
@@ -61,15 +70,19 @@ It must be in the form of a JSON file like:
 	},
 }
 
-// Create ICs from JSON configuration file
+
 var (
 	RunICC bool
-	StichAll bool
+	ICsAll bool
 )
+
+// CreateICsCmd will launch the functions to create the ICs from JSON configuration file.
 var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
-	Short: "Create ICs",
-	Long:  `Create initial conditions from the JSON config file.`,
+	Short: "Create ICs from the JSON config file.",
+	Long:  `Create initial conditions from the JSON config file.
+	Use like:
+	sltools createICs -c conf21.json -v -C`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if ICsAll {
 			log.Println("Create all ICs following all the .json config files in this folder")
@@ -81,35 +94,41 @@ var CreateICsCmd = &cobra.Command{
 	},
 }
 
-// Create new ICs from STDOUT to restart the simulation
 var (
 	inFileName string
 	fileN string
 )
+// Out2ICsCmd creates new ICs from STDOUT to restart the simulation
 var Out2ICsCmd = &cobra.Command{
 	Use:   "out2ics",
 	Short: "Prepare the new ICs from the last STDOUT",
 	Long:  `StarLab can restart a simulation from the last complete output.
-	The continue command prepare the new ICs parsing the last STDOUT and writing
-	the last complete snapshot to the new input file.`,
+	The out2ics command prepare the new ICs parsing the last STDOUT and writing
+	the last complete snapshot to the new input file.
+	Use like:
+	sltools out2ics -i out-cineca-comb16-NCM10000-fPB005-W5-Z010-run06-rnd00.txt -n 1`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		Out2ICs(inFileName, conf)
 	},
 }
 
-// Create start scripts: kiraLaunch and PBSlaunch
+
 var (
 	icsName string
 	randomNumber string
 	simTime string
 	)
+// CreateStartScriptsCmd create start scripts: kiraLaunch and PBSlaunch
 var CreateStartScriptsCmd = &cobra.Command{
 	Use:   "createStartScripts",
 	Short: "Prepare the new ICs from all the last STDOUTs",
 	Long:  `StarLab can restart a simulation from the last complete output.
-	The continue command prepare the new ICs parsing all the last STDOUTs and writing
-	the last complete snapshot to the new input file.`,
+	The createStartScripts write the necessary start scripts to start a 
+	simulation from the ICs.
+	Use like:
+	sltools createStartScripts -i ics-cineca-comb18-NCM10000-fPB020-W5-Z010-run01-rnd00.txt -c conf.json
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		CreateStartScripts(icsName, randomNumber, simTime, conf)
@@ -122,24 +141,36 @@ var ContinueCmd = &cobra.Command{
 	Short: "Prepare the new ICs from all the last STDOUTs",
 	Long:  `StarLab can restart a simulation from the last complete output.
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
-	the last complete snapshot to the new input file.`,
+	the last complete snapshot to the new input file. It also write the necessary 
+	start scripts.
+	Use like:
+	sltools continue -c conf19.json -o out-cineca-comb19-NCM10000-fPB005-W9-Z010-run08-rnd01.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		Continue(inFileName, conf)
 	},
 }
 
-// Stich STDOUT and STDERR from different round of the same simulation 
-// (if you restarded your simulation)
+
 var (
 	OnlyOut bool
 	OnlyErr bool
 	StichAll bool
 )
+
+// StichOutputCmd stiches STDOUT and STDERR from different round of the same simulation 
+// (if you restarded your simulation). Can be run serially or in parallel on all the
+// file in the folder
 var StichOutputCmd = &cobra.Command{
 	Use:   "stichOutput",
-	Short: "stich output, only for one simulation or for all in the folder",
-	Long:  `...`,
+	Short: "Stich output, only for one simulation or for all in the folder",
+	Long:  `Stich STDOUT and STDERR from different round of the same simulation 
+	(if you restarded your simulation). Can be run serially or in parallel on all the
+	file in the folder.
+	You just need to select one of the files to stich or the --all flag to stich 
+	all the files in the folder accordingly to their names.
+	Use like:
+	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		if StichAll {

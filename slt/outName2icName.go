@@ -9,7 +9,7 @@ import (
 )
 
 
-// Create the output file name that will be the new IC for the restart
+// OutName2ICName create the output file name that will be the new IC for the restart
 func OutName2ICName (inFileName string, conf *ConfigStruct) (outFileName string) {
 	if Debug {Whoami(true)}
 	var (

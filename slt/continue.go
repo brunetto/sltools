@@ -19,7 +19,9 @@ func Continue (inFileName string, conf *ConfigStruct) {
 	)
 	
 	log.Println("Preparing to continue from ", inFileName)
+	// Create the new ICs from the las snapshot
 	simTime, randomNumber, icsName = Out2ICs (inFileName, conf)
+	// Create start scripts (kira launch and PBS)
 	CreateStartScripts (icsName, randomNumber, simTime, conf)
 		
 }

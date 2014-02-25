@@ -2,9 +2,9 @@ package slt
 
 // https://groups.google.com/d/msg/golang-nuts/JNyQxQLyf5o/kbGnTUK32TkJ
 import ( 
-"log"
-        "io" 
-        "os" 
+	"log"
+	"io" 
+	"os" 
 ) 
 
 func CopyFile(src, dst string) (int64, error) { 

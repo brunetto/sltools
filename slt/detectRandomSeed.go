@@ -1,16 +1,16 @@
 package slt
 
 import (
-	"bitbucket.org/brunetto/goutils/readfile"
 	"bufio"
 	"log"
 	"os"
 	"regexp"
 	"strings"
 	
-	
+	"bitbucket.org/brunetto/goutils/readfile"
 )
 
+// DetectRandomSeed read the initial random seed form the STDERR.
 func DetectRandomSeed(inFileName string) (randomSeed string) {
 	if Debug {Whoami(true)}
 	var (

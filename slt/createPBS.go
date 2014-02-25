@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// CreatePBS create the PBS script to launch the simulation.
 func CreatePBS (pbsOutName string, kiraOutName string, absFolderName string, run string, rnd string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	

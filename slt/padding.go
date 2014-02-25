@@ -5,6 +5,7 @@ import(
 	"strings"
 )
 
+// LeftPad returns the string padded filling remaining left spaces to `length` with `pad`.
 func LeftPad(str, pad string, length int) (string) {
 	if Debug {Whoami(true)}
 	var repeat int

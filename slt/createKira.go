@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// CreateKira create the kira script to launch the simulation.
 func CreateKira (kiraOutName, absFolderName, home, run, rnd, randomNumber, simTime string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	var (

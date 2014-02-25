@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Out2ICs read the STDOUT and write the new ICs with the last snapshot.
 func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 	if Debug {Whoami(true)}
 	

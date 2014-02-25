@@ -8,7 +8,7 @@ import (
 // 	"time"
 )
 
-
+// CreateStartScripts create the start scripts (kira launch and PBS launch for the ICs).
 func CreateStartScripts (icsName, randomNumber, simTime string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 

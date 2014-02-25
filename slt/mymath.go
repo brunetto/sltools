@@ -4,6 +4,7 @@ import (
 	"log"
 )
 
+// AbsInt is a self-made absolute value function for int64.
 func AbsInt (n int64) (int64) {
 	if n >= 0 {
 		return n

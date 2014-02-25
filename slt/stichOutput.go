@@ -1,7 +1,6 @@
 package slt
 
 import (
-	"github.com/deckarep/golang-set" // goroutine and sync un-safe sets
 	"bufio"
 	"compress/gzip"
 	"fmt"
@@ -13,20 +12,24 @@ import (
 	"sort"
 	"strconv"
 	"time"
+	
+	gset "github.com/deckarep/golang-set" // goroutine and sync un-safe sets
 )
 
+// StichThemAll launch the stiching in parallel on all the simulation files in 
+// the folder, accordingly to their names (run 01 is different from run 02 and so on).
 func StichThemAll (conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 		
 	var (
-		wg sync.WaitGroup
+		wg sync.WaitGroup // to wait the end of the goroutines
 		inFiles []string
 		outRuns []string
 		errRuns []string
-		prefixes []string{"out-", "err-"}
+		prefixes = []string{"out-", "err-"}
 		outRegexp *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.txt`)
 		outRegResult []string
-		runs golang-sets.Set
+		runs gset.Set // set = list of unique objects (run numbers)
 		nRuns []int64
 	)
 	
@@ -34,20 +37,23 @@ func StichThemAll (conf *ConfigStruct) () {
 	
 	nRuns = make([]int64, 0)
 	
+	// Search for all the STDOUT and STDERR files in the folder
 	for idx:=0; idx<2; idx++ {
 		if inFiles, err = filepath.Glob(prefixes[idx]+conf.BaseName()+"*"); err != nil {
 			log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
 		}
+		// Sort file names
 		sort.Strings(inFiles)
 		
-		runs = := NewSet()
+		runs = NewSet()
 		
+		// Find the numbers of the different runs
 		for _, inFileName := range inFiles {
-			// Find the run numbers
 			outRegResult = outRegexp.FindStringSubmatch(inFileName) 
 			if outRegResult == nil {
 				log.Fatal("Can't find parameters in out name ", inFileName)
 			}
+			// Add the new number in the set
 			runs.Add(outRegResult[1])
 		}
 		if Verb {
@@ -68,12 +74,15 @@ func StichThemAll (conf *ConfigStruct) () {
 	log.Println("Found ", nRuns[0], " runs in this folder:")
 	fmt.Println(runs.String())
 	
+	// Launch all the stiching
 	for runIdx := range runs.Iter() {
 		name := "out-"+conf.BaseName()+"-run"+runIdx+"-rnd01.txt"
 		if Verb {
 			log.Println("Launching stich based on ", name)
 		}
+		// Count the goroutine as running
 		wg.Add(1)
+		// Launch one stiching
 		go StichOutput (name, conf *ConfigStruct)
 	}
 	
@@ -89,12 +98,13 @@ func StichThemAll (conf *ConfigStruct) () {
 // because now StichOutput contain a call to wg.Done
 // and I don't want to import "sync" in command.go
 func StichOutputSingle (inFileName string, conf *ConfigStruct) () {
-	wg sync.WaitGroup
+	var wg sync.WaitGroup
 	wg.Add(1)
 	go StichOutput (inFileName, conf)
 	wg.Wait()
 }
 	
+// StichOutput stiches the STDOUT and STDERR of a simulation.
 func StichOutput (inFileName string, conf *ConfigStruct) () {
 	defer wg.Done()
 	if Debug {Whoami(true)}
@@ -109,6 +119,7 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 	
 	tGlob0 := time.Now()
 	
+	// Extract parameters from the name
 	outRegResult = outRegexp.FindStringSubmatch(inFileName); 
 	if outRegResult == nil {
 		log.Fatal("Can't find parameters in out name ", inFileName)
@@ -122,6 +133,7 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 	
 	log.Println("Stiching *-" + conf.BaseName() + `-run` + run + `-rnd*.txt`)
 	
+	// Check if only have to run STDERR stich
 	if !OnlyErr {
 	//
 	// STDOUT
@@ -132,6 +144,7 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 		log.Println("Only stich STDERRs")
 	}
 	
+	// Check if only have to run STDOUT stich
 	if !OnlyOut {
 	//
 	// STDERR
@@ -147,6 +160,7 @@ func StichOutput (inFileName string, conf *ConfigStruct) () {
 	}
 }
 
+// StdStich stiches a given STD??? according to the type passed with stdWhat.
 func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 	
@@ -203,6 +217,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 		if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
 		defer inFile.Close()
 		ext = filepath.Ext(inFileName)
+		// Try to open the file if it is a gzipped one or a simple txt
 		switch ext {
 			case ".txt":{
 				nReader = bufio.NewReader(inFile)
@@ -220,6 +235,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 			}
 		}
 		
+		//Read snapshots and write them if everything is OK
 		SnapLoop: for {
 			if stdWhat == "out" {
 				snapshot, err = ReadOutSnapshot(nReader)
@@ -260,7 +276,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 						continue SnapLoop /*to the next timestep*/
 					}
 				}
-				timesteps = append(timesteps, timestep)
+				timesteps = append(timesteps, timestep)// Write the snapshot
 				if err = snapshot.WriteSnapshot(nWriter); err != nil {
 					log.Fatal("Error while writing snapshot to file: ", err)
 				}

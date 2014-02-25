@@ -8,6 +8,7 @@ import (
 	"runtime"
 )
 
+// Whoami print the name of the calling function.
 func Whoami(print bool) string {
 	pc, _, _, ok := runtime.Caller(1)
 	if !ok {

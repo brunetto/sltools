@@ -7,30 +7,36 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"sort"
 	"sync"
 	"strconv"
+	"time"
 	
-	"github.com/deckarep/golang-set"
+	gset "github.com/deckarep/golang-set"
 )
 
+// CreateAllICs will create the ICs for all the JSON config files found in this folder.
 func CreateAllICs () () {
 	if Debug {Whoami(true)}
 	
 	var (
 		wg sync.WaitGroup
+		err error
 		confFiles []string
 		outRegexp *regexp.Regexp = regexp.MustCompile(`conf(\d+).json`)
 		outRegResult []string
-		 golang-sets.Set
+		combs gset.Set
 	)
 	
 	tGlob0 := time.Now()
-	
+	// Read all the JSON configuration files
 	if confFiles, err = filepath.Glob("conf*.json"); err != nil {
 		log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
 	}
 	sort.Strings(confFiles)
-	
+
+	// Create a set (list of unique objs) from the conf names
 	combs = NewSetFromSlice(confFiles)
 		
 	if Verb {
@@ -38,6 +44,7 @@ func CreateAllICs () () {
 		fmt.Println(combs.String())
 	}
 	
+	// Read the conf files and launch the ICs creation
 	for comb := range combs.Iter() {
 		if Verb {
 			log.Println("Launching stich based on ", comb)
@@ -56,13 +63,15 @@ func CreateAllICs () () {
 	
 }
 
+// CreateICsSingleWrap is a wrapper to run the serial version.
 func CreateICsSingleWrap (conf *ConfigStruct) () {
-	wg sync.WaitGroup
+	var wg sync.WaitGroup
 	wg.Add(1)
 	go CreateICs (conf)
 	wg.Wait()
 }
 
+// CreateICs creates the ICs for a single run.
 func CreateICs (conf *ConfigStruct) () {
 	defer wg.Done()
 	if Debug {Whoami(true)}

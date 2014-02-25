@@ -1,15 +1,17 @@
 package slt
 
 import (
-	"bitbucket.org/brunetto/goutils/readfile"
+	
 	"bufio"
 	"fmt"
 	"log"
 	"regexp"
 	"strings"
+	
+	"bitbucket.org/brunetto/goutils/readfile"
 )
 
-// Struct containing one snapshot without knowing anything about it
+// DumbSnapshot contains one snapshot without knowing anything about it
 type DumbSnapshot struct {
 	Timestep string
 	Integrity bool
@@ -17,7 +19,7 @@ type DumbSnapshot struct {
 	Lines []string
 }
 
-// Pick the snapshot line by line and write it to the
+// WriteSnapshot pick the snapshot line by line and write it to the
 // output file
 func (snap *DumbSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
 	if Debug {Whoami(true)}
@@ -29,7 +31,7 @@ func (snap *DumbSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
 	return err
 }
 
-// This function read one and only one snapshot at a time
+// ReadOutSnapshot read one and only one snapshot at a time
 func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	if Debug {Whoami(true)}
 	var (
@@ -87,7 +89,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 }
 
 
-// This function read one and only one snapshot at a time
+// ReadErrSnapshot read one and only one snapshot at a time
 func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	if Debug {Whoami(true)}
 	var (
