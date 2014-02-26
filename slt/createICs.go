@@ -7,13 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"sort"
 	"sync"
 	"strconv"
 	"time"
-	
-	gset "github.com/deckarep/golang-set"
 )
 
 // CreateAllICs will create the ICs for all the JSON config files found in this folder.
@@ -24,9 +20,7 @@ func CreateAllICs () () {
 		wg sync.WaitGroup
 		err error
 		confFiles []string
-		outRegexp *regexp.Regexp = regexp.MustCompile(`conf(\d+).json`)
-		outRegResult []string
-		combs gset.Set
+		combs StringSet
 	)
 	
 	tGlob0 := time.Now()
@@ -34,10 +28,9 @@ func CreateAllICs () () {
 	if confFiles, err = filepath.Glob("conf*.json"); err != nil {
 		log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
 	}
-	sort.Strings(confFiles)
-
+	
 	// Create a set (list of unique objs) from the conf names
-	combs = NewSetFromSlice(confFiles)
+	combs = NewStringSetFromSlice(confFiles)
 		
 	if Verb {
 		log.Println("Found ", len(combs), " unique config files:")
@@ -45,13 +38,17 @@ func CreateAllICs () () {
 	}
 	
 	// Read the conf files and launch the ICs creation
-	for comb := range combs.Iter() {
+	for _, comb := range combs.Sorted() {
 		if Verb {
 			log.Println("Launching stich based on ", comb)
 		}
 		conf := InitVars(comb)
 		wg.Add(1)
-		go CreateICs(conf)
+		go func(conf *ConfigStruct) {
+			// Decrement the counter when the goroutine completes.
+			defer wg.Done()
+			CreateICs(conf)
+		}(conf)
 	}
 	
 	// Wait for all the goroutine to finish
@@ -67,13 +64,16 @@ func CreateAllICs () () {
 func CreateICsSingleWrap (conf *ConfigStruct) () {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go CreateICs (conf)
+	go func(conf *ConfigStruct) {
+		// Decrement the counter when the goroutine completes.
+		defer wg.Done()
+		CreateICs(conf)
+		}(conf)
 	wg.Wait()
 }
 
 // CreateICs creates the ICs for a single run.
 func CreateICs (conf *ConfigStruct) () {
-	defer wg.Done()
 	if Debug {Whoami(true)}
 	
 	// This variables are private to this function

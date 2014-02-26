@@ -12,8 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"time"
-	
-	gset "github.com/deckarep/golang-set" // goroutine and sync un-safe sets
 )
 
 // StichThemAll launch the stiching in parallel on all the simulation files in 
@@ -22,20 +20,19 @@ func StichThemAll (conf *ConfigStruct) () {
 	if Debug {Whoami(true)}
 		
 	var (
+		err error
 		wg sync.WaitGroup // to wait the end of the goroutines
 		inFiles []string
-		outRuns []string
-		errRuns []string
 		prefixes = []string{"out-", "err-"}
 		outRegexp *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.txt`)
 		outRegResult []string
-		runs gset.Set // set = list of unique objects (run numbers)
-		nRuns []int64
+		runs StringSet // set = list of unique objects (run numbers)
+		nRuns []int
 	)
 	
 	tGlob0 := time.Now()
 	
-	nRuns = make([]int64, 0)
+	nRuns = make([]int, 0)
 	
 	// Search for all the STDOUT and STDERR files in the folder
 	for idx:=0; idx<2; idx++ {
@@ -45,7 +42,7 @@ func StichThemAll (conf *ConfigStruct) () {
 		// Sort file names
 		sort.Strings(inFiles)
 		
-		runs = NewSet()
+		runs = NewStringSet()
 		
 		// Find the numbers of the different runs
 		for _, inFileName := range inFiles {
@@ -60,7 +57,7 @@ func StichThemAll (conf *ConfigStruct) () {
 			log.Println("Found runs:")
 			fmt.Println(runs.String())
 		}
-		nRuns.append(len(runs))
+		nRuns = append(nRuns, len(runs))
 	}
 	
 	// Check for missing run outputs
@@ -75,7 +72,7 @@ func StichThemAll (conf *ConfigStruct) () {
 	fmt.Println(runs.String())
 	
 	// Launch all the stiching
-	for runIdx := range runs.Iter() {
+	for _, runIdx := range runs.Sorted() {
 		name := "out-"+conf.BaseName()+"-run"+runIdx+"-rnd01.txt"
 		if Verb {
 			log.Println("Launching stich based on ", name)
@@ -83,7 +80,11 @@ func StichThemAll (conf *ConfigStruct) () {
 		// Count the goroutine as running
 		wg.Add(1)
 		// Launch one stiching
-		go StichOutput (name, conf *ConfigStruct)
+		go func(name string, conf *ConfigStruct) {
+			// Decrement the counter when the goroutine completes.
+			defer wg.Done()
+			StichOutput (name, conf)
+		}(name, conf)
 	}
 	
 	// Wait for all the goroutine to finish
@@ -100,13 +101,16 @@ func StichThemAll (conf *ConfigStruct) () {
 func StichOutputSingle (inFileName string, conf *ConfigStruct) () {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go StichOutput (inFileName, conf)
+	go func(name string, conf *ConfigStruct) {
+		// Decrement the counter when the goroutine completes.
+		defer wg.Done()
+		StichOutput (name, conf)
+		}(inFileName, conf)
 	wg.Wait()
 }
 	
 // StichOutput stiches the STDOUT and STDERR of a simulation.
 func StichOutput (inFileName string, conf *ConfigStruct) () {
-	defer wg.Done()
 	if Debug {Whoami(true)}
 	
 	var (
