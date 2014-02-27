@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bitbucket.org/brunetto/sltools/slt"
 	"fmt"
 	"log"
 	"time"
+	
+	"bitbucket.org/brunetto/sltools/slt"
 )
 
 func main() {

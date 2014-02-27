@@ -13,6 +13,23 @@ import (
 )
 
 // CreateAllICs will create the ICs for all the JSON config files found in this folder.
+// Here I use sync.WaitGroup, another (older?) way is to use (from http://golang-examples.tumblr.com/tagged/goroutine)
+// doSomething := make(chan int)
+//     quit := make(chan int)
+// 
+//     go func() {
+//             select {
+//             case <- doSomething:
+//                     fmt.Println("done")
+//             case <- quit:
+//                     fmt.Println("quit")
+//             }
+//     }()
+// 
+//     close(quit) // stop the goroutine
+// //It’s better than sending a variable to ‘quit’ channel like,
+// 
+// quit <- 1 // stop the goroutine
 func CreateAllICs () () {
 	if Debug {Whoami(true)}
 	
