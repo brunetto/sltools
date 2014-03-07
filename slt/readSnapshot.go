@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	
@@ -81,12 +82,12 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 			if Verb {
 				log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
 			} else {
-				fmt.Fprintf(os.Stderr"\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
+				fmt.Fprintf(os.Stderr, "\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
 			}
+			fmt.Fprint(os.Stderr, "\n")
 			return snap, err
 		}
-	}	
-	fmt.Fprint(os.Stderr, "\n")
+	}
 }
 
 
@@ -153,10 +154,10 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 			if Verb {
 				log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
 			} else {
-				fmt.Fprintf(os.Stderr"\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
+				fmt.Fprintf(os.Stderr, "\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
 			}
+			fmt.Fprint(os.Stderr, "\n")
 			return snap, err
 		}
 	}	
-	fmt.Fprint(os.Stderr, "\n")
 }
