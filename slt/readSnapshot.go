@@ -84,7 +84,6 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 			} else {
 				fmt.Fprintf(os.Stderr, "\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
 			}
-			fmt.Fprint(os.Stderr, "\n")
 			return snap, err
 		}
 	}
@@ -156,7 +155,6 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 			} else {
 				fmt.Fprintf(os.Stderr, "\rTimestep %v integrity set to: %v", snap.Timestep, snap.Integrity)
 			}
-			fmt.Fprint(os.Stderr, "\n")
 			return snap, err
 		}
 	}	

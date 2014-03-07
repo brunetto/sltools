@@ -195,7 +195,7 @@ func InitCommands() () {
 	
 	SlToolsCmd.AddCommand(CreateICsCmd)
 	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
-	StichOutputCmd.Flags().BoolVarP(&ICsAll, "all", "A", false, "Create all the ICs according to the conf.json files in the local folder")
+	CreateICsCmd.Flags().BoolVarP(&ICsAll, "all", "A", false, "Create all the ICs according to the conf.json files in the local folder")
 	
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")

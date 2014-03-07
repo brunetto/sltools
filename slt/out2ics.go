@@ -104,7 +104,7 @@ func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 	if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
 		log.Fatal("Error while writing snapshot to file: ", err)
 	}
-	
+	fmt.Fprint(os.Stderr, "\n")
 	log.Println("Search for random seed...")
 	randomSeed = DetectRandomSeed(inFileName)
 	log.Println("Set -s flag to ", randomSeed)
