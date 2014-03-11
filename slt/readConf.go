@@ -23,6 +23,7 @@ type ConfigStruct struct {
 	Fpb float64
 	W int
 	Z float64
+	Tf string
 	Machine string
 	UserName string
 	PName string
@@ -53,6 +54,7 @@ func (conf *ConfigStruct) ReadConf (confName string) () {
 	if conf.UserName == "" {log.Fatal("UserName field in configuation file is empty")}
 	if conf.PName == "" {log.Fatal("PName field in configuation file is empty")}
 	if conf.EndTime <= 0 {log.Fatal("EndTime field in configuation file is empty, zero or negative")}
+	if len(conf.Tf) == 0 {}
 	fmt.Println("OK!")
 }
 
@@ -64,6 +66,10 @@ func (conf *ConfigStruct) Print () () {
 	fmt.Println("Combination number:\t\t", conf.Comb)
 	fmt.Println("Number of center of mass:\t", conf.Ncm)
 	fmt.Println("Number of primordial binaries:\t", conf.Fpb)
+	if len(conf.Tf) > 0 {
+		fmt.Println("Tidal fields:\t\t\t", conf.Tf)
+	}
+	
 	fmt.Println("Central adim. potential:\t", conf.W)
 	fmt.Println("Metallicity:\t\t\t", conf.Z)
 	fmt.Println("Timesteps:\t\t\t", conf.EndTime)
@@ -78,7 +84,7 @@ func (conf *ConfigStruct) RunsStr () (string) {
 
 // CombStr return the combination number in string form
 func (conf *ConfigStruct) CombStr () (string) {
-	return strconv.Itoa(conf.Comb)
+	return LeftPad(strconv.Itoa(conf.Comb), "0", 2)
 }
 
 // NcmStr return the number of centres of mass in the simulation in string form
@@ -124,12 +130,24 @@ func (conf *ConfigStruct) EndTimeStr () (string) {
 func (conf *ConfigStruct) BaseName () (string) {
 	if Debug {Whoami(true)}
 	
-	// baseName string
-	const baseName = "cineca-comb{{.CombStr}}" + 
-			   "-NCM{{.NcmStr}}" + 
-			   "-fPB{{.FpbCmpStr}}" + 
-			   "-W{{.WStr}}" + 
-			   "-Z{{.ZCmpStr}}"
+	var baseName string
+	
+	if len(conf.Tf) == 0 {
+		// baseName string
+		baseName = "cineca-comb{{.CombStr}}" + 
+				"-NCM{{.NcmStr}}" + 
+				"-fPB{{.FpbCmpStr}}" + 
+				"-W{{.WStr}}" + 
+				"-Z{{.ZCmpStr}}"
+	} else { 
+		baseName = "cineca-comb{{.CombStr}}" + 
+				"-TF{{.Tf}}" +
+				"-NCM{{.NcmStr}}" + 
+				"-fPB{{.FpbCmpStr}}" + 
+				"-W{{.WStr}}" + 
+				"-Z{{.ZCmpStr}}"
+		
+	}
 	// template to be filled
 	var baseTmpl *template.Template = template.Must(template.New("baseNameTmpl").Parse(baseName))
 	// buffer to write into
