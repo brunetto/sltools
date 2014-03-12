@@ -89,7 +89,6 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	}
 }
 
-
 // ReadErrSnapshot read one and only one snapshot at a time
 func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	if Debug {Whoami(true)}

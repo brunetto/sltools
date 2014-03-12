@@ -242,6 +242,10 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 			}
 		}
 		
+		if stdWhat == "err" {
+			
+		}
+		
 		//Read snapshots and write them if everything is OK
 		SnapLoop: for {
 			if stdWhat == "out" {
@@ -260,7 +264,7 @@ func StdStich (stdFiles, run, stdWhat string, conf *ConfigStruct) () {
 			// -1 is the "ICs to 0" timestep, skipping
 			// I will skip this also because it creates problems of duplication 
 			// and timestep check
-			if snapshot.Timestep == "-1" {continue SnapLoop /*to the next timestep*/}
+			if snapshot.Timestep == "-1" && len(timesteps) > 0 {continue SnapLoop /*to the next timestep*/}
 			
 			// I will loose the last timestep on STDERR because it is probably not complete
 			// TODO: find out how to manage this
