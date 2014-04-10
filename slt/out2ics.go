@@ -9,77 +9,92 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/brunetto/goutils/debug"
 )
 
 // Out2ICs read the STDOUT and write the new ICs with the last snapshot.
-func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
-	if Debug {Whoami(true)}
-	
+func Out2ICs(inFileName string, conf *ConfigStruct) (string, string, string) {
+	if Debug {
+		defer debug.TimeMe(time.Now())
+	}
+
 	var (
-		outFileName string
-		inFile *os.File
-		fZip *gzip.Reader
-		outFile *os.File
-		err error
-		nReader *bufio.Reader
-		nWriter *bufio.Writer
-		snapshots = make([]*DumbSnapshot, 2)
-		snpN int
+		outFileName    string
+		inFile         *os.File
+		fZip           *gzip.Reader
+		outFile        *os.File
+		err            error
+		nReader        *bufio.Reader
+		nWriter        *bufio.Writer
+		snapshots      = make([]*DumbSnapshot, 2)
+		snpN           int
 		simulationStop int64 = 500
-		thisTimestep int64 = 0
-		randomSeed string
-		remainingTime int64
-		ext string
+		thisTimestep   int64 = 0
+		randomSeed     string
+		remainingTime  int64
+		ext            string
 	)
-	
+
 	tGlob0 := time.Now()
-	
+
 	if inFileName == "" {
 		log.Fatal("You need to specify an input file with the -i flag!!!")
 	}
-	
+
 	// Open infile, both text or gzip
 	log.Println("Opening input and output files...")
-	if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
+	if inFile, err = os.Open(inFileName); err != nil {
+		log.Fatal(err)
+	}
 	defer inFile.Close()
 	ext = filepath.Ext(inFileName)
 	switch ext {
-		case ".txt":{
+	case ".txt":
+		{
 			nReader = bufio.NewReader(inFile)
 		}
-		case ".gz": {
+	case ".gz":
+		{
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
-			log.Fatal("Can't open %s: error: %s\n", inFile, err)
+				log.Fatal("Can't open %s: error: %s\n", inFile, err)
 			}
 			nReader = bufio.NewReader(fZip)
 		}
-		default: {
+	default:
+		{
 			log.Println("Unrecognized file type", inFileName)
 			log.Fatal("with extention ", ext)
 		}
 	}
 
 	// outFile name
-	outFileName = OutName2ICName (inFileName, conf)	
+	outFileName = OutName2ICName(inFileName, conf)
 	log.Println("Output file will be ", outFileName)
-	
+
 	// Open outFile and outWriter
-	if outFile, err = os.Create(outFileName); err != nil {log.Fatal(err)}
+	if outFile, err = os.Create(outFileName); err != nil {
+		log.Fatal(err)
+	}
 	defer outFile.Close()
-	
+
 	// Create writer
 	nWriter = bufio.NewWriter(outFile)
 	defer nWriter.Flush()
-	
+
 	log.Println("Start reading...")
 	// Read two snapshot each loop to ensure at least one of them is complete
 	// (= I keep the previous read in memory in case the last is corrupted)
 	for {
-		if snapshots[0], err = ReadOutSnapshot(nReader); err != nil {break}
-		if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {break}
+		if snapshots[0], err = ReadOutSnapshot(nReader); err != nil {
+			break
+		}
+		if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {
+			break
+		}
 	}
-	
+
 	// Check integrity once the file reading is ended
 	// First the last read, then the previous one
 	if snapshots[1].Integrity == true {
@@ -98,7 +113,7 @@ func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 	thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
 	remainingTime = simulationStop - thisTimestep
 	log.Println("Set -t flag to ", remainingTime)
-	
+
 	// Write last complete snapshot to file
 	log.Println("Writing snapshot to ", outFileName)
 	if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
@@ -108,10 +123,10 @@ func Out2ICs (inFileName string, conf *ConfigStruct) (string, string, string) {
 	log.Println("Search for random seed...")
 	randomSeed = DetectRandomSeed(inFileName)
 	log.Println("Set -s flag to ", randomSeed)
-	
+
 	tGlob1 := time.Now()
 	fmt.Println()
 	log.Println("Wall time for creating ICs from STDOUT ", tGlob1.Sub(tGlob0))
-	
+
 	return strconv.Itoa(int(remainingTime)), randomSeed, outFileName
 }

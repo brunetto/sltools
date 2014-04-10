@@ -1,4 +1,4 @@
-// From 
+// From
 // http://programmers.stackexchange.com/questions/177428/sets-data-structure-in-golang
 // http://play.golang.org/p/_FvECoFvhq
 // https://groups.google.com/forum/#!topic/golang-nuts/lb4xLHq7wug
@@ -42,14 +42,14 @@ func (set StringSet) Add(item string) bool {
 	if _, exists = set[item]; !exists {
 		set[item] = true
 	}
-	return !exists//False if it existed already
+	return !exists //False if it existed already
 }
 
 // Get return the element if it exists
 func (set StringSet) Get(item string) bool {
 	var exists bool
 	_, exists = set[item]
-	return exists	//true if it existed already
+	return exists //true if it existed already
 }
 
 // Remove removes an item form the set if it exists
@@ -71,4 +71,3 @@ func (set StringSet) Sorted() []string {
 func (set StringSet) String() string {
 	return strings.Join(set.Sorted(), ", ")
 }
-

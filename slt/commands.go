@@ -3,17 +3,20 @@ package slt
 import (
 	"fmt"
 	"log"
+
 	"github.com/spf13/cobra"
 )
 
 // Verb control the package-wise verbosity.
 // Use with:
 // if Verb { ...
-var Verb bool 
+var Verb bool
+
 // Debug activate the package-wise debug verbosity.
 // Use with:
 // if Verb { ...
 var Debug bool
+
 // ConfName is the name of the JSON configuration file.
 var ConfName string
 
@@ -37,7 +40,7 @@ var VersionCmd = &cobra.Command{
 	Short: "Print the version number of slt",
 	Long:  `All software has versions. This is sltools' one.`,
 	Run: func(cmd *cobra.Command, args []string) {
-	fmt.Println("StarLab Tools v0.8")
+		fmt.Println("StarLab Tools v0.8")
 	},
 }
 
@@ -45,7 +48,7 @@ var VersionCmd = &cobra.Command{
 var ReadConfCmd = &cobra.Command{
 	Use:   "readConf",
 	Short: "Read and print the configuration file",
-	Long:  `Read and print the configuration specify by the -c flag.
+	Long: `Read and print the configuration specify by the -c flag.
 	It must be in the form of a JSON file like:
 
 	{
@@ -70,7 +73,6 @@ var ReadConfCmd = &cobra.Command{
 	},
 }
 
-
 var (
 	RunICC bool
 	ICsAll bool
@@ -80,7 +82,7 @@ var (
 var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
 	Short: "Create ICs from the JSON config file.",
-	Long:  `Create initial conditions from the JSON config file.
+	Long: `Create initial conditions from the JSON config file.
 	Use like:
 	sltools createICs -c conf21.json -v -C`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -96,13 +98,14 @@ var CreateICsCmd = &cobra.Command{
 
 var (
 	inFileName string
-	fileN string
+	fileN      string
 )
+
 // Out2ICsCmd creates new ICs from STDOUT to restart the simulation
 var Out2ICsCmd = &cobra.Command{
 	Use:   "out2ics",
 	Short: "Prepare the new ICs from the last STDOUT",
-	Long:  `StarLab can restart a simulation from the last complete output.
+	Long: `StarLab can restart a simulation from the last complete output.
 	The out2ics command prepare the new ICs parsing the last STDOUT and writing
 	the last complete snapshot to the new input file.
 	Use like:
@@ -113,17 +116,17 @@ var Out2ICsCmd = &cobra.Command{
 	},
 }
 
-
 var (
-	icsName string
+	icsName      string
 	randomNumber string
-	simTime string
-	)
+	simTime      string
+)
+
 // CreateStartScriptsCmd create start scripts: kiraLaunch and PBSlaunch
 var CreateStartScriptsCmd = &cobra.Command{
 	Use:   "createStartScripts",
 	Short: "Prepare the new ICs from all the last STDOUTs",
-	Long:  `StarLab can restart a simulation from the last complete output.
+	Long: `StarLab can restart a simulation from the last complete output.
 	The createStartScripts write the necessary start scripts to start a 
 	simulation from the ICs.
 	Use like:
@@ -139,7 +142,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 var ContinueCmd = &cobra.Command{
 	Use:   "continue",
 	Short: "Prepare the new ICs from all the last STDOUTs",
-	Long:  `StarLab can restart a simulation from the last complete output.
+	Long: `StarLab can restart a simulation from the last complete output.
 	The continue command prepare the new ICs parsing all the last STDOUTs and writing
 	the last complete snapshot to the new input file. It also write the necessary 
 	start scripts.
@@ -151,20 +154,19 @@ var ContinueCmd = &cobra.Command{
 	},
 }
 
-
 var (
-	OnlyOut bool
-	OnlyErr bool
+	OnlyOut  bool
+	OnlyErr  bool
 	StichAll bool
 )
 
-// StichOutputCmd stiches STDOUT and STDERR from different round of the same simulation 
+// StichOutputCmd stiches STDOUT and STDERR from different round of the same simulation
 // (if you restarded your simulation). Can be run serially or in parallel on all the
 // file in the folder
 var StichOutputCmd = &cobra.Command{
 	Use:   "stichOutput",
 	Short: "Stich output, only for one simulation or for all in the folder",
-	Long:  `Stich STDOUT and STDERR from different round of the same simulation 
+	Long: `Stich STDOUT and STDERR from different round of the same simulation 
 	(if you restarded your simulation). Can be run serially or in parallel on all the
 	file in the folder.
 	You just need to select one of the files to stich or the --all flag to stich 
@@ -175,43 +177,41 @@ var StichOutputCmd = &cobra.Command{
 		conf := InitVars(ConfName)
 		if StichAll {
 			log.Println("Stich all!")
-			StichThemAll (conf)
+			StichThemAll(conf)
 		} else {
-			StichOutputSingle (inFileName, conf)
+			StichOutputSingle(inFileName, conf)
 		}
 	},
 }
 
-
 // Init commands and attach flags
-func InitCommands() () {
+func InitCommands() {
 
 	SlToolsCmd.AddCommand(VersionCmd)
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	SlToolsCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug output")
 	SlToolsCmd.PersistentFlags().StringVarP(&ConfName, "confName", "c", "", "Name of the JSON config file")
-	
+
 	SlToolsCmd.AddCommand(ReadConfCmd)
-	
+
 	SlToolsCmd.AddCommand(CreateICsCmd)
 	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
 	CreateICsCmd.Flags().BoolVarP(&ICsAll, "all", "A", false, "Create all the ICs according to the conf.json files in the local folder")
-	
+
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-	
+
 	SlToolsCmd.AddCommand(Out2ICsCmd)
-	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")	
-	
+	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
+
 	SlToolsCmd.AddCommand(CreateStartScriptsCmd)
 	CreateStartScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
 	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
-	
+
 	SlToolsCmd.AddCommand(StichOutputCmd)
 	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT or STDERR name to find what to stich")
 	StichOutputCmd.Flags().BoolVarP(&OnlyOut, "onlyOut", "O", false, "Only stich STDOUTs")
 	StichOutputCmd.Flags().BoolVarP(&OnlyErr, "onlyErr", "E", false, "Only stich STDERRs")
 	StichOutputCmd.Flags().BoolVarP(&StichAll, "all", "A", false, "Stich all the run outputs in the folder")
 }
-
