@@ -35,10 +35,9 @@ func CreatePBS(pbsOutName string, kiraOutName string, absFolderName string, run 
 			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
 			"/cineca/prod/compilers/cuda/5.0.35/none/lib64:" +
 			"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
-			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
+			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/eurora/home/userexternal/mmapelli/\n\n" +
 			"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/5.0.35/none/lib64:/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
-			"export LD_LIBRARY_PATH\n" +
-			"/eurora/home/userexternal/mmapelli/\n\n"
+			"export LD_LIBRARY_PATH\n"
 			queue = "parallel"
 			walltime = "4:00:00"
 	} else if conf.Machine == "plx" {

@@ -28,7 +28,7 @@ func StichThemAll(conf *ConfigStruct) {
 		wg           sync.WaitGroup // to wait the end of the goroutines
 		inFiles      []string
 		prefixes                    = []string{"out-", "err-"}
-		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.txt`)
+		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.\S`)
 		outRegResult []string
 		runs         StringSet // set = list of unique objects (run numbers)
 		nRuns        []int
@@ -82,7 +82,7 @@ func StichThemAll(conf *ConfigStruct) {
 
 	// Launch all the stiching
 	for _, runIdx := range runs.Sorted() {
-		name := "out-" + conf.BaseName() + "-run" + runIdx + "-rnd01.txt"
+		name := "out-" + conf.BaseName() + "-run" + runIdx + "-rnd00.*"
 		if Verb {
 			log.Println("Launching stich based on ", name)
 		}
@@ -128,7 +128,7 @@ func StichOutput(inFileName string, conf *ConfigStruct) {
 	}
 
 	var (
-		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.txt`)
+		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.\S`)
 		outRegResult []string
 		run          string
 		stdOuts      string
@@ -149,14 +149,14 @@ func StichOutput(inFileName string, conf *ConfigStruct) {
 		log.Fatal("You need to specify an input file template with the -i flag!!!")
 	}
 
-	log.Println("Stiching *-" + conf.BaseName() + `-run` + run + `-rnd*.txt`)
+	log.Println("Stiching *-" + conf.BaseName() + `-run` + run + `-rnd*.*`)
 
 	// Check if only have to run STDERR stich
 	if !OnlyErr {
 		//
 		// STDOUT
 		//
-		stdOuts = "out-" + conf.BaseName() + `-run` + run + `-rnd*.txt`
+		stdOuts = "out-" + conf.BaseName() + `-run` + run + `-rnd*.*`
 		StdStich(stdOuts, run, "out", conf)
 	} else {
 		log.Println("Only stich STDERRs")
@@ -167,7 +167,7 @@ func StichOutput(inFileName string, conf *ConfigStruct) {
 		//
 		// STDERR
 		//
-		stdErrs = "err-" + conf.BaseName() + `-run` + run + `-rnd*.txt`
+		stdErrs = "err-" + conf.BaseName() + `-run` + run + `-rnd*.*`
 		StdStich(stdErrs, run, "err", conf)
 
 		tGlob1 := time.Now()
