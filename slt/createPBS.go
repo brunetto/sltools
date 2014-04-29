@@ -23,6 +23,7 @@ func CreatePBS(pbsOutName string, kiraOutName string, absFolderName string, run 
 		err       error
 		modules   string
 		queue string
+		walltime string
 	)
 
 	if conf.Machine == "eurora" {
@@ -36,7 +37,8 @@ func CreatePBS(pbsOutName string, kiraOutName string, absFolderName string, run 
 			"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
 			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
 			"/eurora/home/userexternal/mmapelli/\n\n"
-			queue = "debug"
+			queue = "parallel"
+			walltime = "4:00:00"
 	} else if conf.Machine == "plx" {
 		modules = "module purge\n" +
 			"module load gnu/4.1.2\n" +
@@ -49,6 +51,7 @@ func CreatePBS(pbsOutName string, kiraOutName string, absFolderName string, run 
 			"prod/compilers/intel/11.1/binary/lib/intel64\n" +
 			"export LD_LIBRARY_PATH\n\n"
 			queue = "longpar"
+			walltime = "24:00:00"
 	} else {
 		log.Fatal("Uknown machine name ", conf.Machine)
 	}
@@ -57,7 +60,7 @@ func CreatePBS(pbsOutName string, kiraOutName string, absFolderName string, run 
 		"#PBS -N r" + conf.CombStr() + "-" + run + "-" + rnd + "\n" +
 		"#PBS -A " + conf.PName + "\n" +
 		"#PBS -q " + queue + "\n" +
-		"#PBS -l walltime=24:00:00\n" +
+		"#PBS -l walltime=" + walltime + "\n" +
 		"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +
 		modules +
 		"sh " + filepath.Join(absFolderName, kiraOutName) + "\n"

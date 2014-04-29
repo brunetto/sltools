@@ -84,7 +84,8 @@ var CreateICsCmd = &cobra.Command{
 	Short: "Create ICs from the JSON config file.",
 	Long: `Create initial conditions from the JSON config file.
 	Use like:
-	sltools createICs -c conf21.json -v -C`,
+	sltools createICs -c conf21.json -v -C
+	sltools createICs -v -C -A # to create folders and ICs for all the config files`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if ICsAll {
 			log.Println("Create all ICs following all the .json config files in this folder")
@@ -172,7 +173,8 @@ var StichOutputCmd = &cobra.Command{
 	You just need to select one of the files to stich or the --all flag to stich 
 	all the files in the folder accordingly to their names.
 	Use like:
-	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt`,
+	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
+	sltools stichOutput -c conf19.json -A # to stich all the outputs in the folder`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := InitVars(ConfName)
 		if StichAll {

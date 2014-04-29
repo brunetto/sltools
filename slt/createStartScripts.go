@@ -31,8 +31,6 @@ func CreateStartScripts(icsName, randomNumber, simTime string, conf *ConfigStruc
 		icsRegResult  []string
 	)
 
-	// 	tGlob0 := time.Now()
-
 	if conf.Machine == "eurora" {
 		home = "/eurora/home/userexternal/" + conf.UserName
 	} else if conf.Machine == "plx" {
@@ -67,8 +65,4 @@ func CreateStartScripts(icsName, randomNumber, simTime string, conf *ConfigStruc
 	CreateKira(kiraOutName, absFolderName, home, run, rnd, randomNumber, simTime, conf)
 	CreatePBS(pbsOutName, kiraOutName, absFolderName, run, rnd, conf)
 
-	// 	tGlob1 := time.Now()
-	// 	fmt.Println()
-	// 	log.Println("Wall time for creating kira and PBS scripts ", tGlob1.Sub(tGlob0))
-	// 	fmt.Println()
 }

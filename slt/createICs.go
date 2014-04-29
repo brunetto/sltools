@@ -77,7 +77,7 @@ func CreateAllICs() {
 
 	tGlob1 := time.Now()
 	fmt.Println()
-	log.Println("Wall time for parallel stich all ", tGlob1.Sub(tGlob0))
+	log.Println("Wall time for creating all ICs", tGlob1.Sub(tGlob0))
 
 }
 
@@ -89,7 +89,7 @@ func CreateICsSingleWrap(conf *ConfigStruct) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func(conf *ConfigStruct) {
-		// Decrement the counter when the goroutine completes.
+// 		Decrement the counter when the goroutine completes.
 		defer wg.Done()
 		CreateICs(conf)
 	}(conf)
@@ -281,7 +281,6 @@ func CreateICs(conf *ConfigStruct) {
 			if err = makekingCmd.Wait(); err != nil {
 				log.Fatal("Wait makeking: ", err)
 			}
-
 			if err = makemassCmd.Start(); err != nil {
 				log.Fatal("Start makemass: ", err)
 			}
