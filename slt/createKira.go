@@ -34,7 +34,8 @@ func CreateKira(kiraOutName, absFolderName, home, run, rnd, randomNumber, simTim
 		randomString = "-s " + randomNumber
 	}
 
-	kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
+	kiraBinPath = "/eurora/home/userexternal/bziosi00/starlabjune19_2013/usr/bin"
+	//filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
 
 	runString := "-run" + run + "-rnd" + rnd
 
