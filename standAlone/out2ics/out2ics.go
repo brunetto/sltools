@@ -132,7 +132,7 @@ func main() {
 		"You can watch the status of the simulation by running: \n" + 
 		"----------------------\n" +
 		"watch stat " + newErrFileName + "\n" +
-		"cat " + newErrFileName + ` grep | "Time = " | tail -n 1` + "\n" +
+		"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" +
 		"----------------------\n\n"
 	
 	
