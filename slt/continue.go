@@ -28,5 +28,5 @@ func Continue(inFileName string, conf *ConfigStruct) {
 	simTime, randomNumber, icsName = Out2ICs(inFileName, conf)
 	// Create start scripts (kira launch and PBS)
 	CreateStartScripts(icsName, randomNumber, simTime, conf)
-
 }
+
