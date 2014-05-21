@@ -1,0 +1,4 @@
+Now I'll try to simplify and to use a single minimal functions to do things 
+that can be called from the standalone version and the bundle.
+They will use channels to be able to be run in parallel
+
