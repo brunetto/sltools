@@ -35,8 +35,6 @@ func StichThemAll(conf *ConfigStruct) {
 		globName     string
 	)
 
-	tGlob0 := time.Now()
-
 	nRuns = make([]int, 0)
 
 	// Search for all the STDOUT and STDERR files in the folder
@@ -99,9 +97,6 @@ func StichThemAll(conf *ConfigStruct) {
 	// Wait for all the goroutine to finish
 	wg.Wait()
 
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for parallel stich all ", tGlob1.Sub(tGlob0))
 }
 
 // FIXME: Workaround to call StichOutput not in parallel
@@ -134,9 +129,7 @@ func StichOutput(inFileName string, conf *ConfigStruct) {
 		stdOuts      string
 		stdErrs      string
 	)
-
-	tGlob0 := time.Now()
-
+	
 	// Extract parameters from the name
 	outRegResult = outRegexp.FindStringSubmatch(inFileName)
 	if outRegResult == nil {
@@ -170,9 +163,6 @@ func StichOutput(inFileName string, conf *ConfigStruct) {
 		stdErrs = "err-" + conf.BaseName() + `-run` + run + `-rnd*.*`
 		StdStich(stdErrs, run, "err", conf)
 
-		tGlob1 := time.Now()
-		fmt.Println()
-		log.Println("Wall time for stich output ", tGlob1.Sub(tGlob0))
 	} else {
 		log.Println("Only stich STDOUTs")
 	}
@@ -198,8 +188,6 @@ func StdStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
 		timesteps                             = make([]int64, 0)
 		ext                                   string
 	)
-
-	tGlob0 := time.Now()
 
 	log.Println("Stich std" + stdWhat)
 	outFileName = stdWhat + "-" + conf.BaseName() + "-run" + run + "-all.txt"
@@ -330,9 +318,6 @@ func StdStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
 	log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
 	fmt.Println(timesteps)
 
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for stich STDOUT output ", tGlob1.Sub(tGlob0))
 }
 
 // StdStich stiches a given STD??? according to the type passed with stdWhat.
@@ -355,8 +340,6 @@ func DumbStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
 		timesteps                             = make([]int64, 0)
 		ext                                   string
 	)
-
-	tGlob0 := time.Now()
 
 	log.Println("Stich std" + stdWhat)
 	outFileName = stdWhat + "-" + conf.BaseName() + "-run" + run + "-all.txt"
@@ -483,7 +466,4 @@ func DumbStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
 	log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
 	fmt.Println(timesteps)
 
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for stich STDOUT output ", tGlob1.Sub(tGlob0))
 }

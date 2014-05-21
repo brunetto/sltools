@@ -44,7 +44,6 @@ func CreateAllICs() {
 		combs     StringSet
 	)
 
-	tGlob0 := time.Now()
 	// Read all the JSON configuration files
 	if confFiles, err = filepath.Glob("conf*.json"); err != nil {
 		log.Fatal("Error globbing for stiching all the run outputs in this folder: ", err)
@@ -74,10 +73,6 @@ func CreateAllICs() {
 
 	// Wait for all the goroutine to finish
 	wg.Wait()
-
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for creating all ICs", tGlob1.Sub(tGlob0))
 
 }
 
