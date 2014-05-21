@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -8,10 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"bufio"
-
 	"bitbucket.org/brunetto/sltools/slt"
-
 	"github.com/brunetto/goutils/debug"
 )
 
@@ -19,22 +17,22 @@ func main() {
 	defer debug.TimeMe(time.Now())
 
 	var (
-		err                            error
-		inFileName, newICsFileName     string
-		inFile, newICsFile             *os.File
+		err                            error    // errora container
+		inFileName, newICsFileName     string   // last STDOUT and new ICs file names
+		inFile, newICsFile             *os.File // last STDOUT and new ICs file
 		nReader                        *bufio.Reader
 		nWriter                        *bufio.Writer
-		regString                      string         = `(\w{3})-(\S*-rnd)(\d*)(\.\S*)`
-		regExp                         *regexp.Regexp = regexp.MustCompile(regString)
-		regResult                      []string
-		fileNameBody, newRnd, ext      string
-		snapshots                      = make([]*slt.DumbSnapshot, 2)
-		snpN                           int
-		simulationStop                 int64 = 500
-		thisTimestep, remainingTime    int64
-		randomSeed                     string
-		runString                      string
-		newErrFileName, newOutFileName string
+		regString                      string                         = `(\w{3})-(\S*-rnd)(\d*)(\.\S*)` // extract prefix, body, ext from the filename
+		regExp                         *regexp.Regexp                 = regexp.MustCompile(regString)   // compile regexp
+		regResult                      []string                                                         // regexp result container
+		fileNameBody, newRnd, ext      string                                                           // newRnd is the number of the new run round
+		snapshots                      = make([]*slt.DumbSnapshot, 2)                                   // slice for two snapshots
+		snpN                           int                                                              // number of the snapshot
+		simulationStop                 int64                          = 500                             // when to stop the simulation
+		thisTimestep, remainingTime    int64                                                            // current timestep number and remaining timesteps to reach simulationStop
+		randomSeed                     string                                                           // random seed from STDERR
+		runString                      string                                                           // string to run the next round from terminal
+		newErrFileName, newOutFileName string                                                           // new names from STDERR and STDOUT
 	)
 
 	if len(os.Args) < 2 {
@@ -121,7 +119,7 @@ func main() {
 	randomSeed = slt.DetectRandomSeed(inFileName)
 	log.Println("Set -s flag to ", randomSeed)
 
-	runString = "\nRun with:\n" +
+	runString = "\nYou can run the new round from the terminal with:\n" +
 		"----------------------\n" +
 		"(/home/ziosi/Code/Mapelli/slpack/starlab/usr/bin/kira -F -t " +
 		strconv.Itoa(int(remainingTime)) +
@@ -129,16 +127,13 @@ func main() {
 		"-n 10 -e 0.000 -B -s " + randomSeed +
 		" < " + newICsFileName + " >  " + newOutFileName + " 2> " + newErrFileName + ")& \n" +
 		"----------------------\n\n" +
-		"You can watch the status of the simulation by running: \n" + 
+		"You can watch the status of the simulation by running: \n" +
 		"----------------------\n" +
 		"watch stat " + newErrFileName + "\n" +
 		"----------\n" +
 		"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" +
 		"----------------------\n\n"
-	
-	
-		
-	fmt.Println(runString)
 
+	fmt.Println(runString)
 	fmt.Println()
 }
