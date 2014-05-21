@@ -14,8 +14,8 @@ func main() {
 
 	var (
 		inFileName string
-		nFileNameChan chan string
-		cssInfo chan map[string][string]
+		nFileNameChan = make(chan string, 1)
+		cssInfo = make(chan map[string][string], 1)
 	)
 
 	if len(os.Args) < 2 {
@@ -24,7 +24,7 @@ func main() {
 
 	inFileName = os.Args[1]
 	
-	go slt.Out2ICs(inFileNameChan chan string, cssInfo chan map[string][string])
+	go slt.Out2ICs(inFileNameChan, cssInfo)
 	
 	inFileNameChan <- inFileName
 	close(inFileNameChan)

@@ -12,21 +12,23 @@ import (
 // by calling Out2ICs and then it will create the needed scripts for launching
 // the simulation (kiraLaunch and PBSlaunch) calling CreateStartScripts.
 // It needs a valid configuration file.
-func Continue(inFileName string, conf *ConfigStruct) {
+func Continue(inFileName string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
 
 	var (
-		icsName      string
-		simTime      string
-		randomNumber string
+		machine, remainingTime, randomSeed string
+		nFileNameChan = make(chan string, 1)
+		cssInfo = make(chan map[string]string, 1)
 	)
+	
+	
+	go slt.Out2ICs(inFileNameChan, cssInfo)
+	go slt.CreateStartScripts(cssInfo, machine)
+	
+	inFileNameChan <- inFileName
+	close(inFileNameChan)	
 
-	log.Println("Preparing to continue from ", inFileName)
-	// Create the new ICs from the las snapshot
-	simTime, randomNumber, icsName = Out2ICs(inFileName, conf)
-	// Create start scripts (kira launch and PBS)
-	CreateStartScripts(icsName, randomNumber, simTime, conf)
 }
 

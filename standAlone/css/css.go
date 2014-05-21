@@ -18,7 +18,7 @@ func main() {
 	}
 	var (
 		icsName, machine, remainingTime, randomSeed string
-		cssInfo chan map[string]string
+		cssInfo = make(chan map[string]string, 1)
 	)
 
 	if len(os.Args) < 5 {
@@ -35,7 +35,7 @@ func main() {
 		randomSeed = os.Args[4]
 	}
 	
-	go slt.CreateStartScripts(cssInfo chan map[string]string, machine string)
+	go slt.CreateStartScripts(cssInfo, machine)
 
 	cssInfo <- map[string]string{
 			"remainingTime": remainingTime,
