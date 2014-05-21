@@ -36,8 +36,6 @@ func Out2ICs(inFileName string, conf *ConfigStruct) (string, string, string) {
 		ext            string
 	)
 
-	tGlob0 := time.Now()
-
 	if inFileName == "" {
 		log.Fatal("You need to specify an input file with the -i flag!!!")
 	}
@@ -123,10 +121,6 @@ func Out2ICs(inFileName string, conf *ConfigStruct) (string, string, string) {
 	log.Println("Search for random seed...")
 	randomSeed = DetectRandomSeed(inFileName)
 	log.Println("Set -s flag to ", randomSeed)
-
-	tGlob1 := time.Now()
-	fmt.Println()
-	log.Println("Wall time for creating ICs from STDOUT ", tGlob1.Sub(tGlob0))
 
 	return strconv.Itoa(int(remainingTime)), randomSeed, outFileName
 }
