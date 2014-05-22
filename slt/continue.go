@@ -1,7 +1,6 @@
 package slt
 
 import (
-	"log"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
@@ -19,16 +18,18 @@ func Continue(inFileName string) {
 
 	var (
 		machine, remainingTime, randomSeed string
-		nFileNameChan = make(chan string, 1)
+		inFileNameChan = make(chan string, 1)
 		cssInfo = make(chan map[string]string, 1)
+		done chan struct{}
 	)
 	
 	
-	go slt.Out2ICs(inFileNameChan, cssInfo)
-	go slt.CreateStartScripts(cssInfo, machine)
+	go Out2ICs(inFileNameChan, cssInfo)
+	go CreateStartScripts(cssInfo, machine, done)
 	
 	inFileNameChan <- inFileName
-	close(inFileNameChan)	
+	close(inFileNameChan)
+	<-done // wait the goroutine to finish
 
 }
 

@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"sync"
@@ -18,7 +18,7 @@ import (
 
 // StichThemAll launch the stiching in parallel on all the simulation files in
 // the folder, accordingly to their names (run 01 is different from run 02 and so on).
-func StichThemAll(conf *ConfigStruct) {
+func StichThemAll(sampleFile string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -28,18 +28,22 @@ func StichThemAll(conf *ConfigStruct) {
 		wg           sync.WaitGroup // to wait the end of the goroutines
 		inFiles      []string
 		prefixes                    = []string{"out-", "err-"}
-		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.\S`)
-		outRegResult []string
+		run, baseName string
 		runs         StringSet // set = list of unique objects (run numbers)
 		nRuns        []int
 		globName     string
+		maxProcs int = 4
 	)
 
+	runtime.GOMAXPROCS(maxProcs)
+	
 	nRuns = make([]int, 0)
 
+	baseName = slt.Reg(sampleFile)["run"]
+	
 	// Search for all the STDOUT and STDERR files in the folder
 	for idx := 0; idx < 2; idx++ {
-		globName = prefixes[idx] + conf.BaseName() + "*"
+		globName = prefixes[idx] + baseName + "*"
 		if Verb {
 			log.Println("Searching for: ", globName)
 		}
@@ -53,12 +57,12 @@ func StichThemAll(conf *ConfigStruct) {
 
 		// Find the numbers of the different runs
 		for _, inFileName := range inFiles {
-			outRegResult = outRegexp.FindStringSubmatch(inFileName)
-			if outRegResult == nil {
+			run = slt.Reg(inFileName)["run"]
+			if run == nil {
 				log.Fatal("Can't find parameters in out name ", inFileName)
 			}
 			// Add the new number in the set
-			runs.Add(outRegResult[1])
+			runs.Add(run)
 		}
 		if Verb {
 			log.Println("Found runs:")
@@ -67,109 +71,94 @@ func StichThemAll(conf *ConfigStruct) {
 		nRuns = append(nRuns, len(runs))
 	}
 
-	// Check for missing run outputs
-	if nRuns[0] != nRuns[1] {
-		log.Println("WARNING, missing runs. Found ", nRuns[0], " STDOUT but ", nRuns[1], " STDERR.")
+	// Launch maxProcs goroutines
+	for idx:=0, idx++ idx< maxProcs {
+		go StichOutput(inFileNameChan, done)
 	}
-	if nRuns[0] != conf.Runs {
-		log.Println("WARNING, missing runs. Found ", nRuns[0], " STDOUT of ", conf.Runs, " planned in config file.")
-	}
-
-	log.Println("Found ", nRuns[0], " runs in this folder: ")
-	fmt.Println(runs.String())
-
+	
 	// Launch all the stiching
 	for _, runIdx := range runs.Sorted() {
-		name := "out-" + conf.BaseName() + "-run" + runIdx + "-rnd00.*"
-		if Verb {
-			log.Println("Launching stich based on ", name)
-		}
-		// Count the goroutine as running
-		wg.Add(1)
-		// Launch one stiching
-		go func(name string, conf *ConfigStruct) {
-			// Decrement the counter when the goroutine completes.
-			defer wg.Done()
-			StichOutput(name, conf)
-		}(name, conf)
+		name := "out-" + baseName + "-run" + runIdx + "-rnd00.*"
+		if Verb {log.Println("Launching stich based on ", name)}
+		inFileNameChan <- name
 	}
-
-	// Wait for all the goroutine to finish
-	wg.Wait()
-
+	
+	for idx:=0, idx++ idx< maxProcs {
+		<- done // wait the goroutines to finish
+	}
 }
 
 // FIXME: Workaround to call StichOutput not in parallel
 // because now StichOutput contain a call to wg.Done
 // and I don't want to import "sync" in command.go
-func StichOutputSingle(inFileName string, conf *ConfigStruct) {
+func StichOutputSingle(inFileName string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(name string, conf *ConfigStruct) {
-		// Decrement the counter when the goroutine completes.
-		defer wg.Done()
-		StichOutput(name, conf)
-	}(inFileName, conf)
-	wg.Wait()
+	var (
+		inFileNameChan = make(chan string, 1)
+		done chan struct{}
+	)
+	go StichOutput(inFileNameChan, done)
+	inFileNameChan <-inFileName
+	<-done // wait the goroutine to finish
 }
 
 // StichOutput stiches the STDOUT and STDERR of a simulation.
-func StichOutput(inFileName string, conf *ConfigStruct) {
+func StichOutput(inFileNameChan chan string, done chan struct{}) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
 
 	var (
-		outRegexp    *regexp.Regexp = regexp.MustCompile(`\S` + conf.BaseName() + `-run(\d+)-rnd\d+.\S`)
-		outRegResult []string
+		inFileName string
 		run          string
 		stdOuts      string
 		stdErrs      string
 	)
 	
-	// Extract parameters from the name
-	outRegResult = outRegexp.FindStringSubmatch(inFileName)
-	if outRegResult == nil {
-		log.Fatal("Can't find parameters in out name ", inFileName)
+	for inFileName = range inFileNameChan {
+		
+		if inFileName == "" {
+			log.Fatal("You need to specify an input file template with the -i flag!!!")
+		}
+		
+		// Extract parameters from the name
+		tmp:= slt.Reg(inFileName)
+		run = tmp["run"]
+		baseName = tmp["basename"]
+		
+		
+		log.Println("Stiching *-" + baseName + `-run` + run + `-rnd*.*`)
+
+		// Check if only have to run STDERR stich
+		if !OnlyErr {
+			//
+			// STDOUT
+			//
+			stdOuts = "out-" + baseName + `-run` + run + `-rnd*.*`
+			StdStich(stdOuts, run, "out")
+		} else {
+			log.Println("Only stich STDERRs")
+		}
+
+		// Check if only have to run STDOUT stich
+		if !OnlyOut {
+			//
+			// STDERR
+			//
+			stdErrs = "err-" + baseName + `-run` + run + `-rnd*.*`
+			StdStich(stdErrs, run, "err")
+
+		} else {
+			log.Println("Only stich STDOUTs")
+		}
 	}
-
-	run = outRegResult[1]
-
-	if inFileName == "" {
-		log.Fatal("You need to specify an input file template with the -i flag!!!")
-	}
-
-	log.Println("Stiching *-" + conf.BaseName() + `-run` + run + `-rnd*.*`)
-
-	// Check if only have to run STDERR stich
-	if !OnlyErr {
-		//
-		// STDOUT
-		//
-		stdOuts = "out-" + conf.BaseName() + `-run` + run + `-rnd*.*`
-		StdStich(stdOuts, run, "out", conf)
-	} else {
-		log.Println("Only stich STDERRs")
-	}
-
-	// Check if only have to run STDOUT stich
-	if !OnlyOut {
-		//
-		// STDERR
-		//
-		stdErrs = "err-" + conf.BaseName() + `-run` + run + `-rnd*.*`
-		StdStich(stdErrs, run, "err", conf)
-
-	} else {
-		log.Println("Only stich STDOUTs")
-	}
+	done <- struct{}{}
 }
 
 // StdStich stiches a given STD??? according to the type passed with stdWhat.
-func StdStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
+func StdStich(stdFiles, run, stdWhat string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -190,7 +179,7 @@ func StdStich(stdFiles, run, stdWhat string, conf *ConfigStruct) {
 	)
 
 	log.Println("Stich std" + stdWhat)
-	outFileName = stdWhat + "-" + conf.BaseName() + "-run" + run + "-all.txt"
+	outFileName = stdWhat + "-" + baseName + "-run" + run + "-all.txt"
 	log.Println("Output file will be ", outFileName)
 
 	log.Println("Opening STDOUT output file...")

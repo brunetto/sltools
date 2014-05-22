@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
+	"bitbucket.org/brunetto/sltools/slt"
 )
 
 func main() {
@@ -19,6 +17,7 @@ func main() {
 	var (
 		icsName, machine, remainingTime, randomSeed string
 		cssInfo = make(chan map[string]string, 1)
+		done chan struct{}
 	)
 
 	if len(os.Args) < 5 {
@@ -35,15 +34,14 @@ func main() {
 		randomSeed = os.Args[4]
 	}
 	
-	go slt.CreateStartScripts(cssInfo, machine)
+	go slt.CreateStartScripts(cssInfo, machine, done)
 
 	cssInfo <- map[string]string{
 			"remainingTime": remainingTime,
 			"randomSeed": randomSeed,
-			"newICsFileName": icsName
+			"newICsFileName": icsName,
 		}
 	
 	close(cssInfo)
-	
-	// meglio avere un done chan struct{}{}?
+	<-done // wait the goroutine to finish
 }

@@ -112,6 +112,8 @@ func CreateICs(conf *ConfigStruct) {
 		outIcsFileLog    *os.File      // new ICs file creation log
 		nIcsWriterLog    *bufio.Writer // new ICs file creation log writer
 		written          int           // written bytes
+		done chan struct{}
+		cssInfo chan map[string]string
 	)
 
 	// Check we know where the binaries for the ICs are... not checking its existance
@@ -162,6 +164,8 @@ func CreateICs(conf *ConfigStruct) {
 		log.Fatal(err)
 	}
 
+	go CreateStartScripts(cssInfo, machine, done)
+	
 	// Create the scripts
 	for runIdx := 0; runIdx < conf.Runs; runIdx++ {
 		/*
@@ -193,9 +197,17 @@ func CreateICs(conf *ConfigStruct) {
 
 		// Create kiraLaunch and PBSlaunch scripts with the same functions used in Continue
 		icsRandomSeed := "" // let SL decide it
-		CreateStartScripts("ics-"+conf.BaseName()+runString+".txt", icsRandomSeed, conf.EndTimeStr(), conf)
+	
+		cssInfo <- map[string]string{
+				"remainingTime": "500",
+				"randomSeed": "",
+				"newICsFileName": "ics-"+conf.BaseName()+runString+".txt",
+		}
 	}
-
+	
+	close(cssInfo)
+	<-done // wait the goroutine to finish
+	
 	if RunICC {
 		log.Println("Also create ICs files running makeking etc")
 		// Sometimes it crashes, untill I find why, I create the scripts

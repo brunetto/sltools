@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"regexp"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
 )
 
 // CreateStartScripts create the start scripts (kira launch and PBS launch for the ICs).
-func CreateStartScripts(cssInfo chan map[string]string, machine string) {
+func CreateStartScripts(cssInfo chan map[string]string, machine string, done chan struct{}) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -19,24 +18,16 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string) {
 	var (
 		infoMap        map[string]string
 		err            error                                                             // common error container
-		icsName        string                                                            // name of the ICs
 		currentDir     string                                                            // current local directory
 		stdOutFile     string                                                            // STDOUT file for the next run
 		stdErrFile     string                                                            // STDOUT file for the next run
 		shortName      string                                                            // id for the job
-		randomString   string                                                            // random number from the STDERR
-		simTime        string                                                            // remaining timesteps for the simulation (e.g. 500 - last run)
 		queue          string                                                            // name of the queue on wich we will run
 		comb, run, rnd string                                                            //combination, run and round number
 		baseName       string                                                            // common part of the name without the extension
 		walltime       string                                                            // max time we can run on the queue
 		kiraString     string                                                            // string to launch kira
 		pbsString      string                                                            // string to submit the job to PBS
-		baseNameString string         = `(\w{3})-(\S*\).(\S*)`                           // extract baseName parts
-		baseNameExp    *regexp.Regexp = regexp.MustCompile(regString)                    // compile the regexp
-		baseNameResult []string                                                          // regexp result
-		detailsString  string         = `\w{3}-\S*-comb(\S*)-\S*-run(\S*)-rnd(\d*)\.\S*` // extract filename parts in detail
-		detailsExp     *regexp.Regexp = regexp.MustCompile(detailsString)                // compile the regexp
 		detailsResult  []string                                                          // regexp result
 		kiraFile       *os.File                                                          // where to save kiraString
 		pbsFile        *os.File                                                          // where to save PBS string
@@ -45,8 +36,9 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string) {
 		home           string                                                            // path to home on the cluster
 		kiraBinPath    string                                                            // path to kira binaries
 		modules        string                                                            // modules we need to load
+		regRes map[string]string
 	)
-
+	
 	if machine == "eurora" {
 		modules = "module purge\n" +
 			"module load profile/advanced\n" +
@@ -82,19 +74,25 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string) {
 		log.Fatal("Uknown machine name ", machine)
 	}
 
-	for infoMap = range inFileNameChan {
+	for infoMap = range cssInfo {
 
-		if baseNameResult = baseNameExp.FindStringSubmatch(icsName); regResult == nil {
-			log.Fatal("Can't find commonName in ", icsName)
-		}
-		if baseNameResult[1] != "ics" {
-			log.Fatal("Please specify an ICs file, found ", regResult[1])
+		regRes = slt.Reg (infoMap["newICsFileName"])
+		if regRes["prefix"] != "ics" {
+			log.Fatalf("Please specify an ICs file, found %v prefix", regRes["prefix"])
 		}
 
-		baseName = regResult[2]
-		comb = detailsResult[1]
-		run = detailsResult[2]
-		rnd = detailsResult[3]
+		if infoMap["randomSeed"] == "0" {
+			randomString = ""
+		} else if infoMap["randomSeed"] == "" {
+			randomString = ""
+		} else {
+			randomString = "-s " + infoMap["randomSeed"]
+		}
+		
+		baseName = regRes["baseName"]
+		comb =regRes["comb"]
+		run = regRes["run"]
+		rnd = regRes["rnd"]
 
 		shortName = "r" + comb + "-" + run + "-" + rnd
 
@@ -113,8 +111,8 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string) {
 		kiraString = "echo $PWD\n" +
 			"echo $LD_LIBRARY_PATH\n" +
 			"echo $HOSTNAME\n" +
-			kiraBinPath + " -t " + simTime + " -d 1 -D 1 -b 1 -f 0 \\\n" +
-			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
+			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
+			" -n 10 -e 0.000 -B " + infoMap["randomSeed"] + " \\\n" +
 			"<  " + filepath.Join(currentDir, icsName) + " \\\n" +
 			">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
 			"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
@@ -141,5 +139,5 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string) {
 		fmt.Fprint(pbsFile, pbsString)
 
 	}
-	// 	done <- struct{}{}
+	done <- struct{}{}
 }

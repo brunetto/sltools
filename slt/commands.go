@@ -99,7 +99,6 @@ var CreateICsCmd = &cobra.Command{
 
 var (
 	inFileName string
-	fileN      string
 )
 
 // Out2ICsCmd creates new ICs from STDOUT to restart the simulation
@@ -112,8 +111,14 @@ var Out2ICsCmd = &cobra.Command{
 	Use like:
 	sltools out2ics -i out-cineca-comb16-NCM10000-fPB005-W5-Z010-run06-rnd00.txt -n 1`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := InitVars(ConfName)
-		Out2ICs(inFileName, conf)
+		var (
+			cssInfo = make (chan map[string]string, 1)
+			inFileNameChan = make (chan map[string]string, 1)
+		)
+		go Out2ICs(inFileNameChan, cssInfo)
+		inFileNameChan <- inFileName
+		close(inFileNameChan)
+		<-cssInfo
 	},
 }
 
@@ -134,8 +139,17 @@ var CreateStartScriptsCmd = &cobra.Command{
 	sltools createStartScripts -i ics-cineca-comb18-NCM10000-fPB020-W5-Z010-run01-rnd00.txt -c conf.json
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := InitVars(ConfName)
-		CreateStartScripts(icsName, randomNumber, simTime, conf)
+		var (
+			done chan struct{}
+			cssInfo = make (chan map[string]string, 1)
+		)
+		go CreateStartScripts(cssInfo, machine, done)
+		cssInfo <- map[string]string{
+				"remainingTime": simTime,
+				"randomSeed": randomNumber,
+				"newICsFileName": icsName,
+		}
+		<-done
 	},
 }
 
@@ -148,10 +162,9 @@ var ContinueCmd = &cobra.Command{
 	the last complete snapshot to the new input file. It also write the necessary 
 	start scripts.
 	Use like:
-	sltools continue -c conf19.json -o out-cineca-comb19-NCM10000-fPB005-W9-Z010-run08-rnd01.txt`,
+	sltools continue -o out-cineca-comb19-NCM10000-fPB005-W9-Z010-run08-rnd01.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := InitVars(ConfName)
-		Continue(inFileName, conf)
+		Continue(inFileName)
 	},
 }
 
@@ -176,12 +189,11 @@ var StichOutputCmd = &cobra.Command{
 	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
 	sltools stichOutput -c conf19.json -A # to stich all the outputs in the folder`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := InitVars(ConfName)
 		if StichAll {
 			log.Println("Stich all!")
-			StichThemAll(conf)
+			StichThemAll(inFileName)
 		} else {
-			StichOutputSingle(inFileName, conf)
+			StichOutputSingle(inFileName)
 		}
 	},
 }

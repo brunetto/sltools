@@ -14,20 +14,18 @@ import (
 )
 
 // Out2ICs read the STDOUT and write the new ICs with the last snapshot.
-func Out2ICs(inFileNameChan chan string, cssInfo chan map[string][string]) () {
+func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
 
 	var (
+			inFileName string
 			err                            error    // errora container
-			inFileName, newICsFileName     string   // last STDOUT and new ICs file names
+			newICsFileName     string   // new ICs file names
 			inFile, newICsFile             *os.File // last STDOUT and new ICs file
 			nReader                        *bufio.Reader
 			nWriter                        *bufio.Writer
-			regString                      string                         = `(\w{3})-(\S*-rnd)(\d*)(\.\S*)` // extract prefix, body, ext from the filename
-			regExp                         *regexp.Regexp                 = regexp.MustCompile(regString)   // compile regexp
-			regResult                      []string                                                         // regexp result container
 			fileNameBody, newRnd, ext      string                                                           // newRnd is the number of the new run round
 			snapshots                      = make([]*slt.DumbSnapshot, 2)                                   // slice for two snapshots
 			snpN                           int                                                              // number of the snapshot
@@ -36,20 +34,22 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string][string]) () {
 			randomSeed                     string                                                           // random seed from STDERR
 			runString                      string                                                           // string to run the next round from terminal
 			newErrFileName, newOutFileName string                                                           // new names from STDERR and STDOUT
+			regRes map[string]string
 		)
 	
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
 		
 		// Extract fileNameBody, round and ext 
-		if regResult = regExp.FindStringSubmatch(inFileName); regResult == nil {
-			log.Fatal("Can't find fileNameBody in ", inFileName)
+		regRes = slt.Reg(inFileName)
+		if regRes["prefix"] != "out" {
+			log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
 		}
-		if regResult[1] != "out" {
-			log.Fatal("Please specify a STDOUT file, found ", regResult[1])
-		}
-		fileNameBody = regResult[2]
-		ext = regResult[4]
+
+		fileNameBody = regRes["baseName"]
+		run = regRes["run"]
+		rnd = regRes["rnd"]
+		ext = regRes["ext"]
 		temp, _ := strconv.ParseInt(regResult[3], 10, 64)
 		newRnd = strconv.Itoa(int(temp + 1))
 		
@@ -140,7 +140,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string][string]) () {
 		cssInfo <- map[string]string{
 			"remainingTime": remainingTime,
 			"randomSeed": randomSeed,
-			"newICsFileName": newICsFileName
+			"newICsFileName": newICsFileName,
 		}
 		
 		runString = "\nYou can run the new round from the terminal with:\n" +
