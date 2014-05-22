@@ -113,7 +113,7 @@ var Out2ICsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var (
 			cssInfo = make (chan map[string]string, 1)
-			inFileNameChan = make (chan map[string]string, 1)
+			inFileNameChan = make (chan string, 1)
 		)
 		go Out2ICs(inFileNameChan, cssInfo)
 		inFileNameChan <- inFileName
@@ -126,6 +126,7 @@ var (
 	icsName      string
 	randomNumber string
 	simTime      string
+	machine string
 )
 
 // CreateStartScriptsCmd create start scripts: kiraLaunch and PBSlaunch
@@ -164,7 +165,7 @@ var ContinueCmd = &cobra.Command{
 	Use like:
 	sltools continue -o out-cineca-comb19-NCM10000-fPB005-W9-Z010-run08-rnd01.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
-		Continue(inFileName)
+		Continue(inFileName, machine)
 	},
 }
 
@@ -214,6 +215,7 @@ func InitCommands() {
 
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
+	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
@@ -222,6 +224,7 @@ func InitCommands() {
 	CreateStartScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
 	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
+	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 
 	SlToolsCmd.AddCommand(StichOutputCmd)
 	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT or STDERR name to find what to stich")

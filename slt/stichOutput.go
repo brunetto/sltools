@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
@@ -25,7 +24,6 @@ func StichThemAll(sampleFile string) {
 
 	var (
 		err          error
-		wg           sync.WaitGroup // to wait the end of the goroutines
 		inFiles      []string
 		prefixes                    = []string{"out-", "err-"}
 		run, baseName string
@@ -33,13 +31,15 @@ func StichThemAll(sampleFile string) {
 		nRuns        []int
 		globName     string
 		maxProcs int = 4
+		inFileNameChan = make(chan string, maxProcs)
+		done chan struct{}
 	)
 
 	runtime.GOMAXPROCS(maxProcs)
 	
 	nRuns = make([]int, 0)
 
-	baseName = slt.Reg(sampleFile)["run"]
+	baseName = Reg(sampleFile)["run"]
 	
 	// Search for all the STDOUT and STDERR files in the folder
 	for idx := 0; idx < 2; idx++ {
@@ -57,10 +57,7 @@ func StichThemAll(sampleFile string) {
 
 		// Find the numbers of the different runs
 		for _, inFileName := range inFiles {
-			run = slt.Reg(inFileName)["run"]
-			if run == nil {
-				log.Fatal("Can't find parameters in out name ", inFileName)
-			}
+			run = Reg(inFileName)["run"]
 			// Add the new number in the set
 			runs.Add(run)
 		}
@@ -72,7 +69,7 @@ func StichThemAll(sampleFile string) {
 	}
 
 	// Launch maxProcs goroutines
-	for idx:=0, idx++ idx< maxProcs {
+	for idx:=0; idx< maxProcs; idx++ {
 		go StichOutput(inFileNameChan, done)
 	}
 	
@@ -83,7 +80,7 @@ func StichThemAll(sampleFile string) {
 		inFileNameChan <- name
 	}
 	
-	for idx:=0, idx++ idx< maxProcs {
+	for idx:=0; idx< maxProcs; idx++ {
 		<- done // wait the goroutines to finish
 	}
 }
@@ -115,6 +112,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 		run          string
 		stdOuts      string
 		stdErrs      string
+		baseName string
 	)
 	
 	for inFileName = range inFileNameChan {
@@ -124,7 +122,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 		}
 		
 		// Extract parameters from the name
-		tmp:= slt.Reg(inFileName)
+		tmp:= Reg(inFileName)
 		run = tmp["run"]
 		baseName = tmp["basename"]
 		
@@ -176,6 +174,7 @@ func StdStich(stdFiles, run, stdWhat string) {
 		timestep                              int64
 		timesteps                             = make([]int64, 0)
 		ext                                   string
+		baseName string
 	)
 
 	log.Println("Stich std" + stdWhat)

@@ -164,7 +164,7 @@ func CreateICs(conf *ConfigStruct) {
 		log.Fatal(err)
 	}
 
-	go CreateStartScripts(cssInfo, machine, done)
+	go CreateStartScripts(cssInfo, conf.Machine, done)
 	
 	// Create the scripts
 	for runIdx := 0; runIdx < conf.Runs; runIdx++ {
@@ -195,9 +195,7 @@ func CreateICs(conf *ConfigStruct) {
 		icsScriptWriter.Flush()
 		log.Println("Written ", written, " on ", outIcsScriptName)
 
-		// Create kiraLaunch and PBSlaunch scripts with the same functions used in Continue
-		icsRandomSeed := "" // let SL decide it
-	
+		// Create kiraLaunch and PBSlaunch scripts with the same functions used in Continue	
 		cssInfo <- map[string]string{
 				"remainingTime": "500",
 				"randomSeed": "",

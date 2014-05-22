@@ -11,13 +11,12 @@ import (
 // by calling Out2ICs and then it will create the needed scripts for launching
 // the simulation (kiraLaunch and PBSlaunch) calling CreateStartScripts.
 // It needs a valid configuration file.
-func Continue(inFileName string) {
+func Continue(inFileName, machine string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
 
 	var (
-		machine, remainingTime, randomSeed string
 		inFileNameChan = make(chan string, 1)
 		cssInfo = make(chan map[string]string, 1)
 		done chan struct{}

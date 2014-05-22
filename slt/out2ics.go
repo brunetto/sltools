@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -27,7 +26,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 			nReader                        *bufio.Reader
 			nWriter                        *bufio.Writer
 			fileNameBody, newRnd, ext      string                                                           // newRnd is the number of the new run round
-			snapshots                      = make([]*slt.DumbSnapshot, 2)                                   // slice for two snapshots
+			snapshots                      = make([]*DumbSnapshot, 2)                                   // slice for two snapshots
 			snpN                           int                                                              // number of the snapshot
 			simulationStop                 int64                          = 500                             // when to stop the simulation
 			thisTimestep, remainingTime    int64                                                            // current timestep number and remaining timesteps to reach simulationStop
@@ -35,28 +34,29 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 			runString                      string                                                           // string to run the next round from terminal
 			newErrFileName, newOutFileName string                                                           // new names from STDERR and STDOUT
 			regRes map[string]string
+			 rnd string
+			fZip           *gzip.Reader
 		)
 	
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
 		
 		// Extract fileNameBody, round and ext 
-		regRes = slt.Reg(inFileName)
+		regRes = Reg(inFileName)
 		if regRes["prefix"] != "out" {
 			log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
 		}
 
 		fileNameBody = regRes["baseName"]
-		run = regRes["run"]
 		rnd = regRes["rnd"]
 		ext = regRes["ext"]
-		temp, _ := strconv.ParseInt(regResult[3], 10, 64)
+		temp, _ := strconv.ParseInt(rnd, 10, 64)
 		newRnd = strconv.Itoa(int(temp + 1))
 		
 		// Creating new filenames
-		newICsFileName = "ics-" + fileNameBody + slt.LeftPad(newRnd, "0", 2) + ext
-		newErrFileName = "err-" + fileNameBody + slt.LeftPad(newRnd, "0", 2) + ext
-		newOutFileName = "out-" + fileNameBody + slt.LeftPad(newRnd, "0", 2) + ext
+		newICsFileName = "ics-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
+		newErrFileName = "err-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
+		newOutFileName = "out-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
 		
 		log.Println("New ICs file will be ", newICsFileName)
 		
@@ -134,11 +134,11 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 
 		fmt.Fprint(os.Stderr, "\n")
 		log.Println("Search for random seed...")
-		randomSeed = slt.DetectRandomSeed(inFileName)
+		randomSeed = DetectRandomSeed(inFileName)
 		log.Println("Set -s flag to ", randomSeed)
 		
 		cssInfo <- map[string]string{
-			"remainingTime": remainingTime,
+			"remainingTime": strconv.Itoa(int(remainingTime)),
 			"randomSeed": randomSeed,
 			"newICsFileName": newICsFileName,
 		}

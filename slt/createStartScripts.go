@@ -3,6 +3,7 @@ package slt
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -28,7 +29,6 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		walltime       string                                                            // max time we can run on the queue
 		kiraString     string                                                            // string to launch kira
 		pbsString      string                                                            // string to submit the job to PBS
-		detailsResult  []string                                                          // regexp result
 		kiraFile       *os.File                                                          // where to save kiraString
 		pbsFile        *os.File                                                          // where to save PBS string
 		kiraOutName    string                                                            // kira file name
@@ -37,6 +37,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		kiraBinPath    string                                                            // path to kira binaries
 		modules        string                                                            // modules we need to load
 		regRes map[string]string
+		randomString string
 	)
 	
 	if machine == "eurora" {
@@ -76,7 +77,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 
 	for infoMap = range cssInfo {
 
-		regRes = slt.Reg (infoMap["newICsFileName"])
+		regRes = Reg (infoMap["newICsFileName"])
 		if regRes["prefix"] != "ics" {
 			log.Fatalf("Please specify an ICs file, found %v prefix", regRes["prefix"])
 		}
@@ -112,7 +113,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 			"echo $LD_LIBRARY_PATH\n" +
 			"echo $HOSTNAME\n" +
 			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
-			" -n 10 -e 0.000 -B " + infoMap["randomSeed"] + " \\\n" +
+			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
 			"<  " + filepath.Join(currentDir, icsName) + " \\\n" +
 			">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
 			"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
