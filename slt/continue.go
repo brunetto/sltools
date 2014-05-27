@@ -19,7 +19,7 @@ func Continue(inFileName, machine string) {
 	var (
 		inFileNameChan = make(chan string, 1)
 		cssInfo = make(chan map[string]string, 1)
-		done chan struct{}
+		done = make(chan struct{})
 	)
 	
 	

@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
@@ -17,7 +16,7 @@ func main() {
 	var (
 		icsName, machine, remainingTime, randomSeed string
 		cssInfo = make(chan map[string]string, 1)
-		done chan struct{}
+		done = make(chan struct{})
 	)
 
 	if len(os.Args) < 5 {

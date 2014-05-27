@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"strconv"
 	"time"
 
@@ -32,7 +33,7 @@ func StichThemAll(sampleFile string) {
 		globName     string
 		maxProcs int = 4
 		inFileNameChan = make(chan string, maxProcs)
-		done chan struct{}
+		done = make(chan struct{})
 	)
 
 	runtime.GOMAXPROCS(maxProcs)
@@ -79,7 +80,7 @@ func StichThemAll(sampleFile string) {
 		if Verb {log.Println("Launching stich based on ", name)}
 		inFileNameChan <- name
 	}
-	
+	close(inFileNameChan)
 	for idx:=0; idx< maxProcs; idx++ {
 		<- done // wait the goroutines to finish
 	}
@@ -94,10 +95,11 @@ func StichOutputSingle(inFileName string) {
 	}
 	var (
 		inFileNameChan = make(chan string, 1)
-		done chan struct{}
+		done = make(chan struct{})
 	)
 	go StichOutput(inFileNameChan, done)
 	inFileNameChan <-inFileName
+	close(inFileNameChan)
 	<-done // wait the goroutine to finish
 }
 
@@ -124,8 +126,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 		// Extract parameters from the name
 		tmp:= Reg(inFileName)
 		run = tmp["run"]
-		baseName = tmp["basename"]
-		
+		baseName = tmp["baseName"]
 		
 		log.Println("Stiching *-" + baseName + `-run` + run + `-rnd*.*`)
 
@@ -135,7 +136,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 			// STDOUT
 			//
 			stdOuts = "out-" + baseName + `-run` + run + `-rnd*.*`
-			StdStich(stdOuts, run, "out")
+			StdStich(stdOuts, "out")
 		} else {
 			log.Println("Only stich STDERRs")
 		}
@@ -146,7 +147,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 			// STDERR
 			//
 			stdErrs = "err-" + baseName + `-run` + run + `-rnd*.*`
-			StdStich(stdErrs, run, "err")
+			StdStich(stdErrs, "err")
 
 		} else {
 			log.Println("Only stich STDOUTs")
@@ -156,7 +157,7 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 }
 
 // StdStich stiches a given STD??? according to the type passed with stdWhat.
-func StdStich(stdFiles, run, stdWhat string) {
+func StdStich(stdFiles, stdWhat string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -174,11 +175,13 @@ func StdStich(stdFiles, run, stdWhat string) {
 		timestep                              int64
 		timesteps                             = make([]int64, 0)
 		ext                                   string
-		baseName string
 	)
 
 	log.Println("Stich std" + stdWhat)
-	outFileName = stdWhat + "-" + baseName + "-run" + run + "-all.txt"
+
+	tmp := strings.TrimSuffix(stdFiles, "-rnd*.*")
+	
+	outFileName =  tmp + "-all.txt"
 	log.Println("Output file will be ", outFileName)
 
 	log.Println("Opening STDOUT output file...")

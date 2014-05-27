@@ -112,7 +112,7 @@ func CreateICs(conf *ConfigStruct) {
 		outIcsFileLog    *os.File      // new ICs file creation log
 		nIcsWriterLog    *bufio.Writer // new ICs file creation log writer
 		written          int           // written bytes
-		done chan struct{}
+		done =make(chan struct{})
 		cssInfo chan map[string]string
 	)
 

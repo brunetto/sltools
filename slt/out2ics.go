@@ -53,13 +53,15 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 		temp, _ := strconv.ParseInt(rnd, 10, 64)
 		newRnd = strconv.Itoa(int(temp + 1))
 		
+		
+		
 		// Creating new filenames
-		newICsFileName = "ics-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
-		newErrFileName = "err-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
-		newOutFileName = "out-" + fileNameBody + LeftPad(newRnd, "0", 2) + ext
+		newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+		newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" +  LeftPad(newRnd, "0", 2) + ext
+		newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" +  LeftPad(newRnd, "0", 2) + ext
 		
 		log.Println("New ICs file will be ", newICsFileName)
-		
+ 
 		// Open infile, both text or gzip and create the reader
 		log.Println("Opening input and output files...")
 		if inFile, err = os.Open(inFileName); err != nil {

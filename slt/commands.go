@@ -141,7 +141,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var (
-			done chan struct{}
+			done = make (chan struct{})
 			cssInfo = make (chan map[string]string, 1)
 		)
 		go CreateStartScripts(cssInfo, machine, done)
@@ -150,7 +150,9 @@ var CreateStartScriptsCmd = &cobra.Command{
 				"randomSeed": randomNumber,
 				"newICsFileName": icsName,
 		}
-		<-done
+		close(cssInfo)
+		<- done
+		close(done)
 	},
 }
 
@@ -215,7 +217,7 @@ func InitCommands() {
 
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
-	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
+	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
