@@ -120,6 +120,10 @@ func CreateICs(conf *ConfigStruct) {
 	if conf.BinFolder == "" {
 		log.Fatal("I need to know where binaries for ICs are, no folder found in conf struct")
 	}
+	
+	// FIXME: potebbe essere interessante usare http://godoc.org/labix.org/v2/pipe
+	// oppure https://github.com/natefinch/sh
+	// vedere anche http://play.golang.org/p/C608onvLWR
 
 	// ICs binaries with path
 	makeking := filepath.Join(conf.BinFolder, "makeking")
