@@ -13,35 +13,35 @@ import (
 )
 
 // Out2ICs read the STDOUT and write the new ICs with the last snapshot.
-func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
+func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
 
 	var (
-			inFileName string
-			err                            error    // errora container
-			newICsFileName     string   // new ICs file names
-			inFile, newICsFile             *os.File // last STDOUT and new ICs file
-			nReader                        *bufio.Reader
-			nWriter                        *bufio.Writer
-			fileNameBody, newRnd, ext      string                                                           // newRnd is the number of the new run round
-			snapshots                      = make([]*DumbSnapshot, 2)                                   // slice for two snapshots
-			snpN                           int                                                              // number of the snapshot
-			simulationStop                 int64                          = 500                             // when to stop the simulation
-			thisTimestep, remainingTime    int64                                                            // current timestep number and remaining timesteps to reach simulationStop
-			randomSeed                     string                                                           // random seed from STDERR
-			runString                      string                                                           // string to run the next round from terminal
-			newErrFileName, newOutFileName string                                                           // new names from STDERR and STDOUT
-			regRes map[string]string
-			 rnd string
-			fZip           *gzip.Reader
-		)
-	
+		inFileName                     string
+		err                            error    // errora container
+		newICsFileName                 string   // new ICs file names
+		inFile, newICsFile             *os.File // last STDOUT and new ICs file
+		nReader                        *bufio.Reader
+		nWriter                        *bufio.Writer
+		fileNameBody, newRnd, ext      string                           // newRnd is the number of the new run round
+		snapshots                      = make([]*DumbSnapshot, 2)       // slice for two snapshots
+		snpN                           int                              // number of the snapshot
+		simulationStop                 int64                      = 500 // when to stop the simulation
+		thisTimestep, remainingTime    int64                            // current timestep number and remaining timesteps to reach simulationStop
+		randomSeed                     string                           // random seed from STDERR
+		runString                      string                           // string to run the next round from terminal
+		newErrFileName, newOutFileName string                           // new names from STDERR and STDOUT
+		regRes                         map[string]string
+		rnd                            string
+		fZip                           *gzip.Reader
+	)
+
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
-		
-		// Extract fileNameBody, round and ext 
+
+		// Extract fileNameBody, round and ext
 		regRes = Reg(inFileName)
 		if regRes["prefix"] != "out" {
 			log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
@@ -52,16 +52,14 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 		ext = regRes["ext"]
 		temp, _ := strconv.ParseInt(rnd, 10, 64)
 		newRnd = strconv.Itoa(int(temp + 1))
-		
-		
-		
+
 		// Creating new filenames
 		newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
-		newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" +  LeftPad(newRnd, "0", 2) + ext
-		newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" +  LeftPad(newRnd, "0", 2) + ext
-		
+		newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+		newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+
 		log.Println("New ICs file will be ", newICsFileName)
- 
+
 		// Open infile, both text or gzip and create the reader
 		log.Println("Opening input and output files...")
 		if inFile, err = os.Open(inFileName); err != nil {
@@ -138,13 +136,13 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 		log.Println("Search for random seed...")
 		randomSeed = DetectRandomSeed(inFileName)
 		log.Println("Set -s flag to ", randomSeed)
-		
+
 		cssInfo <- map[string]string{
-			"remainingTime": strconv.Itoa(int(remainingTime)),
-			"randomSeed": randomSeed,
+			"remainingTime":  strconv.Itoa(int(remainingTime)),
+			"randomSeed":     randomSeed,
 			"newICsFileName": newICsFileName,
 		}
-		
+
 		runString = "\nYou can run the new round from the terminal with:\n" +
 			"----------------------\n" +
 			"(/home/ziosi/Code/Mapelli/slpack/starlab/usr/bin/kira -F -t " +
@@ -164,5 +162,5 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) () {
 		fmt.Println()
 	}
 	close(cssInfo)
-// 	done <- struct{}{}
+	// 	done <- struct{}{}
 }

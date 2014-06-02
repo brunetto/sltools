@@ -104,10 +104,10 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 			log.Fatal("Can't find absolute path to current working folder!!")
 		}
 
-		stdOutFile = "out-" + baseName + ".txt"
-		stdErrFile = "err-" + baseName + ".txt"
-		kiraOutName = "kiraLaunch-" + baseName + ".sh"
-		pbsOutName = "PBS-" + baseName + ".sh"
+		stdOutFile = "out-" + baseName + "-run" + run + "-rnd" + rnd + ".txt"
+		stdErrFile = "err-" + baseName + "-run" + run + "-rnd" + rnd + ".txt"
+		kiraOutName = "kiraLaunch-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
+		pbsOutName = "PBS-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
 
 		kiraString = "echo $PWD\n" +
 			"echo $LD_LIBRARY_PATH\n" +
@@ -120,7 +120,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 
 		pbsString = "#!/bin/bash\n" +
 			"#PBS -N r" + shortName + "\n" +
-			"#PBS -A IscrC_VMStars\n" +
+			"#PBS -A IscrC_SCmerge\n" +
 			"#PBS -q " + queue + "\n" +
 			"#PBS -l walltime=" + walltime + "\n" +
 			"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +

@@ -18,6 +18,7 @@ import (
 type DumbSnapshot struct {
 	Timestep     string
 	Integrity    bool
+	CheckRoot bool
 	NestingLevel int
 	Lines        []string
 }
@@ -57,6 +58,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	// Init snapshot container
 	snap.Lines = make([]string, 0)
 	snap.Integrity = false
+	snap.CheckRoot = false
 	snap.NestingLevel = 0
 
 	for {
@@ -82,10 +84,17 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		} else if strings.Contains(line, ")Particle") {
 			snap.NestingLevel--
 		}
+		
+		if strings.Contains(line, "name = root") {
+			snap.CheckRoot = true
+		}
 
 		// Check whether the whole snapshot is in memory
 		// (root particle complete) and if true, return
 		if snap.NestingLevel == 0 {
+			if !snap.CheckRoot {
+				log.Fatal("No root particle in a timestep that seems complete, please check!")
+			}
 			snap.Integrity = true
 			if Verb {
 				log.Println("Timestep ", snap.Timestep, " integrity set to: ", snap.Integrity)
@@ -117,6 +126,7 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	// Init snapshot container
 	snap.Lines = make([]string, 0) //FIXME: check if 0 is ok!!!
 	snap.Integrity = false
+	snap.CheckRoot = false
 	snap.Timestep = "-1"
 
 	for {
