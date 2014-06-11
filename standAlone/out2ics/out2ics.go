@@ -14,7 +14,7 @@ func main() {
 
 	var (
 		inFileName    string
-		nFileNameChan = make(chan string, 1)
+		inFileNameChan = make(chan string, 1)
 		cssInfo       = make(chan map[string]string, 1)
 	)
 

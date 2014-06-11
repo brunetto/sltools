@@ -93,6 +93,13 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// (root particle complete) and if true, return
 		if snap.NestingLevel == 0 {
 			if !snap.CheckRoot {
+				outFile, err := os.Create("badTimestep.txt")
+				defer outFile.Close()
+				if err != nil {log.Fatal(err)}
+				nWriter := bufio.NewWriter(outFile)
+				defer nWriter.Flush()
+				snap.WriteSnapshot(nWriter)
+				fmt.Println()
 				log.Fatal("No root particle in a timestep that seems complete, please check!")
 			}
 			snap.Integrity = true
