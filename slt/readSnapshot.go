@@ -50,9 +50,6 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		err        error
 		regSysTime = regexp.MustCompile(`system_time\s*=\s*(\d+)`)
 		resSysTime []string
-		// This variables are the idxs to print the last or last 10 lines
-		// 		dataStartIdx int = 0
-		// 		dataEndIdx int
 	)
 
 	// Init snapshot container
