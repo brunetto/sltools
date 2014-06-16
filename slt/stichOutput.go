@@ -28,6 +28,7 @@ func StichThemAll(sampleFile string) {
 		inFiles      []string
 		prefixes                    = []string{"out-", "err-"}
 		run, baseName string
+		tmp map[string]string
 		runs         StringSet // set = list of unique objects (run numbers)
 		nRuns        []int
 		globName     string
@@ -40,7 +41,10 @@ func StichThemAll(sampleFile string) {
 	
 	nRuns = make([]int, 0)
 
-	baseName = Reg(sampleFile)["run"]
+	if tmp, err = Reg(sampleFile); err != nil {
+		log.Fatal(err)
+	}
+	baseName = tmp["baseName"]
 	
 	// Search for all the STDOUT and STDERR files in the folder
 	for idx := 0; idx < 2; idx++ {
@@ -58,7 +62,10 @@ func StichThemAll(sampleFile string) {
 
 		// Find the numbers of the different runs
 		for _, inFileName := range inFiles {
-			run = Reg(inFileName)["run"]
+			if tmp, err = Reg(inFileName); err != nil {
+				log.Fatal(err)
+			}
+			run = tmp["run"]
 			// Add the new number in the set
 			runs.Add(run)
 		}
@@ -115,6 +122,8 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 		stdOuts      string
 		stdErrs      string
 		baseName string
+		tmp map[string]string
+		err error
 	)
 	
 	for inFileName = range inFileNameChan {
@@ -124,7 +133,9 @@ func StichOutput(inFileNameChan chan string, done chan struct{}) {
 		}
 		
 		// Extract parameters from the name
-		tmp:= Reg(inFileName)
+		if tmp, err = Reg(inFileName); err != nil {
+			log.Fatal(err)
+		}
 		run = tmp["run"]
 		baseName = tmp["baseName"]
 		

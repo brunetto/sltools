@@ -20,6 +20,7 @@ type DumbSnapshot struct {
 	Integrity    bool
 	CheckRoot bool
 	NestingLevel int
+	MaxNesting int
 	Lines        []string
 }
 
@@ -82,6 +83,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 			snap.NestingLevel--
 		}
 		
+		// Doesn't work with ICs because they are without name = root grrrr
 		if strings.Contains(line, "name = root") {
 			snap.CheckRoot = true
 		}

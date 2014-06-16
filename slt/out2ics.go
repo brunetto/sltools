@@ -42,21 +42,28 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 	for inFileName = range inFileNameChan {
 
 		// Extract fileNameBody, round and ext
-		regRes = Reg(inFileName)
-		if regRes["prefix"] != "out" {
-			log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
+		regRes, err = Reg(inFileName)
+		if err != nil {
+			log.Println("Can't derive standard names from STDOUT => wrap it!!")
+			newICsFileName = "ics-" + inFileName + ext
+			newErrFileName = "err-" + inFileName + ext
+			newOutFileName = "out-" + inFileName + ext
+		} else {
+			if regRes["prefix"] != "out" {
+				log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
+			}
+
+			fileNameBody = regRes["baseName"]
+			rnd = regRes["rnd"]
+			ext = regRes["ext"]
+			temp, _ := strconv.ParseInt(rnd, 10, 64)
+			newRnd = strconv.Itoa(int(temp + 1))
+
+			// Creating new filenames
+			newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+			newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+			newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
 		}
-
-		fileNameBody = regRes["baseName"]
-		rnd = regRes["rnd"]
-		ext = regRes["ext"]
-		temp, _ := strconv.ParseInt(rnd, 10, 64)
-		newRnd = strconv.Itoa(int(temp + 1))
-
-		// Creating new filenames
-		newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
-		newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
-		newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
 
 		log.Println("New ICs file will be ", newICsFileName)
 

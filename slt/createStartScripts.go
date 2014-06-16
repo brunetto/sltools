@@ -77,7 +77,9 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 
 	for infoMap = range cssInfo {
 
-		regRes = Reg (infoMap["newICsFileName"])
+		if regRes, err = Reg(infoMap["newICsFileName"]); err != nil {
+			log.Fatal(err)
+		}
 		if regRes["prefix"] != "ics" {
 			log.Fatalf("Please specify an ICs file, found %v prefix", regRes["prefix"])
 		}
