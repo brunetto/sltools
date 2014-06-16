@@ -112,6 +112,7 @@ func checkFileSize(errName string, kiraWrappedCmd *exec.Cmd, done chan string) (
 		// probably the simulation is stalling because 
 		// of pp3 locked on a binary
 		if fileInfo.Size() / (1024*1024*1024) > 2 {break} 
+		time.Sleep(time.Duration(1) * time.Minute)
 	}
 	log.Println("Detected STDERR file with dimension ", fileInfo.Size())
 	log.Println("Kill kira")
