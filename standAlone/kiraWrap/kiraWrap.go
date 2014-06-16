@@ -9,6 +9,7 @@ import (
 	"time"
 	
 	"github.com/brunetto/goutils/debug"
+	"github.com/capnm/sysinfo"
 	"bitbucket.org/brunetto/sltools/slt"
 )
 
@@ -92,18 +93,22 @@ func main () () {
 	// Wait for the process to end normally
 	go waitProcess(kiraWrappedCmd, done)
 	// Check for pp3-stalling situations
-	go checkFileSize(errName, kiraWrappedCmd, done)	
+	go killTrigger(errName, kiraWrappedCmd, done)	
 	
-	if <-done == "killed" {
-		errFile.WriteString("\nKilled because pp3 stalling\n")
+	if err <-done != "" {
+		errFile.WriteString("\n"+err+"\n")
 	}
 }
 
-func checkFileSize(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () {
+func killTrigger(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () {
 	var (
 		fileInfo os.FileInfo
+		sysInfo sysinfo.SI
+		memAvail float64
+		reason string
 		err error
 	)
+	
 	for {
 		if fileInfo, err = os.Stat(errName); err != nil {
 			log.Fatal("Error checking STDERR file size, err")
@@ -111,7 +116,18 @@ func checkFileSize(errName string, kiraWrappedCmd *exec.Cmd, done chan string) (
 		// STDERR exceesing aloowed dimension of 2GB
 		// probably the simulation is stalling because 
 		// of pp3 locked on a binary
-		if fileInfo.Size() / (1024*1024*1024) > 2 {break} 
+		if fileInfo.Size() / (1024*1024*1024) > 2 {
+			reason = "probable pp3 stalling"
+			break
+		} 
+		
+		sysInfo = sysinfo.Get()
+		memAvail = float64(sinfo.FreeRam) / float64(sinfo.TotalRam) * 100
+		if memAvail < 95 {
+			reason = "memory less thank 95% on the system"
+			break
+		}
+		
 		time.Sleep(time.Duration(1) * time.Minute)
 	}
 	log.Println("Detected STDERR file with dimension ", fileInfo.Size())
@@ -119,13 +135,13 @@ func checkFileSize(errName string, kiraWrappedCmd *exec.Cmd, done chan string) (
 	if err := kiraWrappedCmd.Process.Kill(); err != nil {
 		log.Fatal("failed to kill: ", err)
 	}
-	done <- "killed"
+	done <- "killed because " + reason
 }
 
 func waitProcess(kiraWrappedCmd *exec.Cmd, done chan string) () {
 	err := kiraWrappedCmd.Wait()
 	log.Println("Process exited with error ", err)
-	done <- "ended"	
+	done <- ""	
 }
 
 
