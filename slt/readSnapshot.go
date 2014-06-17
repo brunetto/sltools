@@ -11,7 +11,7 @@ import (
 
 	"github.com/brunetto/goutils/debug"
 
-	"bitbucket.org/brunetto/goutils/readfile"
+	"github.com/brunetto/goutils/readfile"
 )
 
 // DumbSnapshot contains one snapshot without knowing anything about it

@@ -26,7 +26,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		nReader                        *bufio.Reader
 		nWriter                        *bufio.Writer
 		fileNameBody, newRnd, ext      string                           // newRnd is the number of the new run round
-		snapshots                      = make([]*DumbSnapshot, 2)       // slice for two snapshots
+		snapshots                      = []*DumbSnapshot{&DumbSnapshot{}, &DumbSnapshot{}}       // slice for two snapshots
 		snpN                           int                              // number of the snapshot
 		simulationStop                 int64                      = 500 // when to stop the simulation
 		thisTimestep, remainingTime    int64                            // current timestep number and remaining timesteps to reach simulationStop
@@ -37,7 +37,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		rnd                            string
 		fZip                           *gzip.Reader
 	)
-
+	
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
 
@@ -107,6 +107,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		// (= I keep the previous read in memory in case the last is corrupted)
 		for {
 			if snapshots[0], err = ReadOutSnapshot(nReader); err != nil {
+				log.Println("Snap slice: ", snapshots)
 				break
 			}
 			if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {
@@ -124,6 +125,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			log.Println("Both last two snapshots corrupted on file ", inFileName)
 			fmt.Println("Snapshot ", snapshots[1].Timestep, " is ", snapshots[1].Integrity)
 			fmt.Println("Snapshot ", snapshots[0].Timestep, " is ", snapshots[0].Integrity)
+			fmt.Println("Maybe your output file is empty")
 			log.Fatal("Reading exit with error ", err)
 		}
 		// Info
