@@ -46,8 +46,8 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		log.Fatal("Can't get $HOME variable and locate your home")
 	}
 	
-	if goutils.Exists(filepath.Join(home, "bin", kiraWrap)) && 
-		goutils.Exists(filepath.Join(home, "bin", kira)) {
+	if goutils.Exists(filepath.Join(home, "bin", "kiraWrap")) && 
+		goutils.Exists(filepath.Join(home, "bin", "kira")) {
 		log.Fatal("Can't find kiraWrap or kira in ", filepath.Join(home, "bin"))
 	}
 	
@@ -110,7 +110,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 				currentDir +
 				infoMap["newICsFileName"] + " " +
 				infoMap["remainingTime"] + " " +
-				+ infoMap["randomSeed"]
+				infoMap["randomSeed"]
 				
 	// 			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
 	// 			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
