@@ -83,7 +83,9 @@ func main () () {
 	if errFile, err = os.Create(errName); err != nil {log.Fatal(err)}
 	defer errFile.Close()
 	
+	errFile.WriteString("\n==============================\n")	
 	errFile.WriteString("\nStart with kiraWrap.\n")	
+	errFile.WriteString("\n==============================\n")	
 	
 	log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 	
@@ -130,7 +132,10 @@ func main () () {
 	if err = errors.New(<-done); err.Error() != "" {
 		errFile.WriteString("\n"+err.Error()+"\n")
 	}
+	
+	errFile.WriteString("\n==============================\n")
 	errFile.WriteString("\nDone with kiraWrap.\n")	
+	errFile.WriteString("\n==============================\n")
 	fmt.Print("\x07") // Beep when finish!!:D
 }
 
