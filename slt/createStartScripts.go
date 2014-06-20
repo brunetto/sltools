@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/brunetto/goutils/debug"
+	"github.com/brunetto/goutils"
 )
 
 // CreateStartScripts create the start scripts (kira launch and PBS launch for the ICs).
@@ -40,41 +41,16 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		randomString string
 	)
 	
-	if machine == "eurora" {
-		modules = "module purge\n" +
-			"module load profile/advanced\n" +
-			"module load gnu/4.6.3\n" +
-			"module load boost/1.53.0--gnu--4.6.3\n" +
-			"module load cuda\n\n" +
-			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
-			"/cineca/prod/compilers/cuda/5.0.35/none/lib64:" +
-			"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
-			"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/eurora/home/userexternal/mmapelli/\n\n" +
-			"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/5.0.35/none/lib64:/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
-			"export LD_LIBRARY_PATH\n"
-		queue = "parallel"
-		walltime = "4:00:00"
-		home = "/eurora/home/userexternal/bziosi00"
-		kiraBinPath = "/eurora/home/userexternal/bziosi00/starlabjune19_2013/usr/bin/kira"
-	} else if machine == "plx" {
-		modules = "module purge\n" +
-			"module load gnu/4.1.2\n" +
-			"module load profile/advanced\n" +
-			"module load boost/1.41.0--intel--11.1--binary\n" +
-			"module load cuda/4.0\n\n" +
-			"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/4.0/none/lib64:" +
-			"/cineca/prod/compilers/cuda/4.0/none/lib:/cineca/prod/" +
-			"libraries/boost/1.41.0/intel--11.1--binary/lib:/cineca/" +
-			"prod/compilers/intel/11.1/binary/lib/intel64\n" +
-			"export LD_LIBRARY_PATH\n\n"
-		queue = "longpar"
-		walltime = "24:00:00"
-		home = "/plx/userexternal/bziosi00"
-		kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
-	} else {
-		log.Fatal("Uknown machine name ", machine)
+	
+	if home = os.Getenv("HOME"); home == "" {
+		log.Fatal("Can't get $HOME variable and locate your home")
 	}
-
+	
+	if goutils.Exists(filepath.Join(home, "bin", kiraWrap)) && 
+		goutils.Exists(filepath.Join(home, "bin", kira)) {
+		log.Fatal("Can't find kiraWrap or kira in ", filepath.Join(home, "bin"))
+	}
+	
 	for infoMap = range cssInfo {
 
 		if regRes, err = Reg(infoMap["newICsFileName"]); err != nil {
@@ -84,7 +60,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 			log.Fatalf("Please specify an ICs file, found %v prefix", regRes["prefix"])
 		}
 
-		if infoMap["randomSeed"] == "0" {
+		if infoMap["randomSeed"] == "0" { 
 			randomString = ""
 		} else if infoMap["randomSeed"] == "" {
 			randomString = ""
@@ -110,16 +86,65 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		stdErrFile = "err-" + baseName + "-run" + run + "-rnd" + rnd + ".txt"
 		kiraOutName = "kiraLaunch-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
 		pbsOutName = "PBS-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
-
-		kiraString = "echo $PWD\n" +
-			"echo $LD_LIBRARY_PATH\n" +
-			"echo $HOSTNAME\n" +
-			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
-			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
-			"<  " + filepath.Join(currentDir, icsName) + " \\\n" +
-			">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
-			"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
-
+		
+		if machine == "eurora" {
+			modules = "module purge\n" +
+				"module load profile/advanced\n" +
+				"module load gnu/4.6.3\n" +
+				"module load boost/1.53.0--gnu--4.6.3\n" +
+				"module load cuda\n\n" +
+				"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:" +
+				"/cineca/prod/compilers/cuda/5.0.35/none/lib64:" +
+				"/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
+				"# # # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/eurora/home/userexternal/mmapelli/\n\n" +
+				"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/5.0.35/none/lib64:/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
+				"export LD_LIBRARY_PATH\n"
+			queue = "parallel"
+			walltime = "4:00:00"
+			
+			kiraString = "echo $PWD\n" +
+				"echo $LD_LIBRARY_PATH\n" +
+				"echo $HOSTNAME\n" +
+				"date\n" +
+				"$HOME/bin/kiraWrap $CINECA_SCRATCH/eurora-parameterSpace/" +
+				currentDir +
+				infoMap["newICsFileName"] + " " +
+				infoMap["remainingTime"] + " " +
+				+ infoMap["randomSeed"]
+				
+	// 			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
+	// 			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
+	// 			"<  " + filepath.Join(currentDir, icsName) + " \\\n" +
+	// 			">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
+	// 			"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
+		} else if machine == "plx" {
+			modules = "module purge\n" +
+				"module load gnu/4.1.2\n" +
+				"module load profile/advanced\n" +
+				"module load boost/1.41.0--intel--11.1--binary\n" +
+				"module load cuda/4.0\n\n" +
+				"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/4.0/none/lib64:" +
+				"/cineca/prod/compilers/cuda/4.0/none/lib:/cineca/prod/" +
+				"libraries/boost/1.41.0/intel--11.1--binary/lib:/cineca/" +
+				"prod/compilers/intel/11.1/binary/lib/intel64\n" +
+				"export LD_LIBRARY_PATH\n\n"
+			queue = "longpar"
+			walltime = "24:00:00"
+			home = "/plx/userexternal/bziosi00"
+			kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
+			kiraString = "echo $PWD\n" +
+				"echo $LD_LIBRARY_PATH\n" +
+				"echo $HOSTNAME\n" +
+				"date\n" + 
+				kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
+				" -n 10 -e 0.000 -B " + randomString + " \\\n" +
+				"<  " + filepath.Join(currentDir, infoMap["newICsFileName"]) + " \\\n" +
+				">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
+				"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
+		} else {
+			log.Fatal("Uknown machine name ", machine)
+		}
+		
 		pbsString = "#!/bin/bash\n" +
 			"#PBS -N r" + shortName + "\n" +
 			"#PBS -A IscrC_SCmerge\n" +

@@ -46,6 +46,8 @@ func main () () {
 		randomSeed = os.Args[3]
 	}
 	
+	fmt.Println("###################################################")
+	
 	// Extract fileNameBody, round and ext
 	log.Println("Extract files names")
 	ext = filepath.Ext(icsName)
@@ -119,7 +121,7 @@ func main () () {
 		log.Fatal("Error starting kiraWrappedCmd: ", err)
 	}
 	
-	log.Println("Waiting kira to finish while checking for pp3-stalling...")
+	log.Println("Waiting kira to finish while checking for problems...")
 	// Wait for the process to end normally
 	go waitProcess(kiraWrappedCmd, done)
 	// Check for pp3-stalling situations
@@ -129,6 +131,7 @@ func main () () {
 		errFile.WriteString("\n"+err.Error()+"\n")
 	}
 	errFile.WriteString("\nDone with kiraWrap.\n")	
+	fmt.Print("\x07") // Beep when finish!!:D
 }
 
 func killTrigger(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () {
@@ -186,7 +189,7 @@ func killTrigger(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () 
 		// Wait some time
 		time.Sleep(time.Duration(2) * time.Minute)
 	}
-	log.Println("Kill kira")
+	log.Println("Kill kira because ", reason)
 	if err := kiraWrappedCmd.Process.Kill(); err != nil {
 		log.Fatal("failed to kill: ", err)
 	}
