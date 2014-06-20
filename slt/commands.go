@@ -167,6 +167,14 @@ var ContinueCmd = &cobra.Command{
 	Use like:
 	sltools continue -o out-cineca-comb19-NCM10000-fPB005-W9-Z010-run08-rnd01.txt`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if machine == "" {
+			if ConfName != "" {
+				conf := InitVars(ConfName)
+				machine = conf.Machine
+			} else {
+				log.Fatal("I need to know the machine name by CLI flag or conf file.")
+			}
+		}
 		Continue(inFileName, machine)
 	},
 }

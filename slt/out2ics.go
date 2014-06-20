@@ -28,7 +28,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		fileNameBody, newRnd, ext      string                           // newRnd is the number of the new run round
 		snapshots                      = []*DumbSnapshot{&DumbSnapshot{}, &DumbSnapshot{}}       // slice for two snapshots
 		snpN                           int                              // number of the snapshot
-		simulationStop                 int64                      = 500 // when to stop the simulation
+		simulationStop                 int64                       // when to stop the simulation
 		thisTimestep, remainingTime    int64                            // current timestep number and remaining timesteps to reach simulationStop
 		randomSeed                     string                           // random seed from STDERR
 		runString                      string                           // string to run the next round from terminal
@@ -37,6 +37,10 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		rnd                            string
 		fZip                           *gzip.Reader
 	)
+	
+	simulationStop = 500
+	
+	log.Printf("Simulation stop set to %v in the code\n", simulationStop)
 	
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
@@ -65,10 +69,8 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
 		}
 
-		log.Println("New ICs file will be ", newICsFileName)
-
 		// Open infile, both text or gzip and create the reader
-		log.Println("Opening input and output files...")
+		log.Println("Opening output file: ", inFileName)
 		if inFile, err = os.Open(inFileName); err != nil {
 			log.Fatal(err)
 		}
@@ -94,20 +96,11 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			}
 		}
 
-		// Create the new ICs file
-		if newICsFile, err = os.Create(newICsFileName); err != nil {
-			log.Fatal(err)
-		}
-		defer newICsFile.Close()
-		nWriter = bufio.NewWriter(newICsFile)
-		defer nWriter.Flush()
-
 		log.Println("Start reading...")
 		// Read two snapshot each loop to ensure at least one of them is complete
 		// (= I keep the previous read in memory in case the last is corrupted)
 		for {
 			if snapshots[0], err = ReadOutSnapshot(nReader); err != nil {
-				log.Println("Snap slice: ", snapshots)
 				break
 			}
 			if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {
@@ -133,12 +126,26 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)
 		thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
 		remainingTime = simulationStop - thisTimestep
-		log.Println("Set -t flag to ", remainingTime)
 
 		// Write last complete snapshot to file
-		log.Println("Writing snapshot to ", newICsFileName)
-		if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
-			log.Fatal("Error while writing snapshot to file: ", err)
+		if remainingTime < 1 {
+			log.Println("No need to create a new ICs, simulation complete.")
+			continue
+		} else {
+			// Create the new ICs file
+			log.Println("Creating new ICs file ", newICsFileName)
+			if newICsFile, err = os.Create(newICsFileName); err != nil {
+				log.Fatal(err)
+			}
+			defer newICsFile.Close()
+			nWriter = bufio.NewWriter(newICsFile)
+			defer nWriter.Flush()
+			
+			log.Println("Writing snapshot to ", newICsFileName)			
+			if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
+				log.Fatal("Error while writing snapshot to file: ", err)
+			}
+			log.Println("Set -t flag to ", remainingTime)
 		}
 
 		fmt.Fprint(os.Stderr, "\n")
@@ -154,7 +161,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 
 		runString = "\nYou can run the new round from the terminal with:\n" +
 			"----------------------\n" +
-			"(/home/ziosi/Code/Mapelli/slpack/starlab/usr/bin/kira -F -t " +
+			"(" + os.Getenv("HOME") + "/bin/kira -F -t " +
 			strconv.Itoa(int(remainingTime)) +
 			" -d 1 -D 1 -b 1 -f 0 " +
 			"-n 10 -e 0.000 -B -s " + randomSeed +
@@ -165,7 +172,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			"watch stat " + newErrFileName + "\n" +
 			"----------\n" +
 			"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" +
-			"----------------------\n\n"
+			"----------------------\n"
 
 		fmt.Println(runString)
 		fmt.Println()

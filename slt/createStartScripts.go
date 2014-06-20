@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
@@ -39,6 +40,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		modules        string                                                            // modules we need to load
 		regRes map[string]string
 		randomString string
+		timeTest int
 	)
 	
 	
@@ -46,12 +48,21 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		log.Fatal("Can't get $HOME variable and locate your home")
 	}
 	
-	if goutils.Exists(filepath.Join(home, "bin", "kiraWrap")) && 
-		goutils.Exists(filepath.Join(home, "bin", "kira")) {
+	if !goutils.Exists(filepath.Join(home, "bin", "kiraWrap")) && 
+		!goutils.Exists(filepath.Join(home, "bin", "kira")) {
 		log.Fatal("Can't find kiraWrap or kira in ", filepath.Join(home, "bin"))
 	}
 	
 	for infoMap = range cssInfo {
+		
+		if timeTest, err = strconv.Atoi(infoMap["remainingTime"]); err != nil {
+			log.Fatal("Can't retrieve remaining time in createStartSCript: ", err)
+		}
+		
+		if timeTest < 1 {
+			log.Println("No need to create a new ICs, simulation complete.")
+			continue
+		}
 
 		if regRes, err = Reg(infoMap["newICsFileName"]); err != nil {
 			log.Fatal(err)
@@ -106,11 +117,10 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 				"echo $LD_LIBRARY_PATH\n" +
 				"echo $HOSTNAME\n" +
 				"date\n" +
-				"$HOME/bin/kiraWrap $CINECA_SCRATCH/eurora-parameterSpace/" +
-				currentDir +
-				infoMap["newICsFileName"] + " " +
+				filepath.Join(home, "bin", "kiraWrap") + " " +
+				filepath.Join(currentDir, infoMap["newICsFileName"]) + " " +
 				infoMap["remainingTime"] + " " +
-				infoMap["randomSeed"]
+				infoMap["randomSeed"] + "\n"
 				
 	// 			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +
 	// 			" -n 10 -e 0.000 -B " + randomString + " \\\n" +
