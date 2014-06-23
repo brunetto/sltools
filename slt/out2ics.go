@@ -166,12 +166,16 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			" -d 1 -D 1 -b 1 -f 0 " +
 			"-n 10 -e 0.000 -B -s " + randomSeed +
 			" < " + newICsFileName + " >  " + newOutFileName + " 2> " + newErrFileName + ")& \n" +
+			"\n\nor\n\n" + 
+			"($HOME/bin/kiraWrap " + newICsFileName + " " + 
+			strconv.Itoa(int(remainingTime)) + " " + 
+			randomSeed + "\n\n" +
 			"----------------------\n\n" +
 			"You can watch the status of the simulation by running: \n" +
 			"----------------------\n" +
 			"watch stat " + newErrFileName + "\n" +
 			"----------\n" +
-			"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" +
+			"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" + 
 			"----------------------\n"
 
 		fmt.Println(runString)

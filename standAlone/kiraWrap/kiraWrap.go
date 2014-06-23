@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"syscall"
 	"time"
@@ -34,6 +35,8 @@ func main () () {
 		regRes map[string]string
 		done = make(chan string, 1)
 		randomSeed string = ""
+		u  *user.User
+		host, wd string
 	)
 	
 	
@@ -111,11 +114,27 @@ func main () () {
 	if kiraWrappedCmd.Stdout = outFile; err != nil {log.Fatal("Error connecting ICs to kira STDOUT: ", err)}
 	if kiraWrappedCmd.Stderr = errFile; err != nil {log.Fatal("Error connecting ICs to kira STDERR: ", err)}
 	
-	log.Println("Going to run:")
-	fmt.Println(kiraString, kiraArgs)
-	fmt.Println("STDIN = ", icsName)
-	fmt.Println("STDOUT = ", outName)
-	fmt.Println("STDERR = ", errName)
+	if u, err = user.Current(); err != nil {
+		log.Fatal("Can't retrieve username: ", err)
+	}
+	if host, err = os.Hostname(); err != nil {
+		log.Fatal("Can't retrieve hostname: ", err)
+	}
+	if wd, err = os.Getwd(); err != nil {
+		log.Fatal("Can't retrieve working dir: ", err)
+	}
+	
+	log.Println("Run summary:")
+	
+	log.Println("Username: ", u)
+	log.Println("Hostname: ", host)
+	log.Println("Working dir: ", wd)
+	log.Println("LD_LIBRARY_PATH: ", os.Getenv("LD_LIBRARY_PATH"))
+	
+	log.Println("Command: ", kiraString, kiraArgs)
+	log.Println("STDIN = ", icsName)
+	log.Println("STDOUT = ", outName)
+	log.Println("STDERR = ", errName)
 	
 	log.Println("Ready... steady... Go!")
 	
