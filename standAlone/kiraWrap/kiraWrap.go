@@ -49,7 +49,7 @@ func main () () {
 		randomSeed = os.Args[3]
 	}
 	
-	fmt.Println("###################################################")
+	log.Println("###################################################")
 	
 	// Extract fileNameBody, round and ext
 	log.Println("Extract files names")
@@ -126,7 +126,7 @@ func main () () {
 	
 	log.Println("Run summary:")
 	
-	log.Println("Username: ", u)
+	log.Println("Username: ", u.Username)
 	log.Println("Hostname: ", host)
 	log.Println("Working dir: ", wd)
 	log.Println("LD_LIBRARY_PATH: ", os.Getenv("LD_LIBRARY_PATH"))
