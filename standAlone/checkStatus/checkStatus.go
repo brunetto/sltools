@@ -16,8 +16,6 @@ import (
 func main () () {
 	defer debug.TimeMe(time.Now())
 	
-	const toGB = float64(1. / (1024*1024*1024))
-	
 	var (
 		err          error
 		inFiles      []string
@@ -70,6 +68,7 @@ func main () () {
     }
     sort.Strings(keys)
 	
+	fmt.Println(".................................")
 	for _, key = range keys {
 		lastErr = runMap[key]["err"][len(runMap[key]["err"])-1]
 		lastOut = runMap[key]["out"][len(runMap[key]["out"])-1]
@@ -79,10 +78,17 @@ func main () () {
 		if outInfo, err = os.Stat(lastOut); err != nil {
 			log.Fatal("Error checking STDOUT file size, err")
 		}
-		fmt.Printf("%v\t%2.2f GB %v\n\t%2.2f GB %v\n", 
-				   key, float64(outInfo.Size())*toGB, lastOut, 
-				   float64(errInfo.Size())*toGB, lastErr)
+		
+		outSize, outUnit := sizeUnit(outInfo.Size())
+		errSize, errUnit := sizeUnit(errInfo.Size())
+		
+		fmt.Printf("%v\t%2.2f %v %v\n\t%2.2f %v %v\n", 
+				   key, outSize, outUnit, lastOut, 
+				   errSize, errUnit, lastErr)
 		checkSnapshot(lastOut)
+		fmt.Println()
+		fmt.Println(".................................")
+		
 	}
 	fmt.Print("\x07") // Beep when finish!!:D
 }
@@ -104,10 +110,21 @@ func checkSnapshot (inFileName string) () {
 	}
 }
 
-
-
-
-
-
+func sizeUnit(size int64) (outSize float64, unit string) {
+	const tokB = float64(1. / (1024))
+	const toMB = float64(1. / (1024*1024))
+	const toGB = float64(1. / (1024*1024*1024))
+	
+	switch {
+		case size > (1024*1024*1024):
+			return float64(size)*toGB, "GB"
+		case size > (1024*1024):
+			return float64(size)*toMB, "MB"
+		case size > 1024:
+			return float64(size)*tokB, "kB"
+		default:
+			return float64(size), "bytes"
+	}
+}
 
 // printf "\n"; pwd; printf "\n"; for (( c=0; c<=9; c++ )); do printf "$c "; ls -lah out-*-run0$c-rnd0* | awk '{print $5"\t"$9}' | tail -n 1; prStintf "  "; ls -lah err-*-run0$c-rnd0* | awk '{print $5"\t"$9}' | tail -n 1; printf "  "; cat $(ls err-*-run0$c-rnd0* | tail -n 1) | grep "Time = " | tail -n 1; done
