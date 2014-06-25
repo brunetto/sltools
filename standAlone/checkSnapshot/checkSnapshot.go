@@ -19,7 +19,7 @@ func main () () {
 	
 	
 	if len(os.Args) < 2 {
-		log.Fatal("Provide a file to check")
+		log.Fatal("Provide a STDOUT file to check")
 	}
 	
 	inFileName = os.Args[1]
