@@ -87,7 +87,7 @@ func main () () {
 	defer errFile.Close()
 	
 	errFile.WriteString("\n==============================\n")	
-	errFile.WriteString("\nStart with kiraWrap.\n")	
+	errFile.WriteString("\nStart with kiraWrap (" + time.Now().Format(time.RFC850) + ").\n")	
 	errFile.WriteString("\n==============================\n")	
 	
 	log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
@@ -126,7 +126,7 @@ func main () () {
 	
 	log.Println("Run summary:")
 	
-	log.Println("Username: ", u.Username)
+	log.Printf("Username: %v (%v)\n", u.Username, u.Name)
 	log.Println("Hostname: ", host)
 	log.Println("Working dir: ", wd)
 	log.Println("LD_LIBRARY_PATH: ", os.Getenv("LD_LIBRARY_PATH"))
@@ -153,7 +153,7 @@ func main () () {
 	}
 	
 	errFile.WriteString("\n==============================\n")
-	errFile.WriteString("\nDone with kiraWrap.\n")	
+	errFile.WriteString("\nDone with kiraWrap (" + time.Now().Format(time.RFC850) + ").\n")	
 	errFile.WriteString("\n==============================\n")
 	fmt.Print("\x07") // Beep when finish!!:D
 }
@@ -223,6 +223,9 @@ func killTrigger(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () 
 func waitProcess(kiraWrappedCmd *exec.Cmd, done chan string) () {
 	err := kiraWrappedCmd.Wait()
 	log.Println("Process exited with error ", err)
+	if err == nil {
+		log.Println("Maybe the simulation is COMPLETE or the STD* are mixed and wrong.")
+	}
 	done <- ""	
 }
 

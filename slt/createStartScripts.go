@@ -113,10 +113,10 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 			queue = "parallel"
 			walltime = "4:00:00"
 			
-			kiraString = "echo $PWD\n" +
-				"echo $LD_LIBRARY_PATH\n" +
-				"echo $HOSTNAME\n" +
-				"date\n" +
+			kiraString = "#echo $PWD\n" +
+				"#echo $LD_LIBRARY_PATH\n" +
+				"#echo $HOSTNAME\n" +
+				"#date\n" +
 				filepath.Join(home, "bin", "kiraWrap") + " " +
 				filepath.Join(currentDir, infoMap["newICsFileName"]) + " " +
 				infoMap["remainingTime"] + " " +
