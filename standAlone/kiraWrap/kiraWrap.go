@@ -162,7 +162,7 @@ func killTrigger(errName string, kiraWrappedCmd *exec.Cmd, done chan string) () 
 	const toGB = float64(1. / (1024*1024*1024))
 	const maxStderrGB = float64(2)
 	const minDiskGB = float64(5)
-	const maxMemPerCent = float64(95)
+	const maxMemPerCent = float64(98)
 	
 	var (
 		fileInfo os.FileInfo

@@ -30,6 +30,7 @@ func main () () {
 		key string
 		lastErr, lastOut string
 		errInfo, outInfo os.FileInfo
+		toRemove = []string{}
 	)
 	
 	log.Println("Searching for files in the form: ", globName)
@@ -70,8 +71,14 @@ func main () () {
 	
 	fmt.Println(".................................")
 	for _, key = range keys {
+		// In case we have only ics 
+		if len(runMap[key]["err"]) == 0 || len(runMap[key]["out"]) == 0 {
+			continue
+		}
 		lastErr = runMap[key]["err"][len(runMap[key]["err"])-1]
 		lastOut = runMap[key]["out"][len(runMap[key]["out"])-1]
+		
+		// Check files dimension
 		if errInfo, err = os.Stat(lastErr); err != nil {
 			log.Fatal("Error checking STDERR file size, err")
 		}
@@ -82,14 +89,25 @@ func main () () {
 		outSize, outUnit := sizeUnit(outInfo.Size())
 		errSize, errUnit := sizeUnit(errInfo.Size())
 		
+		if outUnit == "bytes" || errUnit == "GB" {
+			toRemove = append(toRemove, lastErr, lastOut)
+		}
+		
 		fmt.Printf("%v\t%2.2f %v %v\n\t%2.2f %v %v\n", 
 				   key, outSize, outUnit, lastOut, 
 				   errSize, errUnit, lastErr)
 		checkSnapshot(lastOut)
 		fmt.Println()
-		fmt.Println(".................................")
-		
+		fmt.Println(".................................")	
 	}
+	// Suggest to delete broken rounds
+	log.Println("Suggestion, run: ")
+	fmt.Printf("rm ")
+	for _, fileToDelete := range toRemove {
+		fmt.Printf(" %v ", fileToDelete)
+	}
+	fmt.Println()
+	
 	fmt.Print("\x07") // Beep when finish!!:D
 }
 
