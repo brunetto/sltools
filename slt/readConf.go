@@ -32,6 +32,8 @@ type ConfigStruct struct {
 	PName     string
 	EndTime   int
 	BinFolder string
+	RunICC bool
+	FileName string
 }
 
 // ReadConf load configuration parameters for this set of runs forom a json file.
@@ -227,6 +229,8 @@ func InitVars(ConfName string) *ConfigStruct {
 		log.Println("Loaded:")
 		conf.Print()
 	}
+	conf.RunICC = false // default
+	conf.FileName = ConfName
 	// Return a pointer to the new configuration structure
 	return conf
 }

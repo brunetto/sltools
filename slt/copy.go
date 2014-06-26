@@ -13,9 +13,9 @@ func CopyFile(src, dst string) (int64, error) {
 		df *os.File
 		err error
 	)
-	if sf, err = os.Open(src); err != nil {/*return 0,*/ log.Fatal("On opening source: ", err)} 
+	if sf, err = os.Open(src); err != nil {/*return 0,*/ log.Fatal("On opening source: " + src + " " + err.Error())} 
 	defer sf.Close() 
-	if df, err = os.Create(dst); err != nil {/*return 0,*/ log.Fatal("On opening destination: ", err)} 
+	if df, err = os.Create(dst); err != nil {/*return 0,*/ log.Fatal("On opening destination: " + dst + " " + err.Error())} 
 	defer df.Close() 
 	return io.Copy(df, sf) 
 } 

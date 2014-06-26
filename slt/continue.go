@@ -15,10 +15,6 @@ import (
 // the simulation (kiraLaunch and PBSlaunch) calling CreateStartScripts.
 // It needs a valid configuration file.
 
-
-
-
-
 func Continue(inFileName, machine string) {
 	if Debug {
 		defer debug.TimeMe(time.Now())

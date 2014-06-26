@@ -54,7 +54,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 	}
 	
 	for infoMap = range cssInfo {
-		
+		if Debug{log.Println("Retrieved ", infoMap)}
 		if timeTest, err = strconv.Atoi(infoMap["remainingTime"]); err != nil {
 			log.Fatal("Can't retrieve remaining time in createStartSCript: ", err)
 		}
@@ -63,7 +63,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 			log.Println("No need to create a new ICs, simulation complete.")
 			continue
 		}
-
+		
 		if regRes, err = Reg(infoMap["newICsFileName"]); err != nil {
 			log.Fatal(err)
 		}
@@ -85,7 +85,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		rnd = regRes["rnd"]
 
 		shortName = "r" + comb + "-" + run + "-" + rnd
-
+		
 		if currentDir, err = os.Getwd(); err != nil {
 			log.Fatal("Can't find current working folder!!")
 		}

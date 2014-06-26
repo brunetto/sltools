@@ -11,6 +11,7 @@ import (
 // Use with:
 // if Verb { ...
 var Verb bool
+var All bool
 
 // Debug activate the package-wise debug verbosity.
 // Use with:
@@ -40,7 +41,7 @@ var VersionCmd = &cobra.Command{
 	Short: "Print the version number of slt",
 	Long:  `All software has versions. This is sltools' one.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("StarLab Tools v0.8")
+		fmt.Println("StarLab Tools v0.9")
 	},
 }
 
@@ -75,7 +76,6 @@ var ReadConfCmd = &cobra.Command{
 
 var (
 	RunICC bool
-	ICsAll bool
 )
 
 // CreateICsCmd will launch the functions to create the ICs from JSON configuration file.
@@ -87,12 +87,11 @@ var CreateICsCmd = &cobra.Command{
 	sltools createICs -c conf21.json -v -C
 	sltools createICs -v -C -A # to create folders and ICs for all the config files`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if ICsAll {
+		if All {
 			log.Println("Create all ICs following all the .json config files in this folder")
-			CreateAllICs()
+			CreateICsWrap("all", RunICC)
 		} else {
-			conf := InitVars(ConfName)
-			CreateICsSingleWrap(conf)
+			CreateICsWrap(ConfName, RunICC)
 		}
 	},
 }
@@ -145,18 +144,41 @@ var CreateStartScriptsCmd = &cobra.Command{
 			cssInfo = make (chan map[string]string, 1)
 		)
 		go CreateStartScripts(cssInfo, machine, done)
-		cssInfo <- map[string]string{
-				"remainingTime": simTime,
-				"randomSeed": randomNumber,
-				"newICsFileName": icsName,
+		if All {
+			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt")
+			log.Println("Selected to create start scripts for all the runs in the folder")
+			log.Println("Found: ")
+			for _, run := range runs {
+				if mapErr != nil && len(runMap[run]["ics"]) == 0 {
+					continue
+				}
+				fmt.Printf("%v\n", runMap[run]["ics"][len(runMap[run]["ics"])-1])
+			}
+			fmt.Println()
+			// Fill the channel with the last round of each run
+			for _, run := range runs {
+				if mapErr != nil && len(runMap[run]["ics"]) == 0 {
+					continue
+				}
+				cssInfo <- map[string]string{
+					"remainingTime": "500",
+					"randomSeed": "",
+					"newICsFileName": runMap[run]["ics"][len(runMap[run]["ics"])-1],
+				}
+			}
+
+		} else {
+			cssInfo <- map[string]string{
+					"remainingTime": simTime,
+					"randomSeed": randomNumber,
+					"newICsFileName": icsName,
+			}
 		}
 		close(cssInfo)
 		<- done
 		close(done)
 	},
 }
-
-var continueAll bool
 
 // Out2ICsCmd + CreateStartScriptsCmd
 var ContinueCmd = &cobra.Command{
@@ -177,7 +199,7 @@ var ContinueCmd = &cobra.Command{
 				log.Fatal("I need to know the machine name by CLI flag or conf file.")
 			}
 		}
-		if continueAll {
+		if All {
 			inFileName = "all"
 		}
 		Continue(inFileName, machine)
@@ -187,7 +209,6 @@ var ContinueCmd = &cobra.Command{
 var (
 	OnlyOut  bool
 	OnlyErr  bool
-	StichAll bool
 )
 
 // StichOutputCmd stiches STDOUT and STDERR from different round of the same simulation
@@ -205,7 +226,7 @@ var StichOutputCmd = &cobra.Command{
 	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
 	sltools stichOutput -c conf19.json -A # to stich all the outputs in the folder`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if StichAll {
+		if All {
 			log.Println("Stich all!")
 			StichThemAll(inFileName)
 		} else {
@@ -221,17 +242,16 @@ func InitCommands() {
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	SlToolsCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug output")
 	SlToolsCmd.PersistentFlags().StringVarP(&ConfName, "confName", "c", "", "Name of the JSON config file")
+	SlToolsCmd.PersistentFlags().BoolVarP(&All, "all", "A", false, "Run command on all the relevant files in the local folder")
 
 	SlToolsCmd.AddCommand(ReadConfCmd)
 
 	SlToolsCmd.AddCommand(CreateICsCmd)
 	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
-	CreateICsCmd.Flags().BoolVarP(&ICsAll, "all", "A", false, "Create all the ICs according to the conf.json files in the local folder")
 
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
 	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
-	ContinueCmd.Flags().BoolVarP(&continueAll, "all", "a", false, "Continue last round of each run")
 
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
@@ -246,5 +266,4 @@ func InitCommands() {
 	StichOutputCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT or STDERR name to find what to stich")
 	StichOutputCmd.Flags().BoolVarP(&OnlyOut, "onlyOut", "O", false, "Only stich STDOUTs")
 	StichOutputCmd.Flags().BoolVarP(&OnlyErr, "onlyErr", "E", false, "Only stich STDERRs")
-	StichOutputCmd.Flags().BoolVarP(&StichAll, "all", "A", false, "Stich all the run outputs in the folder")
 }
