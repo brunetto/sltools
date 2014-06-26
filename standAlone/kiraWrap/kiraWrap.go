@@ -86,9 +86,13 @@ func main () () {
 	if errFile, err = os.Create(errName); err != nil {log.Fatal(err)}
 	defer errFile.Close()
 	
-	errFile.WriteString("\n==============================\n")	
-	errFile.WriteString("\nStart with kiraWrap (" + time.Now().Format(time.RFC850) + ").\n")	
-	errFile.WriteString("\n==============================\n")	
+	errFile.WriteString("\n#==============================\n")	
+	errFile.WriteString(fmt.Sprintf("\n#   %v Start with kiraWrap.\n", time.Now().Format(time.RFC850)))
+	errFile.WriteString("\n#==============================\n")	
+	
+	outFile.WriteString("\n#==============================\n")	
+	outFile.WriteString(fmt.Sprintf("\n#   %v Start with kiraWrap.\n", time.Now().Format(time.RFC850)))
+	outFile.WriteString("\n#==============================\n")	
 	
 	log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 	
@@ -152,9 +156,16 @@ func main () () {
 		errFile.WriteString("\n"+err.Error()+"\n")
 	}
 	
+	errFile.WriteString("\n#==============================\n")
+	errFile.WriteString(fmt.Sprintf("\n#   %v Done with kiraWrap.\n", time.Now().Format(time.RFC850)))	
+	errFile.WriteString(fmt.Sprintf("\n#   Username: %v (%V)\n", u.Username, u.Name))
+	errFile.WriteString(fmt.Sprintf("\n#   Hostname: %v\n", host))
 	errFile.WriteString("\n==============================\n")
-	errFile.WriteString("\nDone with kiraWrap (" + time.Now().Format(time.RFC850) + ").\n")	
-	errFile.WriteString("\n==============================\n")
+	
+	outFile.WriteString("\n#==============================\n")
+	outFile.WriteString(fmt.Sprintf("\n#   %v Done with kiraWrap.\n", time.Now().Format(time.RFC850)))	
+	outFile.WriteString("\n#==============================\n")
+	
 	fmt.Print("\x07") // Beep when finish!!:D
 }
 
