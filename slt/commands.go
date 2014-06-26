@@ -156,6 +156,8 @@ var CreateStartScriptsCmd = &cobra.Command{
 	},
 }
 
+var continueAll bool
+
 // Out2ICsCmd + CreateStartScriptsCmd
 var ContinueCmd = &cobra.Command{
 	Use:   "continue",
@@ -174,6 +176,9 @@ var ContinueCmd = &cobra.Command{
 			} else {
 				log.Fatal("I need to know the machine name by CLI flag or conf file.")
 			}
+		}
+		if continueAll {
+			inFileName = "all"
 		}
 		Continue(inFileName, machine)
 	},
@@ -226,6 +231,7 @@ func InitCommands() {
 	SlToolsCmd.AddCommand(ContinueCmd)
 	ContinueCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
 	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
+	ContinueCmd.Flags().BoolVarP(&continueAll, "all", "a", false, "Continue last round of each run")
 
 	SlToolsCmd.AddCommand(Out2ICsCmd)
 	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
