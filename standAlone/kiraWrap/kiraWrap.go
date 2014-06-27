@@ -128,7 +128,15 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	
 	log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 	
-	kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira")
+	if noGPU {
+		log.Println("Assuming kira is in $HOME/bin/kira-no-GPU, if not, please copy it there... for sake of simplicity!:P")
+		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-no-GPU")
+	} else {
+		log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
+		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira")
+	}
+	
+	
 	kiraArgs =  []string{"-t", timeLimit,// +  // number of timesteps to compute
 				"-d", "1",// +  // log output interval
 				"-D", "1",// +  // snapshot interval
