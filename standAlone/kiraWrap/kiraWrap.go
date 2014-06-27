@@ -125,10 +125,9 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	outFile.WriteString("\n#==============================\n")	
 	outFile.WriteString(fmt.Sprintf("\n#   %v Start with kiraWrap.\n", time.Now().Format(time.RFC850)))
 	outFile.WriteString("\n#==============================\n")	
-	
-	log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
-	
+		
 	if noGPU {
+		log.Println("Selected the no GPU integration.")
 		log.Println("Assuming kira is in $HOME/bin/kira-no-GPU, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-no-GPU")
 	} else {
