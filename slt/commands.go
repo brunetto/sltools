@@ -143,6 +143,14 @@ var CreateStartScriptsCmd = &cobra.Command{
 			done = make (chan struct{})
 			cssInfo = make (chan map[string]string, 1)
 		)
+		if machine == "" {
+			if ConfName == "" {
+				log.Fatal("You must provide a machine name or a valid config file")
+			} else {
+				conf := InitVars(ConfName)
+				machine = conf.Machine
+			}
+		}
 		go CreateStartScripts(cssInfo, machine, done)
 		if All {
 			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt")
@@ -161,7 +169,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 					continue
 				}
 				cssInfo <- map[string]string{
-					"remainingTime": "500",
+					"remainingTime": simTime,
 					"randomSeed": "",
 					"newICsFileName": runMap[run]["ics"][len(runMap[run]["ics"])-1],
 				}
@@ -258,7 +266,7 @@ func InitCommands() {
 
 	SlToolsCmd.AddCommand(CreateStartScriptsCmd)
 	CreateStartScriptsCmd.Flags().StringVarP(&icsName, "icsName", "i", "", "ICs file name")
-	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "", "Remaining simulation time provided by the out2ics command")
+	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "500", "Remaining simulation time provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 

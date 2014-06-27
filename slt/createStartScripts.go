@@ -117,9 +117,9 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
 				"#date\n" +
-				filepath.Join(home, "bin", "kiraWrap") + " " +
-				filepath.Join(currentDir, infoMap["newICsFileName"]) + " " +
-				infoMap["remainingTime"] + " " +
+				filepath.Join(home, "bin", "kiraWrap") + " -i " +
+				filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
+				infoMap["remainingTime"] + " -r " +
 				infoMap["randomSeed"] + "\n"
 				
 	// 			kiraBinPath + " -t " + infoMap["remainingTime"] + " -d 1 -D 1 -b 1 -f 0 \\\n" +

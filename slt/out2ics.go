@@ -167,7 +167,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			"-n 10 -e 0.000 -B -s " + randomSeed +
 			" < " + newICsFileName + " >  " + newOutFileName + " 2> " + newErrFileName + ")& \n" +
 			"\nor\n\n" + 
-			"($HOME/bin/kiraWrap " + "-i" + newICsFileName + " -t " + 
+			"($HOME/bin/kiraWrap " + "-i " + newICsFileName + " -t " + 
 			strconv.Itoa(int(remainingTime)) + " -r " + 
 			randomSeed + "\n\n" +
 			"----------------------\n\n" +
