@@ -11,18 +11,55 @@ import (
 	"syscall"
 	"time"
 	
+	"github.com/spf13/cobra"
+	
 	"github.com/brunetto/goutils/debug"
 	"github.com/capnm/sysinfo" // TODO: can be thrown using syscall!!
 	"bitbucket.org/brunetto/sltools/slt"
 )
 
 
+var (
+	noGPU bool
+	icsFileName string
+	intTime string
+	randomNumber string
+)
+	
+var kiraWrapCmd = &cobra.Command{
+	Use:   "kiraWrap",
+	Short: "Wrapper for the kira integrator",
+	Long: `Wrap the kira integrator providing
+	environment monitoring.
+	The "no-GPU" flag allow you to run the non GPU version 
+	of kira if you installed kira-no-GPU in $HOME/bin/.
+	Run with:
+	
+	kiraWrap (--no-GPU)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if icsFileName == "" || intTime == "" {
+			log.Fatal("Provide an ICs file and the integration time.")
+		}
+		kiraWrap(icsFileName, intTime, randomNumber, noGPU)
+	},
+}
+
+func InitCommands() {
+	kiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
+	kiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
+	kiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
+	kiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "r", "", "Random number.")
+}
+
 func main () () {
 	defer debug.TimeMe(time.Now())
 	
-	if len(os.Args) < 3 {
-		log.Fatal("Provide the ICs and how many timesteps you want to integrate")
-	}
+	InitCommands()
+	kiraWrapCmd.Execute()
+}
+
+func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
+
 	
 	var (
 		timeLimit string
@@ -39,15 +76,10 @@ func main () () {
 		host, wd string
 	)
 	
-	
-	
-	pathName = filepath.Dir(os.Args[1])
-	icsName = filepath.Base(os.Args[1])
-	timeLimit = os.Args[2]
-	
-	if len(os.Args) == 4 {
-		randomSeed = os.Args[3]
-	}
+	pathName = filepath.Dir(icsFileName)
+	icsName = filepath.Base(icsFileName)
+	timeLimit = intTime
+	randomSeed = randomNumber
 	
 	log.Println("###################################################")
 	
