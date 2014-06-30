@@ -130,7 +130,9 @@ func (conf *ConfigStruct) NcmStr() string {
 
 // FpbStr return the primordial binaries fraction in string form
 func (conf *ConfigStruct) FpbStr() string {
-	return strconv.FormatFloat(conf.Fpb, 'f', 2, 64)
+	// Previous version gave problems in case of more than 3 decimal digits
+// 	return strconv.FormatFloat(conf.Fpb, 'f', 2, 64)
+	return fmt.Sprintf("%v", conf.Fpb)
 }
 
 // FpbCmpStr return the primordial binaries fraction in compact string form
