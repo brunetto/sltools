@@ -51,6 +51,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		err        error
 		regSysTime = regexp.MustCompile(`system_time\s*=\s*(\d+)`)
 		resSysTime []string
+		cumulativeNesting int = 0
 	)
 
 	// Init snapshot container
@@ -58,6 +59,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 	snap.Integrity = false
 	snap.CheckRoot = false
 	snap.NestingLevel = 0
+	
 
 	for {
 		// Read line by line
@@ -79,6 +81,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// and update the nesting level
 		if strings.Contains(line, "(Particle") {
 			snap.NestingLevel++
+			cumulativeNesting++
 		} else if strings.Contains(line, ")Particle") {
 			snap.NestingLevel--
 		}
@@ -90,7 +93,11 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 
 		// Check whether the whole snapshot is in memory
 		// (root particle complete) and if true, return
-		if snap.NestingLevel == 0 {
+		// We need cumulative nesting in case of a header.
+		// Without it the result is always a bad snapshot because 
+		// the nesting is 0 and no root is found but only
+		// because we are not into the particles section
+		if snap.NestingLevel == 0 && cumulativeNesting != 0 {
 			if !snap.CheckRoot {
 				outFile, err := os.Create("badTimestep.txt")
 				defer outFile.Close()

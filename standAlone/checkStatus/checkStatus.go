@@ -90,7 +90,7 @@ func checkSnapshot (inFileName string) () {
 		inFile *os.File
 		nReader  *bufio.Reader
 	)
-	
+// 	log.Println("Checking ", inFileName)
 	if inFile, err = os.Open(inFileName); err != nil {log.Fatal(err)}
 	defer inFile.Close()
 	
