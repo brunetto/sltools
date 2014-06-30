@@ -48,7 +48,7 @@ func InitCommands() {
 	kiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
-	kiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "r", "", "Random number.")
+	kiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "s", "", "Random number.")
 }
 
 func main () () {
@@ -81,7 +81,7 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	timeLimit = intTime
 	randomSeed = randomNumber
 	
-	log.Println("###################################################")
+	fmt.Println("###################################################")
 	
 	// Extract fileNameBody, round and ext
 	log.Println("Extract files names")

@@ -65,7 +65,7 @@ func main () () {
 	// Remove non job lines
 	for idx, line := range queueLines {
 		if queueRegRes = queueRegExp.FindStringSubmatch(line); queueRegRes != nil {
-			// 		group 1: job name
+// 		group 1: job name
 // 		group 2: user
 // 		group 3  queue 
 // 		group 4: job name 2
