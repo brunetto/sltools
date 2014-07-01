@@ -28,6 +28,7 @@ func main () () {
 			}
 		
 		userChan = make(chan bool, 1)
+		running int = 0
 	)
 	
 	go simman.MainLoop(wakeUp, messageChan, jobInfoChan)
@@ -47,12 +48,19 @@ func main () () {
 			break
 		}
 		
-		log.Printf("%v active jobs: \n", len(queueLines))
-// 		queueLines.Print()
+		running = 0
+		for _, value := range queueLines {
+			if	value["status"] == "R" {
+				running++
+			}
+		}
+		
+		fmt.Println("------------------------")
+		log.Printf("%v jobs, %v running\n", len(queueLines), running)
+		fmt.Println("------------------------\n")
 	
 		log.Println("Next check in ", waitingTime)
 		fmt.Println("If you want details about the last check, write 'details'.")
-// 		time.Sleep(waitingTime)
 		
 		select {
 			case <-userChan:
@@ -76,12 +84,6 @@ func printMessages (messageChan chan string) () {
 		log.Printf(message)
 	}
 }
-
-// func timer (timerChan chan bool) () {
-// 	
-// 	
-// }
-
 
 func usrInput (userChan chan bool) () {
 	var userInput string
