@@ -20,7 +20,7 @@ func MainLoop (wakeUp chan map[string]string, messageChan chan string, jobInfoCh
 		usr, server, pathToKey string
 		exists bool
 		session *ssh.Session
-		queueRegString string         = `(\S+\.\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+\s+\d+\s+\d+\s+(\S+)\s+(\d+):(\d+)\s+(\S)\s+(\d+):(\d+)`
+		queueRegString string         = `(\S+\.\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+\s+\d+\s+\d+\s+(\S+)\s+(\d+):(\d+)\s+(\S)\s+(\S+):*(\S+)`
 // 		group 1: jobID
 // 		group 2: user
 // 		group 3  queue 
@@ -137,7 +137,7 @@ func (m JobMap) Print () () {
 	var PBSStatus = map[string]string{
 			"E": "Job is exiting after having run.",
 			"H": "Job is held.",
-			"Q": "job is queued, eligable to run	or routed.",
+			"Q": "job is queued, eligable to run or routed.",
 			"R": "job is running.",
 			"T": "job is being moved to new location.",
 			"W": "job is waiting for its	execution time (-a option) to	be reached.",

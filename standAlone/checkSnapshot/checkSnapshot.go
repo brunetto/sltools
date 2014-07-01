@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 	
 	"bitbucket.org/brunetto/sltools/slt"
+	"github.com/brunetto/goutils/debug"
 )
 
 func main () () {
+	defer debug.TimeMe(time.Now())
+	
 	var (
 		inFileName string
 		err error
