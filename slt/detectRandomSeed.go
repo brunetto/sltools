@@ -2,8 +2,10 @@ package slt
 
 import (
 	"bufio"
+	"compress/gzip"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -26,6 +28,8 @@ func DetectRandomSeed(inFileName string) (randomSeed string) {
 		err           error
 		nReader       *bufio.Reader
 		stdErrName    string
+		fZip                           *gzip.Reader
+		ext      string = filepath.Ext(inFileName)
 	)
 
 	stdErrName = "err" + strings.TrimPrefix(inFileName, "out")
@@ -35,8 +39,27 @@ func DetectRandomSeed(inFileName string) (randomSeed string) {
 		log.Fatal(err)
 	}
 	defer inFile.Close()
-	nReader = bufio.NewReader(inFile)
 
+	switch ext {
+	case ".txt":
+		{
+			nReader = bufio.NewReader(inFile)
+		}
+	case ".gz":
+		{
+			fZip, err = gzip.NewReader(inFile)
+			if err != nil {
+				log.Fatalf("Can't open %s: error: %s\n", inFile, err)
+			}
+			nReader = bufio.NewReader(fZip)
+		}
+	default:
+		{
+			log.Println("Unrecognized file type", inFileName+".bck")
+			log.Fatal("with extention ", ext)
+		}
+	}
+	
 	for {
 		if line, err = readfile.Readln(nReader); err != nil {
 			log.Fatal("STDERR interrupted before the random seed was found!!!")

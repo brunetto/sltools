@@ -32,11 +32,13 @@ func (snap *DumbSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
 	}
 	for _, line := range snap.Lines {
 		_, err = nWriter.WriteString(line + "\n")
-		if err = nWriter.Flush(); err != nil {
-			log.Fatal(err)
-		}
+// 		if err = nWriter.Flush(); err != nil {
+// 			log.Fatal(err)
+// 		}
 	}
-	nWriter.Flush()
+	if err = nWriter.Flush(); err != nil {
+		log.Fatal(err)
+	}
 	return err
 }
 
@@ -175,7 +177,6 @@ func ReadErrSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// Search for timestep number
 		if resSysTime = regSysTime.FindStringSubmatch(line); resSysTime != nil {
 			snap.Timestep = resSysTime[1]
-			// 			log.Println("Reading timestep ", resSysTime[1])
 		}
 
 		// Check if entering or exiting a particle

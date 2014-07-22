@@ -32,7 +32,7 @@ func StichThemAll(sampleFile string) {
 		runs         StringSet // set = list of unique objects (run numbers)
 		nRuns        []int
 		globName     string
-		maxProcs int = 4
+		maxProcs int = 1
 		inFileNameChan = make(chan string, maxProcs)
 		done = make(chan struct{})
 	)
@@ -253,7 +253,7 @@ func StdStich(stdFiles, stdWhat string) {
 		}
 
 		//Read snapshots and write them if everything is OK
-	SnapLoop:
+	SnapLoop:// label
 		for {
 			if stdWhat == "out" {
 				snapshot, err = ReadOutSnapshot(nReader)

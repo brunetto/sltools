@@ -26,6 +26,7 @@ type ConfigStruct struct {
 	Fpb       float64
 	W         int
 	Z         float64
+	Rv        int
 	Tf        string
 	Machine   string
 	UserName  string
@@ -88,6 +89,7 @@ func (conf *ConfigStruct) ReadConf(confName string) {
 		log.Fatal("EndTime field in configuation file is empty, zero or negative")
 	}
 	if len(conf.Tf) == 0 {
+		conf.Tf = "no"
 	}
 	fmt.Println("OK!")
 }
@@ -157,6 +159,11 @@ func (conf *ConfigStruct) WStr() string {
 	return strconv.Itoa(conf.W)
 }
 
+// WStr return the central adimensional potential in string form
+func (conf *ConfigStruct) RvStr() string {
+	return strconv.Itoa(conf.Rv)
+}
+
 // WStr return the EndTime of the simulation in string form
 func (conf *ConfigStruct) EndTimeStr() string {
 	return strconv.Itoa(conf.EndTime)
@@ -171,23 +178,14 @@ func (conf *ConfigStruct) BaseName() string {
 	}
 
 	var baseName string
-
-	if len(conf.Tf) == 0 {
-		// baseName string
-		baseName = "cineca-comb{{.CombStr}}" +
-			"-NCM{{.NcmStr}}" +
-			"-fPB{{.FpbCmpStr}}" +
-			"-W{{.WStr}}" +
-			"-Z{{.ZCmpStr}}"
-	} else {
-		baseName = "cineca-comb{{.CombStr}}" +
-			"-TF{{.Tf}}" +
-			"-NCM{{.NcmStr}}" +
-			"-fPB{{.FpbCmpStr}}" +
-			"-W{{.WStr}}" +
-			"-Z{{.ZCmpStr}}"
-
-	}
+	// baseName string
+	baseName = "comb{{.CombStr}}" +
+		"-TF{{.Tf}}" +
+		"-Rv{{.RvStr}}" +
+		"-NCM{{.NcmStr}}" +
+		"-fPB{{.FpbCmpStr}}" +
+		"-W{{.WStr}}" +
+		"-Z{{.ZCmpStr}}"
 	// template to be filled
 	var baseTmpl *template.Template = template.Must(template.New("baseNameTmpl").Parse(baseName))
 	// buffer to write into

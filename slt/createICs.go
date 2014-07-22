@@ -143,18 +143,19 @@ func CreateICs(confChan chan *ConfigStruct, doneParent chan struct{}) {
 			"| " + makemass + " -f 8  -l 0.1 -u 150 \\\n" +
 			"| " + makesecondary + " -f " + conf.FpbStr() +
 			" -q -l 0.1 \\\n" +
-			"| " + add_star + " -R 1 -Z " + conf.ZStr() + " \\\n" +
+			"| " + add_star + " -R " + conf.RvStr() + " -Z " + conf.ZStr() + " \\\n" +
 			"| " + scale + " -R 1 -M 1\\\n" +
 			"| " + makebinary + " -f 2 -o 1 -l 1 -u 107836.09 \\\n" +
 			"> " // Redirect output to the proper ICs file
 
 		// Assemble folder name, create it and go into
-		folderName = "cineca-comb" + conf.CombStr() +
-			"-run1_" + conf.RunsStr() +
-			"-NCM" + conf.NcmStr() +
-			"-fPB" + conf.FpbCmpStr() +
-			"-W" + conf.WStr() +
-			"-Z" + conf.ZCmpStr()
+// 		folderName = "cineca-comb" + conf.CombStr() +
+// 			"-run1_" + conf.RunsStr() +
+// 			"-NCM" + conf.NcmStr() +
+// 			"-fPB" + conf.FpbCmpStr() +
+// 			"-W" + conf.WStr() +
+// 			"-Z" + conf.ZCmpStr()
+		folderName = conf.BaseName()
 
 		log.Println("Create folder and change to it:", folderName)
 		if err = os.Mkdir(folderName, 0700); err != nil {
@@ -236,7 +237,7 @@ func CreateICs(confChan chan *ConfigStruct, doneParent chan struct{}) {
 				makekingCmd := exec.Command(makeking, "-n", conf.NcmStr(), "-w", conf.WStr(), "-i", "-u")
 				makemassCmd := exec.Command(makemass, "-f", "8", "-l", "0.1", "-u", "150")
 				makesecondaryCmd := exec.Command(makesecondary, "-f", conf.FpbStr(), "-q", "-l", "0.1")
-				add_starCmd := exec.Command(add_star, "-R", "1", "-Z", conf.ZStr())
+				add_starCmd := exec.Command(add_star, "-R", conf.RvStr(), "-Z", conf.ZStr())
 				scaleCmd := exec.Command(scale, "-R", "1", "-M", "1")
 				makebinaryCmd := exec.Command(makebinary, "-f", "2", "-o", "1", "-l", "1", "-u", "107836.09")
 
