@@ -169,10 +169,11 @@ func QueueCheck (user string) (JobMap) {
 	queueCmd = exec.Command("qstat", "-u", user)
 	if queueCmd.Stdout = &stdo; err != nil {log.Fatal("Error connecting STDOUT: ", err)}
 	if queueCmd.Stderr = &stde; err != nil {log.Fatal("Error connecting STDERR: ", err)}
+	log.Println("Execute ", "qstat ", " -u ", user)
 	if err = queueCmd.Start(); err != nil {
 		log.Fatal("Error starting queueCmd: ", err)
 	}
-	log.Println("Execute ", "qstat ", " -u ", user)
+	
 	if err = queueCmd.Wait(); err != nil {
 		log.Fatal("Error while waiting for queueCmd: ", err)
 	}

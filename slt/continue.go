@@ -62,7 +62,7 @@ func Continue(inFileName, machine string) {
 	// will wait forever
 	close(inFileNameChan)
 	
-	// Wait the goroutines to finish
+	// Wait the CreateStartScripts goroutines to finish
 	for idx:=0; idx<nProcs; idx++ {
 		<-done // wait the goroutine to finish
 	}
