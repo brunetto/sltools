@@ -43,7 +43,7 @@ func main () () {
 	
 	var (
 		user string = os.Getenv("USER")
-		waitingTime time.Duration = time.Duration(2) * time.Hour
+		waitingTime time.Duration = time.Duration(1) * time.Hour
 		baseFolder string
 		folders = []string{}
 		inFile *os.File
