@@ -26,7 +26,8 @@ func CAC() {
 		// will give ["err-....run08-rnd03.txt"]
 		nProcs           int = 1
 		inFileNameChan       = make(chan string, 1)
-		cssInfo              = make(chan map[string]string, 1)
+		cssInfo0              = make(chan map[string]string, 1)
+		cssInfo1              = make(chan map[string]string, 1)
 		done                 = make(chan struct{})
 		runs             []string
 		run              string
@@ -36,6 +37,7 @@ func CAC() {
 		machine          string
 		machineDiscovery *exec.Cmd
 		stdo             bytes.Buffer
+		removedFiles string
 	)
 
 	log.Println("Try to discover machine name")
@@ -72,11 +74,12 @@ func CAC() {
 	log.Println("machine set to: ", machine)
 
 	log.Println("Starting goroutines...")
+	
 	for idx := 0; idx < nProcs; idx++ {
-		go Out2ICs(inFileNameChan, cssInfo)
-		go CreateStartScripts(cssInfo, machine, done)
+		go Out2ICsEmbed(inFileNameChan, cssInfo0)
+		go CreateStartScripts(cssInfo1, machine, done)
 	}
-
+	
 	log.Println("Searching for files in the form: ", globName)
 	// Find last round for each run in the folder
 	// Runs are sorted
@@ -86,7 +89,7 @@ func CAC() {
 	if err != nil {
 		log.Println(err)
 	}
-
+	
 	// Loop over the last rounds found and print infos
 	fmt.Println(".................................")
 	for _, run = range runs {
@@ -123,11 +126,23 @@ func CAC() {
 			}
 		} else {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
+			tmp := <- cssInfo0
+			cssInfo1 <- tmp
 			fmt.Println()
 		}
 		fmt.Println(".................................")
 
 	}
+	log.Println("Write removed files to file")
+	f, err := os.OpenFile(removedFiles, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Fatal("Error while opening removed files file: ", err)
+	}
+	defer f.Close()
+	if _, err = f.WriteString(fmt.Sprintf("%v %v\n", time.Now().Format(time.RFC850), toRemove)); err != nil {
+		log.Fatal("Error while writing removed files to file: ", err)
+	}
+	
 	// Close the channel, if you forget it, goroutines
 	// will wait forever
 	close(inFileNameChan)

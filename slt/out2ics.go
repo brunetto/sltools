@@ -12,6 +12,13 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
+var mute bool = false
+
+func Out2ICsEmbed(inFileNameChan chan string, cssInfo chan map[string]string) {
+	mute = true
+	Out2ICs(inFileNameChan, cssInfo)
+}
+
 // Out2ICs read the STDOUT and write the new ICs with the last snapshot.
 func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 	if Debug {
@@ -70,7 +77,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		}
 
 		// Open infile, both text or gzip and create the reader
-		log.Println("Opening output file: ", inFileName)
+		if !mute{ log.Println("Opening STDOUT file: ", inFileName) }
 		if inFile, err = os.Open(inFileName); err != nil {
 			log.Fatal(err)
 		}
@@ -96,7 +103,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			}
 		}
 
-		log.Println("Start reading...")
+		if !mute{ log.Println("Start reading...")}
 		// Read two snapshot each loop to ensure at least one of them is complete
 		// (= I keep the previous read in memory in case the last is corrupted)
 		for {
@@ -123,17 +130,17 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		}
 		// Info
 		fmt.Println() // To leave a space after the non verbose print
-		log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)
+		if !mute{ log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)}
 		thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
 		remainingTime = simulationStop - thisTimestep
 
 		// Write last complete snapshot to file
 		if remainingTime < 1 {
-			log.Println("No need to create a new ICs, simulation complete.")
+			fmt.Println("\tNo need to create a new ICs, simulation complete.")
 			continue
 		} else {
 			// Create the new ICs file
-			log.Println("Creating new ICs file ", newICsFileName)
+			if !mute{ fmt.Println("Creating new ICs file ", newICsFileName)}
 			if newICsFile, err = os.Create(newICsFileName); err != nil {
 				log.Fatal(err)
 			}
@@ -141,17 +148,17 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			nWriter = bufio.NewWriter(newICsFile)
 			defer nWriter.Flush()
 			
-			log.Println("Writing snapshot to ", newICsFileName)			
+			fmt.Println("\tWriting snapshot to ", newICsFileName)			
 			if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
 				log.Fatal("Error while writing snapshot to file: ", err)
 			}
-			log.Println("Set -t flag to ", remainingTime)
+			fmt.Println("\tSet -t flag to ", remainingTime)
 		}
 
-		fmt.Fprint(os.Stderr, "\n")
-		log.Println("Search for random seed...")
+		if !mute{ fmt.Fprint(os.Stderr, "\n")}
+		if !mute{ log.Println("Search for random seed...")}
 		randomSeed = DetectRandomSeed(inFileName)
-		log.Println("Set -s flag to ", randomSeed)
+		fmt.Println("\tSet -s flag to ", randomSeed)
 
 		cssInfo <- map[string]string{
 			"remainingTime":  strconv.Itoa(int(remainingTime)),
@@ -178,7 +185,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" + 
 			"----------------------\n"
 
-		fmt.Println(runString)
+		if !mute{ fmt.Println(runString)}
 		fmt.Println()
 	}
 	close(cssInfo)
