@@ -225,7 +225,7 @@ func Wait (user string, waitingTime time.Duration) ()	{
 		jobMap := QueueCheck(user)
 		// Stop waiting if all jobs are finished
 		// and restart working in folders
-		if len(jobMap) == 0 {
+		if len(jobMap) <= 95 {
 			log.Println("Queue empty, start working on runs")
 			break
 		}

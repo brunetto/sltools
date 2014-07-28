@@ -55,6 +55,10 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 	
 	for infoMap = range cssInfo {
 		if Debug{log.Println("Retrieved ", infoMap)}
+		
+		// empty map if no need to create css scripts
+		if len(infoMap) == 0 { continue } 
+			
 		if timeTest, err = strconv.Atoi(infoMap["remainingTime"]); err != nil {
 			log.Fatal("Can't retrieve remaining time in createStartSCript: ", err)
 		}

@@ -28,7 +28,7 @@ func CAC() {
 		nProcs           int = 1
 		inFileNameChan       = make(chan string, 1)
 		cssInfo0              = make(chan map[string]string, 1)
-// 		cssInfo1              = make(chan map[string]string, 1)
+		cssInfo1              = make(chan map[string]string, 1)
 		done                 = make(chan struct{}, nProcs)
 		runs             []string
 		run              string
@@ -79,7 +79,7 @@ func CAC() {
 	
 	for idx := 0; idx < nProcs; idx++ {
 		go Out2ICsEmbed(inFileNameChan, cssInfo0)
-		go CreateStartScripts(cssInfo0, machine, done)
+		go CreateStartScripts(cssInfo1, machine, done)
 	}
 	
 	log.Println("Searching for files in the form: ", globName)
@@ -126,19 +126,22 @@ func CAC() {
 					log.Fatal("Error while removing ", file, ": ", err)
 				}
 			}
+			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-2] // rerun previous run
+			
 		} else {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
-// 			tmp := <- cssInfo0
-// 			cssInfo1 <- tmp
-			fmt.Println()
 		}
+		tmp := <- cssInfo0
+		cssInfo1 <- tmp
+		
+		fmt.Println()
 		fmt.Println(".................................")
 	}
 	
 	// Close the channel, if you forget it, goroutines
 	// will wait forever
 	close(inFileNameChan)
-// 	close(cssInfo1)
+	close(cssInfo1)
 	
 	// Wait the CreateStartScripts goroutines to finish
 	for idx := 0; idx < nProcs; idx++ {
