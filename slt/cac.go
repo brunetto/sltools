@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/brunetto/goutils/debug"
+	"github.com/brunetto/goutils"
 )
 
 // Check And Continue
@@ -27,8 +28,8 @@ func CAC() {
 		nProcs           int = 1
 		inFileNameChan       = make(chan string, 1)
 		cssInfo0              = make(chan map[string]string, 1)
-		cssInfo1              = make(chan map[string]string, 1)
-		done                 = make(chan struct{})
+// 		cssInfo1              = make(chan map[string]string, 1)
+		done                 = make(chan struct{}, nProcs)
 		runs             []string
 		run              string
 		lastErr, lastOut string
@@ -37,7 +38,8 @@ func CAC() {
 		machine          string
 		machineDiscovery *exec.Cmd
 		stdo             bytes.Buffer
-		removedFiles string
+		removedFileName string = "removed.txt"
+		removedFile *os.File
 	)
 
 	log.Println("Try to discover machine name")
@@ -77,7 +79,7 @@ func CAC() {
 	
 	for idx := 0; idx < nProcs; idx++ {
 		go Out2ICsEmbed(inFileNameChan, cssInfo0)
-		go CreateStartScripts(cssInfo1, machine, done)
+		go CreateStartScripts(cssInfo0, machine, done)
 	}
 	
 	log.Println("Searching for files in the form: ", globName)
@@ -126,30 +128,39 @@ func CAC() {
 			}
 		} else {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
-			tmp := <- cssInfo0
-			cssInfo1 <- tmp
+// 			tmp := <- cssInfo0
+// 			cssInfo1 <- tmp
 			fmt.Println()
 		}
 		fmt.Println(".................................")
-
-	}
-	log.Println("Write removed files to file")
-	f, err := os.OpenFile(removedFiles, os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		log.Fatal("Error while opening removed files file: ", err)
-	}
-	defer f.Close()
-	if _, err = f.WriteString(fmt.Sprintf("%v %v\n", time.Now().Format(time.RFC850), toRemove)); err != nil {
-		log.Fatal("Error while writing removed files to file: ", err)
 	}
 	
 	// Close the channel, if you forget it, goroutines
 	// will wait forever
 	close(inFileNameChan)
-
+// 	close(cssInfo1)
+	
 	// Wait the CreateStartScripts goroutines to finish
 	for idx := 0; idx < nProcs; idx++ {
 		<-done // wait the goroutine to finish
 	}
 	fmt.Println()
+	
+	log.Println("Write removed files to file")
+	if !goutils.Exists(removedFileName) {
+		removedFile, err = os.Create(removedFileName)
+	} else {
+		removedFile, err = os.OpenFile(removedFileName, os.O_APPEND|os.O_WRONLY, 0600)
+	}
+	if err != nil {
+		log.Fatal("Error while opening removed files file: ", err)
+	}
+	defer removedFile.Close()
+	if _, err = removedFile.WriteString(fmt.Sprintf("%v %v\n", time.Now().Format(time.RFC850), toRemove)); err != nil {
+		log.Fatal("Error while writing removed files to file: ", err)
+	}
+	
+	
+
+	
 }
