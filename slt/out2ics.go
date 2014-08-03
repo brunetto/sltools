@@ -49,39 +49,28 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 
 	// 	simulationStop = 500
 
-	log.Printf("Simulation stop set to %v in the code\n", simulationStop)
+	fmt.Printf("\tSimulation stop set to 100 Myr and calculated in the code\n")
 
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {
 
 		// Extract fileNameBody, round and ext
-		regRes, err = DeepReg(inFileName)
-		if err != nil {
-			log.Println("Can't derive standard names or deep info from STDOUT => wrap it!!")
-			newICsFileName = "ics-" + inFileName + ext
-			newErrFileName = "err-" + inFileName + ext
-			newOutFileName = "out-" + inFileName + ext
-
-			// Default
-			length = float64(1)
-			nStars = float64(5500)
-
-		} else {
+		if regRes, err = DeepReg(inFileName); err == nil {
 			if regRes["prefix"] != "out" {
 				log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
 			}
-
+			
 			fileNameBody = regRes["baseName"]
 			rnd = regRes["rnd"]
 			ext = regRes["ext"]
 			temp, _ := strconv.ParseInt(rnd, 10, 64)
 			newRnd = strconv.Itoa(int(temp + 1))
-
+			
 			// Creating new filenames
 			newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
 			newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
 			newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
-
+			
 			if length, err = strconv.ParseFloat(regRes["Rv"], 64); err != nil {
 				log.Fatalf("Can't convert cluster length %v to float64: %v\n", regRes["Rv"], err)
 			}
@@ -92,6 +81,46 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 				log.Fatalf("Can't convert cluster NCM %v to float64: %v\n", regRes["NCM"], err)
 			}
 			nStars = ncm * (1 + fPB)
+			
+		} else if regRes, err = Reg(inFileName); err == nil {			
+			if regRes["prefix"] != "out" {
+				log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
+			}
+			
+			log.Println("Can't derive deep info from name, only take the names and go standard for the rest")
+			
+			fileNameBody = regRes["baseName"]
+			rnd = regRes["rnd"]
+			ext = regRes["ext"]
+			temp, _ := strconv.ParseInt(rnd, 10, 64)
+			newRnd = strconv.Itoa(int(temp + 1))
+			
+			// Creating new filenames
+			newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+			newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+			newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + LeftPad(newRnd, "0", 2) + ext
+
+			// Default
+			length = float64(1)
+			nStars = float64(5500)
+			
+			fmt.Printf("Set default parameters for cluster: \n")
+			fmt.Printf("Radius: %v\n", length)
+			fmt.Printf("Number of stars: %v\n", nStars)
+		} else {
+			log.Println("Can't derive standard names or deep info from STDOUT => wrap it!!")
+			ext = ".txt"
+			newICsFileName = "ics-" + inFileName + ext
+			newErrFileName = "err-" + inFileName + ext
+			newOutFileName = "out-" + inFileName + ext
+			
+			// Default
+			length = float64(1)
+			nStars = float64(5500)
+			
+			fmt.Printf("Set default parameters for cluster: \n")
+			fmt.Printf("Radius: %v\n", length)
+			fmt.Printf("Number of stars: %v\n", nStars)
 		}
 
 		// Now simulation stop is calculated scaling that of the clusters of the first simlations
@@ -107,6 +136,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		// m1 / m2 approximated with the number of stars, so m2 = NCM * (1 + fPB) and m1 = 5500
 
 		simulationStop = 1 + int64(math.Floor(110./math.Sqrt(0.25*0.25*math.Pow(length, 3)*(5500./nStars))))
+		fmt.Println("\tsimulationStop: ", simulationStop)
 
 		// Open infile, both text or gzip and create the reader
 		if !mute {

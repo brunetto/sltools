@@ -42,7 +42,7 @@ func Reg (inFileName string) (map[string]string, error) {
 
 func DeepReg (inFileName string) (map[string]string, error) {
 	var (
-		regString string         = `(\w{3})-(\S*comb(\d*)-TF(\S+)-Rv(\d+)-NCM(\d+)-fPB(\d+)\S*)-run(\d*)-rnd(\d*)(\.\S*)`
+		regString string         = `(\w{3})-(\S*comb(\d*)-TF(\S+)-Rv(\d+)-NCM(\d+)-fPB(\d+)-W(\d+)-Z(\d+))-run(\d*)-rnd(\d*)(\.\S*)`
 		regExp    *regexp.Regexp = regexp.MustCompile(regString)
 		regRes []string
 		err error
@@ -69,7 +69,7 @@ func DeepReg (inFileName string) (map[string]string, error) {
 	
 	return map[string]string{
 		"baseName": regRes[2], 
-		"ext": regRes[10],
+		"ext": regRes[12],
 		"prefix": regRes[1],
 		"comb": regRes[3],
 		"TF": regRes[4], 
@@ -79,7 +79,7 @@ func DeepReg (inFileName string) (map[string]string, error) {
 		"W": regRes[8],
 		"Z": regRes[9],
 		"run": regRes[10],
-		"rnd": regRes[10],
+		"rnd": regRes[11],
 	}, nil
 }
 
