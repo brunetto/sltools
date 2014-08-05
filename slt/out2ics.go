@@ -44,7 +44,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		regRes                         map[string]string
 		rnd                            string
 		fZip                           *gzip.Reader
-		length, nStars, fPB, ncm       float64
+		lengthUnit, length, nStars, fPB, ncm       float64
 	)
 
 	// 	simulationStop = 500
@@ -135,8 +135,9 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		// length1 = 1 pc
 		// m1 / m2 approximated with the number of stars, so m2 = NCM * (1 + fPB) and m1 = 5500
 
-		simulationStop = 1 + int64(math.Floor(110./math.Sqrt(0.25*0.25*math.Pow(length, 3)*(5500./nStars))))
-		fmt.Println("\tsimulationStop: ", simulationStop)
+		lengthUnit = math.Sqrt(0.25*0.25*math.Pow(length, 3)*(5500./nStars))
+		simulationStop = 1 + int64(math.Floor(110./lengthUnit))
+		fmt.Printf("\tApprox length unit: %2.2f || simulationStop: %v\n", lengthUnit, simulationStop)
 
 		// Open infile, both text or gzip and create the reader
 		if !mute {
