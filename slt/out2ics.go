@@ -49,7 +49,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 
 	// 	simulationStop = 500
 
-	fmt.Printf("\tSimulation stop set to 100 Myr and calculated in the code\n")
+	fmt.Printf("\tSimulation stop set to (slightly more than) 100 Myr and calculated in the code\n")
 
 	// Retrieve infile from channel and use it
 	for inFileName = range inFileNameChan {

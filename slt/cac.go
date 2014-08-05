@@ -40,6 +40,7 @@ func CAC() {
 		stdo             bytes.Buffer
 		removedFileName string = "removed.txt"
 		removedFile *os.File
+		tmp map[string]string
 	)
 
 	log.Println("Try to discover machine name")
@@ -128,26 +129,20 @@ func CAC() {
 			}
 			if len(runMap[run]["out"])-2 > 0 {
 				inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-2] // rerun previous run
-			} else { // Only ics is still here: need to recreate start script
-				var cssInfo = make(chan map[string]string, 1)
-				var done = make(chan struct{})
-				
-				go CreateStartScripts(cssInfo, machine, done)
-				
-				cssInfo <- map[string]string{
+				tmp = <- cssInfo0
+			} else { // Only ics is still here: need to only recreate start script, no new ics
+				tmp = map[string]string{
 					"remainingTime": "500",
 					"randomSeed": "",
 					"newICsFileName": runMap[run]["ics"][0],
-				}
-				
-				close(cssInfo)
-				<-done // wait the goroutine to finish
+				}				
 			}
 			
 		} else {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
+			tmp = <- cssInfo0
 		}
-		tmp := <- cssInfo0
+		// Create start scripts
 		cssInfo1 <- tmp
 		
 		fmt.Println()
