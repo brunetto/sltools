@@ -10,8 +10,10 @@ import (
 
 func main () () {
 	defer debug.TimeMe(time.Now())
-
+	
 	slt.CAC()
+	
+	
 	
 	fmt.Print("\x07") // Beep when finish!!:D
 }

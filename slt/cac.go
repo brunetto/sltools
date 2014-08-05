@@ -126,7 +126,23 @@ func CAC() {
 					log.Fatal("Error while removing ", file, ": ", err)
 				}
 			}
-			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-2] // rerun previous run
+			if len(runMap[run]["out"])-2 > 0 {
+				inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-2] // rerun previous run
+			} else { // Only ics is still here: need to recreate start script
+				var cssInfo = make(chan map[string]string, 1)
+				var done = make(chan struct{})
+				
+				go CreateStartScripts(cssInfo, machine, done)
+				
+				cssInfo <- map[string]string{
+					"remainingTime": "500",
+					"randomSeed": "",
+					"newICsFileName": runMap[run]["ics"][0],
+				}
+				
+				close(cssInfo)
+				<-done // wait the goroutine to finish
+			}
 			
 		} else {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
