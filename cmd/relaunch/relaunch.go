@@ -7,6 +7,7 @@ import (
 	
 	"bitbucket.org/brunetto/sltools/slt"
 	"github.com/brunetto/goutils/debug"
+	"github.com/brunetto/goutils"
 )
 
 func main () () {
@@ -15,14 +16,17 @@ func main () () {
 	// Clean folder
 	slt.SimClean()
 	
-	
-	// Check and continue
-	slt.CAC()
-	
-	// Submit
-	if err := slt.PbsLaunch(); err != nil {
-		log.Fatal(err)
+	if !goutils.Exists("complete") {
+		// Check and continue
+		slt.CAC()
+		
+		// Submit
+		if err := slt.PbsLaunch(); err != nil {
+			log.Fatal(err)
+		}
 	}
+	
+	log.Println("'complete' file found, assume simulations are complete.")
 	
 	fmt.Print("\x07") // Beep when finish!!:D
 }

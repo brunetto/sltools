@@ -41,6 +41,8 @@ func CAC() {
 		removedFileName string = "removed.txt"
 		removedFile *os.File
 		tmp map[string]string
+		toContinue = []map[string]string{}
+		completeFile *os.File
 	)
 
 	log.Println("Try to discover machine name")
@@ -142,12 +144,24 @@ func CAC() {
 			inFileNameChan <- runMap[run]["out"][len(runMap[run]["out"])-1]
 			tmp = <- cssInfo0
 		}
+		if len(tmp) != 0 {
+			toContinue = append(toContinue, tmp)
+		}
 		// Create start scripts
 		cssInfo1 <- tmp
 		
 		fmt.Println()
 		fmt.Println(".................................")
 	}
+	
+	if len(toContinue) == 0 {
+		log.Println("It seems that all the runs are complete, creating the 'complete' file")
+	}
+	
+	if completeFile, err = os.Create("complete"); err != nil {
+		log.Fatal("Can't create complete file with error: ", err)
+	}
+	completeFile.Close()
 	
 	// Close the channel, if you forget it, goroutines
 	// will wait forever

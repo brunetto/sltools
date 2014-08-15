@@ -51,10 +51,10 @@ func CheckStatus() []string {
 
 		// Check files dimension
 		if errInfo, err = os.Stat(lastErr); err != nil {
-			log.Fatal("Error checking STDERR file size, err")
+			log.Fatal("Error checking STDERR file size: ", err)
 		}
 		if outInfo, err = os.Stat(lastOut); err != nil {
-			log.Fatal("Error checking STDOUT file size, err")
+			log.Fatal("Error checking STDOUT file size: ", err)
 		}
 
 		outSize, outUnit := SizeUnit(outInfo.Size())
