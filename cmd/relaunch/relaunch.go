@@ -24,9 +24,9 @@ func main () () {
 		if err := slt.PbsLaunch(); err != nil {
 			log.Fatal(err)
 		}
+	} else {
+		log.Println("'complete' file found, assume simulations are complete.")
 	}
-	
-	log.Println("'complete' file found, assume simulations are complete.")
 	
 	fmt.Print("\x07") // Beep when finish!!:D
 }
