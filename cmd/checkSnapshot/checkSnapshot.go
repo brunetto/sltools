@@ -50,6 +50,14 @@ func main () () {
 				}
 				nReader = bufio.NewReader(fZip)
 			}
+		case ".txt.gz":
+		{
+			fZip, err = gzip.NewReader(inFile)
+			if err != nil {
+				log.Fatal("Can't open %s: error: %s\n", inFile, err)
+			}
+			nReader = bufio.NewReader(fZip)
+		}
 		default:
 			{
 				log.Println("Unrecognized file type", inFileName)

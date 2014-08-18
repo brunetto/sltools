@@ -13,21 +13,23 @@ func main () () {
 		err error
 		files []string
 		file, newfile string
-		regString string         = `(\w{3})-cineca-comb(\d*)-NCM(\d+)-fPB(\d+)-W(\d+)-Z(\d+)-run(\d*)-rnd(\d*)(\.\S*)`
+		regString string         = `(\w{3})-cineca-comb(\d*)-NCM(\d+)-fPB(\d+)-W(\d+)-Z(\d+)-run(\d*)-rnd(\d*)(\.\S*\.*\S*)`
 		regExp    *regexp.Regexp = regexp.MustCompile(regString)
 		regRes []string
 		dry bool = false
 	)
-	
+		
 	if len(os.Args) > 1 {
 		if os.Args[1] == "--dry" {
 			dry = true
 		}
 	}
 	
-	if files, err = filepath.Glob("*cineca-comb*.txt"); err != nil {
+	if files, err = filepath.Glob("*cineca-comb*.*"); err != nil {
 		log.Fatal("Can't glob files")
 	}
+	
+	fmt.Println(files)
 	
 	for _, file = range files {
 		if regRes = regExp.FindStringSubmatch(file); regRes == nil {

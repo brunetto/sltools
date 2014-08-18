@@ -51,7 +51,7 @@ func MainLoop (wakeUp chan map[string]string, messageChan chan string, jobInfoCh
 		
 		if usr, exists = conn["usr"]; !exists {log.Fatal("usr not found on wakeUp chanel")}
 		if server, exists = conn["server"]; !exists {log.Fatal("server not found on wakeUp chanel")}
-		if pathToKey, exists = conn["pathToKey"]; !exists {log.Fatal("pathToKey not found on wakeUp chanel")}
+		if pathToKey, exists = conn["pathToKey"]; !exists {log.Fatal("pathToKey not found on wakeUp channel")}
 		
 		messageChan <- "Start connection...\n"
 		if session, err = connection.SshSessionWithKey(server, usr, pathToKey); err != nil {

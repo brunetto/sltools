@@ -16,7 +16,7 @@ func CheckStatus() []string {
 
 	var (
 		err, mapErr error
-		globName    string = "*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt"
+		globName    string = "*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*"
 		runMap      map[string]map[string][]string
 		// for example runMap["08"]["err"][3]
 		// will give ["err-....run08-rnd03.txt"]
