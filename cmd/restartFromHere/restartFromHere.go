@@ -168,7 +168,7 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 	default:
 		{
 			log.Println("Unrecognized file type", inFileName)
-			log.Fatal("with extention ", ext)
+			log.Fatal("with extension ", ext)
 		}
 	}
 

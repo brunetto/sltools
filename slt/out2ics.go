@@ -164,7 +164,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		default:
 			{
 				log.Println("Unrecognized file type", inFileName)
-				log.Fatal("with extention ", ext)
+				log.Fatal("with extension ", ext)
 			}
 		}
 

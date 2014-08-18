@@ -56,7 +56,7 @@ func DetectRandomSeed(inFileName string) (randomSeed string) {
 	default:
 		{
 			log.Println("Unrecognized file type", inFileName+".bck")
-			log.Fatal("with extention ", ext)
+			log.Fatal("with extension ", ext)
 		}
 	}
 	
