@@ -21,6 +21,7 @@ func CheckSnapshot(inFileName string) {
 		lengthUnit, length, nStars, fPB, ncm       float64
 		simulationStop                 int64 
 	)
+	
 	// 	log.Println("Checking ", inFileName)
 	if inFile, err = os.Open(inFileName); err != nil {
 		log.Fatal(err)
@@ -86,6 +87,14 @@ func CheckSnapshot(inFileName string) {
 			}
 			nReader = bufio.NewReader(fZip)
 		}
+	case ".txt.gz":
+	{
+		fZip, err = gzip.NewReader(inFile)
+		if err != nil {
+			log.Fatal("Can't open %s: error: %s\n", inFile, err)
+		}
+		nReader = bufio.NewReader(fZip)
+	}
 	default:
 		{
 			log.Println("Unrecognized file type", inFileName)
