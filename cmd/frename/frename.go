@@ -28,9 +28,7 @@ func main () () {
 	if files, err = filepath.Glob("*cineca-comb*.*"); err != nil {
 		log.Fatal("Can't glob files")
 	}
-	
-	fmt.Println(files)
-	
+		
 	for _, file = range files {
 		if regRes = regExp.FindStringSubmatch(file); regRes == nil {
 			fmt.Printf("Can't reg %v\n", file)
