@@ -165,6 +165,20 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 			nOutWriter = bufio.NewWriter(wZip)
 			defer nOutWriter.Flush()
 		}
+	case ".txt.gz":
+	{
+		fZip, err = gzip.NewReader(inFile)
+		if err != nil {
+			log.Fatalf("Can't open %s: error: %s\n", inFile, err)
+		}
+		nReader = bufio.NewReader(fZip)
+		
+		wZip = gzip.NewWriter(outFile)
+		defer wZip.Close()
+		defer wZip.Flush()
+		nOutWriter = bufio.NewWriter(wZip)
+		defer nOutWriter.Flush()
+	}
 	default:
 		{
 			log.Println("Unrecognized file type", inFileName)

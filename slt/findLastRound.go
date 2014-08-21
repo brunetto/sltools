@@ -34,7 +34,7 @@ func FindLastRound (globName string) (keys []string, runMap map[string]map[strin
 	if inFiles, err = filepath.Glob(globName); err != nil {
 		log.Fatal("Error globbing files in this folder: ", err)
 	}
-	
+		
 	for _, fileName = range inFiles {
 		// Try to detect file parameters (type, run, rnd) from fileName
 		regRes, err = Reg(fileName)

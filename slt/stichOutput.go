@@ -203,7 +203,7 @@ func StdStich(stdFiles, stdWhat string) {
 	}
 	defer outFile.Close()
 
-	// Create reader and writerq
+	// Create reader and writer
 	nWriter = bufio.NewWriter(outFile)
 	defer nWriter.Flush()
 
@@ -242,7 +242,6 @@ func StdStich(stdFiles, stdWhat string) {
 				fZip, err = gzip.NewReader(inFile)
 				if err != nil {
 					log.Fatal("Can't open %s: error: %s\n", inFileName, err)
-					os.Exit(1)
 				}
 				nReader = bufio.NewReader(fZip)
 			}

@@ -38,7 +38,7 @@ func CAC() {
 		machine          string
 		machineDiscovery *exec.Cmd
 		stdo             bytes.Buffer
-		removedFileName string = "removed.txt"
+		removedFileName string = "Removed.txt"
 		removedFile *os.File
 		tmp map[string]string
 		toContinue = []map[string]string{}
@@ -156,12 +156,12 @@ func CAC() {
 	
 	if len(toContinue) == 0 {
 		log.Println("It seems that all the runs are complete, creating the 'complete' file")
+		
+		if completeFile, err = os.Create("complete"); err != nil {
+			log.Fatal("Can't create complete file with error: ", err)
+		}
+		completeFile.Close()
 	}
-	
-	if completeFile, err = os.Create("complete"); err != nil {
-		log.Fatal("Can't create complete file with error: ", err)
-	}
-	completeFile.Close()
 	
 	// Close the channel, if you forget it, goroutines
 	// will wait forever

@@ -270,7 +270,6 @@ func cutStdErr(inFileName, selectedSnapshot string) () {
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
 				log.Fatal("Can't open %s: error: %s\n", inFileName, err)
-				os.Exit(1)
 			}
 			nReader = bufio.NewReader(fZip)
 		}
