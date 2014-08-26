@@ -10,7 +10,7 @@ import (
 
 func Reg (inFileName string) (map[string]string, error) {
 	var (
-		regString string         = `(\w{3})-(\S*comb(\S*)-\S*)-run(\d*)-[a-z]*(\d*)(\.\S+\.*\S*)`
+		regString string         = `(\w{3})-(\S*comb(\S*?)-\S*)-run(\d*)-[a-z]*(\d*)(\.\S+\.*\S*)`
 		regExp    *regexp.Regexp = regexp.MustCompile(regString)
 		regRes []string
 		err error

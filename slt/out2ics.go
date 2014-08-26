@@ -134,6 +134,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		// timeUnit1 ~ 0.25 Myr
 		// length1 = 1 pc
 		// m1 / m2 approximated with the number of stars, so m2 = NCM * (1 + fPB) and m1 = 5500
+		// FIXME maybe leng should be timeUnit or something similar????
 
 		lengthUnit = math.Sqrt(0.25*0.25*math.Pow(length, 3)*(5500./nStars))
 		simulationStop = 1 + int64(math.Floor(110./lengthUnit))

@@ -20,7 +20,7 @@ import (
 
 
 var (
-	noGPU, TF bool
+	noGPU, tf, noBinaries bool
 	icsFileName string
 	intTime string
 	randomNumber string
@@ -46,7 +46,8 @@ var kiraWrapCmd = &cobra.Command{
 
 func InitCommands() {
 	kiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
-	kiraWrapCmd.PersistentFlags().BoolVarP(&TF, "tf", "f", false, "Run TF version of kira (debug strings).")
+	kiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
+	kiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "s", "", "Random number.")
@@ -131,7 +132,7 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Selected the no GPU integration.")
 		log.Println("Assuming kira is in $HOME/bin/kira-no-GPU, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-no-GPU")
-	} else if TF {
+	} else if tf {
 		log.Println("Selected TF versionn.")
 		log.Println("Assuming kira is in $HOME/bin/kiraTF, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kiraTF")
@@ -144,12 +145,16 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	kiraArgs =  []string{"-t", timeLimit,// +  // number of timesteps to compute
 				"-d", "1",// +  // log output interval
 				"-D", "1",// +  // snapshot interval
-				"-b", "1",// +  // frequency of full binary output
+// 				"-b", "1",// +  // frequency of full binary output
 				"-f", "0",// +  // dynamical friction (0 = no friction, 1 = friction)
-				"-n", "10",// +  // terminate if teh cluster remains with only 10 particles
+				"-n", "10",// +  // terminate if the cluster remains with only 10 particles
 				"-e", "0.000",// + // softening 
-				"-B",// // switch on binary evolution
+// 				"-B",// // switch on binary evolution
 				//"-s 36543" // random seed 
+	}
+	
+	if !noBinaries {
+		kiraArgs = append(kiraArgs, "-b", "1", "-B")
 	}
 	
 	// Add the random seed if specified
