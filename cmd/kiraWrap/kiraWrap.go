@@ -154,7 +154,10 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	}
 	
 	if !noBinaries {
+		log.Println("Binary evolution on, adding flags to kira")
 		kiraArgs = append(kiraArgs, "-b", "1", "-B")
+	} else {
+		log.Println("Binary evolution off")
 	}
 	
 	// Add the random seed if specified
