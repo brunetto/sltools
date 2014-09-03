@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -109,7 +110,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 			fmt.Printf("Number of stars: %v\n", nStars)
 		} else {
 			log.Println("Can't derive standard names or deep info from STDOUT => wrap it!!")
-			ext = ".txt"
+			ext = filepath.Ext(inFileName)
 			newICsFileName = "ics-" + inFileName + ext
 			newErrFileName = "err-" + inFileName + ext
 			newOutFileName = "out-" + inFileName + ext

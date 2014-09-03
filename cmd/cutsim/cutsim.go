@@ -19,7 +19,7 @@ import (
 func main () () {
 	defer debug.TimeMe(time.Now())
 	initCommands()
-	restartFromHereCmd.Execute()
+	cutsimCmd.Execute()
 	
 }
 
@@ -28,17 +28,15 @@ var (
 	selectedSnapshot string
 )
 
-var restartFromHereCmd = &cobra.Command {
-	Use:   "restartFromHere",
-	Short: "Prepare a pp3-stalled simulation to be restarted",
-	Long: `Too often StarLab stalled while integrating a binary,
-	this tool let you easily restart a stalled simulation.
+var cutsimCmd = &cobra.Command {
+	Use:   "cutsim",
+	Short: `Shorten a give snapshot to a certain timestep
 	Because I don't now how perverted names you gave to your files, 
 	you need to fix the STDOUT and STDERR by your own.
 	You can do this by running 
 	
-	restartFromHere out --inFile <STDOUT file> --cut <snapshot where to cut>
-	restartFromHere err --inFile <STDERR file> --cut <snapshot where to cut>
+	cutsim out --inFile <STDOUT file> --cut <snapshot where to cut>
+	cutsim err --inFile <STDERR file> --cut <snapshot where to cut>
 	
 	The old STDERR will be saved as STDERR.bck, check it and then delete it.
 	It is YOUR responsible to provide the same snapshot name to the two subcommands
@@ -48,9 +46,18 @@ var restartFromHereCmd = &cobra.Command {
 	},	
 }
 
+var bothCutCmd = &cobra.Command {
+	Use:   "cut",
+	Short: "cut <STDOUT or STDERR>",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		cutStdBoth(inFileName, selectedSnapshot)
+	},	
+}
+
 var stdOutCutCmd = &cobra.Command {
 	Use:   "out",
-	Short: "Prepare a pp3-stalled stdout to restart the simulation",
+	Short: "cut STDOUT",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cutStdOut(inFileName, selectedSnapshot)
@@ -59,7 +66,7 @@ var stdOutCutCmd = &cobra.Command {
 
 var stdErrCutCmd = &cobra.Command {
 	Use:   "err",
-	Short: "Prepare a pp3-stalled stderr so that it is synced with the stdout",
+	Short: "cut STDERR",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cutStdErr(inFileName, selectedSnapshot)
@@ -67,12 +74,16 @@ var stdErrCutCmd = &cobra.Command {
 }	
 
 func initCommands () {
-	restartFromHereCmd.AddCommand(stdOutCutCmd)
-	restartFromHereCmd.AddCommand(stdErrCutCmd)
+	cutsimCmd.AddCommand(stdOutCutCmd)
+	cutsimCmd.AddCommand(stdErrCutCmd)
 	
-	restartFromHereCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
-	restartFromHereCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
+	cutsimCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
+	cutsimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
 	
+}
+
+
+func cutStdBoth(inFileName, selectedSnapshot string) {
 }
 
 func cutStdOut(inFileName, selectedSnapshot string) {
@@ -81,83 +92,76 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 	
 	var (
 		err                            error    // errora container
-		newICsFileName                 string   // new ICs file names
-		inFile, newICsFile             *os.File // last STDOUT and new ICs file
+		inFile, outFile             *os.File // last STDOUT and new ICs file
 		nReader                        *bufio.Reader
-		nWriter                        *bufio.Writer
-		fileNameBody, newRnd, ext      string                           // newRnd is the number of the new run round
+		nOutWriter                        *bufio.Writer
+		ext      string                           // newRnd is the number of the new run round
 		snapshots                      = make([]*slt.DumbSnapshot, 2)       // slice for two snapshots
-		snpN                           int                              // number of the snapshot
-		simulationStop                 int64                      = 500 // when to stop the simulation
-		thisTimestep, remainingTime    int64                            // current timestep number and remaining timesteps to reach simulationStop
-		randomSeed                     string                           // random seed from STDERR
-		runString                      string                           // string to run the next round from terminal
-		newErrFileName, newOutFileName string                           // new names from STDERR and STDOUT
-		regRes                         map[string]string
-		rnd                            string
 		fZip                           *gzip.Reader
+		wZip *gzip.Writer
 	)
+	
+	// Backup old STDOUT
+	if err = os.Rename(inFileName, inFileName+".bck"); err != nil {
+		log.Fatalf("Error renaming %v: %v\n", inFileName, err)
+	}
 	
 	// Extract fileNameBody, round and ext
 	ext = filepath.Ext(inFileName)
-	regRes, err = slt.Reg(inFileName)
-	if err != nil {
-		log.Println("Can't derive standard names from STDOUT => wrap it!!")
-		newICsFileName = "ics-" + inFileName + ext
-		newErrFileName = "err-" + inFileName + ext
-		newOutFileName = "out-" + inFileName + ext
-	} else {
-		if regRes["prefix"] != "out" {
-			log.Fatalf("Please specify a STDOUT file, found %v prefix", regRes["prefix"])
-		}
-
-		fileNameBody = regRes["baseName"]
-		rnd = regRes["rnd"]
-		temp, _ := strconv.ParseInt(rnd, 10, 64)
-		newRnd = strconv.Itoa(int(temp + 1))
-
-		// Creating new filenames
-		newICsFileName = "ics-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + slt.LeftPad(newRnd, "0", 2) + ext
-		newErrFileName = "err-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + slt.LeftPad(newRnd, "0", 2) + ext
-		newOutFileName = "out-" + fileNameBody + "-run" + regRes["run"] + "-rnd" + slt.LeftPad(newRnd, "0", 2) + ext
-	}
-
-	log.Println("New ICs file will be ", newICsFileName)
-
+		
 	// Open infile, both text or gzip and create the reader
 	log.Println("Opening input and output files...")
-	if inFile, err = os.Open(inFileName); err != nil {
+	if inFile, err = os.Open(inFileName+".bck"); err != nil {
 		log.Fatal(err)
 	}
 	defer inFile.Close()
+
+	// Create the new old out file
+	if outFile, err = os.Create(inFileName); err != nil {
+		log.Fatal(err)
+	}
 
 	switch ext {
 	case ".txt":
 		{
 			nReader = bufio.NewReader(inFile)
+			nOutWriter = bufio.NewWriter(outFile)
+			defer nOutWriter.Flush()
 		}
 	case ".gz":
 		{
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
-				log.Fatal("Can't open %s: error: %s\n", inFile, err)
+				log.Fatalf("Can't open %s: error: %s\n", inFile, err)
 			}
 			nReader = bufio.NewReader(fZip)
+			
+			wZip = gzip.NewWriter(outFile)
+			defer wZip.Close()
+			defer wZip.Flush()
+			nOutWriter = bufio.NewWriter(wZip)
+			defer nOutWriter.Flush()
 		}
+	case ".txt.gz":
+	{
+		fZip, err = gzip.NewReader(inFile)
+		if err != nil {
+			log.Fatalf("Can't open %s: error: %s\n", inFile, err)
+		}
+		nReader = bufio.NewReader(fZip)
+		
+		wZip = gzip.NewWriter(outFile)
+		defer wZip.Close()
+		defer wZip.Flush()
+		nOutWriter = bufio.NewWriter(wZip)
+		defer nOutWriter.Flush()
+	}
 	default:
 		{
 			log.Println("Unrecognized file type", inFileName)
 			log.Fatal("with extension ", ext)
 		}
 	}
-
-	// Create the new ICs file
-	if newICsFile, err = os.Create(newICsFileName); err != nil {
-		log.Fatal(err)
-	}
-	defer newICsFile.Close()
-	nWriter = bufio.NewWriter(newICsFile)
-	defer nWriter.Flush()
 
 	log.Println("Start reading...")
 	// Read two snapshot each loop to ensure at least one of them is complete
@@ -166,60 +170,27 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 		if snapshots[0], err = slt.ReadOutSnapshot(nReader); err != nil {
 			break
 		}
+		
+		// Write to the old cutted file the integer snapshots
+		if snapshots[0].Integrity == true {
+			if err = snapshots[0].WriteSnapshot(nOutWriter); err != nil {
+				log.Fatal("Error while writing snapshot to file: ", err)
+			} 
+		}
 		if snapshots[0].Timestep == selectedSnapshot {break}
 		if snapshots[1], err = slt.ReadOutSnapshot(nReader); err != nil {
 			break
 		}
+		
+		// Write to the old cutted file the integer snapshots
+		if snapshots[1].Integrity == true {
+			if err = snapshots[1].WriteSnapshot(nOutWriter); err != nil {
+				log.Fatal("Error while writing snapshot to file: ", err)
+			}
+		}
 		if snapshots[1].Timestep == selectedSnapshot {break}
 	}
-	
-	// Check integrity once the file reading is ended
-	// First the last read, then the previous one
-	if snapshots[1].Integrity == true {
-		snpN = 1
-	} else if snapshots[0].Integrity == true {
-		snpN = 0
-	} else {
-		log.Println("Both last two snapshots corrupted on file ", inFileName)
-		fmt.Println("Snapshot ", snapshots[1].Timestep, " is ", snapshots[1].Integrity)
-		fmt.Println("Snapshot ", snapshots[0].Timestep, " is ", snapshots[0].Integrity)
-		log.Fatal("Reading exit with error ", err)
-	}
-	// Info
 	fmt.Println() // To leave a space after the non verbose print
-	log.Println("Done reading, last complete timestep is ", snapshots[snpN].Timestep)
-	thisTimestep, _ = strconv.ParseInt(snapshots[snpN].Timestep, 10, 64)
-	remainingTime = simulationStop - thisTimestep
-	log.Println("Set -t flag to ", remainingTime)
-
-	// Write last complete snapshot to file
-	log.Println("Writing snapshot to ", newICsFileName)
-	if err = snapshots[snpN].WriteSnapshot(nWriter); err != nil {
-		log.Fatal("Error while writing snapshot to file: ", err)
-	}
-
-	fmt.Fprint(os.Stderr, "\n")
-	log.Println("Search for random seed...")
-	randomSeed = slt.DetectRandomSeed(inFileName)
-	log.Println("Set -s flag to ", randomSeed)
-
-	runString = "\nYou can run the new round from the terminal with:\n" +
-		"----------------------\n" +
-		"(/home/ziosi/Code/Mapelli/slpack/starlab/usr/bin/kira -F -t " +
-		strconv.Itoa(int(remainingTime)) +
-		" -d 1 -D 1 -b 1 -f 0 " +
-		"-n 10 -e 0.000 -B -s " + randomSeed +
-		" < " + newICsFileName + " >  " + newOutFileName + " 2> " + newErrFileName + ")& \n" +
-		"----------------------\n\n" +
-		"You can watch the status of the simulation by running: \n" +
-		"----------------------\n" +
-		"watch stat " + newErrFileName + "\n" +
-		"----------\n" +
-		"cat " + newErrFileName + ` | grep "Time = " | tail -n 1` + "\n" +
-		"----------------------\n\n"
-
-	fmt.Println(runString)
-	fmt.Println()
 }
 	
 
@@ -239,6 +210,7 @@ func cutStdErr(inFileName, selectedSnapshot string) () {
 		timestep                              int64
 		timesteps                             = make([]int64, 0)
 		ext                                   string
+		wZip *gzip.Writer
 	)
 
 	// Backup old STDERR
@@ -251,7 +223,6 @@ func cutStdErr(inFileName, selectedSnapshot string) () {
 		log.Fatal(err)
 	}
 	defer outFile.Close()
-	nWriter = bufio.NewWriter(outFile)
 
 	if inFile, err = os.Open(inFileName+".bck"); err != nil {
 		log.Fatal(err)
@@ -264,14 +235,23 @@ func cutStdErr(inFileName, selectedSnapshot string) () {
 	case ".txt":
 		{
 			nReader = bufio.NewReader(inFile)
+			nWriter = bufio.NewWriter(outFile)
+			defer nWriter.Flush()
 		}
 	case ".gz":
 		{
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
-				log.Fatal("Can't open %s: error: %s\n", inFileName, err)
+				log.Fatalf("Can't open %s: error: %s\n", inFileName, err)
+				os.Exit(1)
 			}
 			nReader = bufio.NewReader(fZip)
+			
+			wZip = gzip.NewWriter(outFile)
+			defer wZip.Close()
+			defer wZip.Flush()
+			nWriter = bufio.NewWriter(wZip)
+			defer nWriter.Flush()
 		}
 	default:
 		{
@@ -300,7 +280,7 @@ func cutStdErr(inFileName, selectedSnapshot string) () {
 		if snapshot.Integrity == true {
 			timestep, err = strconv.ParseInt(snapshot.Timestep, 10, 64)
 			// Skip the first loop (=first timestep) with len = 0
-			if len(timesteps) > 0 {
+			if len(timesteps) > 1 {
 				if slt.AbsInt(timestep-timesteps[len(timesteps)-1]) > 1 {
 					log.Fatal("More that one timestep of distance between ", timesteps[len(timesteps)-1], " and ", timestep)
 				} else if slt.AbsInt(timestep-timesteps[len(timesteps)-1]) < 1 {

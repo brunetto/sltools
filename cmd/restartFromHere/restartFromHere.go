@@ -138,7 +138,7 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 	}
 	defer inFile.Close()
 
-	// Create the new ICs file
+	// Create the new old out file
 	if outFile, err = os.Create(inFileName); err != nil {
 		log.Fatal(err)
 	}
@@ -193,12 +193,6 @@ func cutStdOut(inFileName, selectedSnapshot string) {
 	defer newICsFile.Close()
 	nWriter = bufio.NewWriter(newICsFile)
 	defer nWriter.Flush()
-
-	// Create the new ICs file
-	if outFile, err = os.Create(inFileName); err != nil {
-		log.Fatal(err)
-	}
-	defer outFile.Close()
 	
 	log.Println("Start reading...")
 	// Read two snapshot each loop to ensure at least one of them is complete
