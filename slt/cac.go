@@ -29,7 +29,8 @@ func CAC() {
 		inFileNameChan       = make(chan string, 1)
 		cssInfo0              = make(chan map[string]string, 1)
 		cssInfo1              = make(chan map[string]string, 1)
-		pbsLaunchChannel      = make(chan string, 1)
+		pbsLaunchChannel0      = make(chan string, 1)
+		pbsLaunchChannel1      = make(chan string, 1)
 		done                 = make(chan struct{}, nProcs)
 		runs             []string
 		run              string
@@ -42,6 +43,7 @@ func CAC() {
 		removedFileName string = "Removed.txt"
 		removedFile *os.File
 		tmp map[string]string
+		tmp1 string
 		toContinue = []map[string]string{}
 		completeFile *os.File
 	)
@@ -83,8 +85,8 @@ func CAC() {
 	
 	for idx := 0; idx < nProcs; idx++ {
 		go Out2ICsEmbed(inFileNameChan, cssInfo0)
-		go CreateStartScripts(cssInfo1, machine, pbsLaunchChannel, done)
-		go PbsLaunchOnTheFly(pbsLaunchChannel)
+		go CreateStartScripts(cssInfo1, machine, pbsLaunchChannel0, done)
+		go PbsLaunchOnTheFly(pbsLaunchChannel1)
 	}
 	
 	log.Println("Searching for files in the form: ", globName)
@@ -151,6 +153,8 @@ func CAC() {
 		}
 		// Create start scripts
 		cssInfo1 <- tmp
+		tmp1 = <- pbsLaunchChannel0
+		pbsLaunchChannel1 <- tmp1
 		
 		fmt.Println()
 		fmt.Println(".................................")
@@ -169,7 +173,8 @@ func CAC() {
 	// will wait forever
 	close(inFileNameChan)
 	close(cssInfo1)
-	close(pbsLaunchChannel)
+	close(pbsLaunchChannel0)
+	close(pbsLaunchChannel1)
 	
 	// Wait the CreateStartScripts goroutines to finish
 	for idx := 0; idx < nProcs; idx++ {

@@ -21,9 +21,9 @@ func main () () {
 		slt.CAC()
 		
 		// Submit
-		if err := slt.PbsLaunch(); err != nil {
-			log.Fatal(err)
-		}
+// 		if err := slt.PbsLaunch(); err != nil {
+// 			log.Fatal(err)
+// 		}
 	} else {
 		log.Println("'complete' file found, assume simulations are complete.")
 	}
