@@ -82,7 +82,7 @@ func PbsLaunch () (error) {
 	return nil
 }
 
-func PbsLaunchOnTheFly (pbsLaunchChannel chan string) (error) {
+func PbsLaunchOnTheFly (pbsLaunchChannel chan string, done chan struct{}) (error) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -95,6 +95,10 @@ func PbsLaunchOnTheFly (pbsLaunchChannel chan string) (error) {
 	)
 	
 	for pbsFile = range pbsLaunchChannel {
+		if pbsFile == "" {
+			done <- struct{}{}
+			continue
+		} // complete simulation, no need for a new run
 		pbsCmd = exec.Command("qsub", pbsFile)
 		if pbsCmd.Stdout = &stdo; err != nil {log.Fatal("Error connecting STDOUT: ", err)}
 		if pbsCmd.Stderr = &stde; err != nil {log.Fatal("Error connecting STDERR: ", err)}
@@ -112,6 +116,7 @@ func PbsLaunchOnTheFly (pbsLaunchChannel chan string) (error) {
 		}
 		stdo.Reset()
 		stde.Reset()
+		done <- struct{}{}
 	}
 	return nil
 }

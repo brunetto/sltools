@@ -32,6 +32,7 @@ func CAC() {
 		pbsLaunchChannel0      = make(chan string, 1)
 		pbsLaunchChannel1      = make(chan string, 1)
 		done                 = make(chan struct{}, nProcs)
+		done1                 = make(chan struct{}, 1)
 		runs             []string
 		run              string
 		lastErr, lastOut string
@@ -86,7 +87,7 @@ func CAC() {
 	for idx := 0; idx < nProcs; idx++ {
 		go Out2ICsEmbed(inFileNameChan, cssInfo0)
 		go CreateStartScripts(cssInfo1, machine, pbsLaunchChannel0, done)
-		go PbsLaunchOnTheFly(pbsLaunchChannel1)
+		go PbsLaunchOnTheFly(pbsLaunchChannel1, done1)
 	}
 	
 	log.Println("Searching for files in the form: ", globName)
@@ -155,6 +156,7 @@ func CAC() {
 		cssInfo1 <- tmp
 		tmp1 = <- pbsLaunchChannel0
 		pbsLaunchChannel1 <- tmp1
+		<- done1
 		
 		fmt.Println()
 		fmt.Println(".................................")
