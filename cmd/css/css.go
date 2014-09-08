@@ -16,6 +16,7 @@ func main() {
 	var (
 		icsName, machine, remainingTime, randomSeed string
 		cssInfo = make(chan map[string]string, 1)
+		pbsLaunchChannel = make(chan string, 100)
 		done = make(chan struct{})
 	)
 
@@ -33,7 +34,13 @@ func main() {
 		randomSeed = os.Args[4]
 	}
 	
-	go slt.CreateStartScripts(cssInfo, machine, done)
+	
+	go slt.CreateStartScripts(cssInfo, machine, pbsLaunchChannel, done)
+	// Condumes pbs file names
+	go func (pbsLaunchChannel chan string) {
+		for _ = range pbsLaunchChannel {
+		}
+	} (pbsLaunchChannel)
 
 	cssInfo <- map[string]string{
 			"remainingTime": remainingTime,

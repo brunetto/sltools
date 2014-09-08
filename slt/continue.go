@@ -24,12 +24,18 @@ func Continue(inFileName, machine string) {
 		nProcs int = 1
 		inFileNameChan = make(chan string, 1)
 		cssInfo = make(chan map[string]string, 1)
+		pbsLaunchChannel = make(chan string, 100)
 		done = make(chan struct{})
 	)
 	
 	for idx:=0; idx<nProcs; idx++ {
 		go Out2ICs(inFileNameChan, cssInfo)
-		go CreateStartScripts(cssInfo, machine, done)
+		go CreateStartScripts(cssInfo, machine, pbsLaunchChannel, done)
+		// Consumes pbs file names
+		go func (pbsLaunchChannel chan string) {
+			for _ = range pbsLaunchChannel {
+			}
+		} (pbsLaunchChannel)
 	}
 	
 	// Check if we have to run on all the files in the folder 

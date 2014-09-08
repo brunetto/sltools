@@ -142,6 +142,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 		var (
 			done = make (chan struct{})
 			cssInfo = make (chan map[string]string, 1)
+			pbsLaunchChannel = make(chan string, 100)
 		)
 		if machine == "" {
 			if ConfName == "" {
@@ -151,7 +152,13 @@ var CreateStartScriptsCmd = &cobra.Command{
 				machine = conf.Machine
 			}
 		}
-		go CreateStartScripts(cssInfo, machine, done)
+		// Consumes pbs file names
+		go func (pbsLaunchChannel chan string) {
+			for _ = range pbsLaunchChannel {
+			}
+		} (pbsLaunchChannel)
+		go CreateStartScripts(cssInfo, machine, pbsLaunchChannel, done)
+		
 		if All {
 			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt")
 			log.Println("Selected to create start scripts for all the runs in the folder")

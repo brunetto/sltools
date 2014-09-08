@@ -82,5 +82,38 @@ func PbsLaunch () (error) {
 	return nil
 }
 
+func PbsLaunchOnTheFly (pbsLaunchChannel chan string) (error) {
+	if Debug {
+		defer debug.TimeMe(time.Now())
+	}
+	
+	var (
+		pbsFile string
+		err error
+		pbsCmd *exec.Cmd
+		stdo, stde bytes.Buffer 
+	)
+	
+	for pbsFile = range pbsLaunchChannel {
+		pbsCmd = exec.Command("qsub", pbsFile)
+		if pbsCmd.Stdout = &stdo; err != nil {log.Fatal("Error connecting STDOUT: ", err)}
+		if pbsCmd.Stderr = &stde; err != nil {log.Fatal("Error connecting STDERR: ", err)}
+		if err = pbsCmd.Start(); err != nil {
+			log.Fatal("Error starting pbsCmd: ", err)
+		}
+		log.Println("Execute ", "qsub ", pbsFile)
+		if err = pbsCmd.Wait(); err != nil {
+			log.Fatal("Error while waiting for pbsCmd: ", err)
+		}
+		fmt.Println(stdo.String())
+		fmt.Println(stde.String())
+		if stde.Len() != 0 {
+			return errors.New(stde.String())
+		}
+		stdo.Reset()
+		stde.Reset()
+	}
+	return nil
+}
 
 

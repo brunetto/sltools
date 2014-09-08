@@ -13,7 +13,7 @@ import (
 )
 
 // CreateStartScripts create the start scripts (kira launch and PBS launch for the ICs).
-func CreateStartScripts(cssInfo chan map[string]string, machine string, done chan struct{}) {
+func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunchChannel chan string, done chan struct{}) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -179,7 +179,8 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, done cha
 		}
 		defer pbsFile.Close()
 		fmt.Fprint(pbsFile, pbsString)
-
+		pbsLaunchChannel <- pbsOutName
 	}
+// 	close(pbsLaunchChannel)
 	done <- struct{}{}
 }
