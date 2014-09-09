@@ -128,7 +128,7 @@ func CAC() {
 		// Removing wrong files
 		if outUnit == "bytes" || errUnit == "GB" {
 			toRemove = append(toRemove, lastErr, lastOut)
-			log.Printf("\tRemove because of suspicious dimensions (probably broken):\n\t%v\n\t%v\n ", lastOut, lastErr)
+			fmt.Printf("\tRemove because of suspicious dimensions (probably broken):\n\t%v\n\t%v\n ", lastOut, lastErr)
 			for _, file := range []string{lastOut, lastErr} {
 				if err = os.Remove(file); err != nil {
 					log.Fatal("Error while removing ", file, ": ", err)

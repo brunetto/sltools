@@ -105,12 +105,12 @@ func PbsLaunchOnTheFly (pbsLaunchChannel chan string, done chan struct{}) (error
 		if err = pbsCmd.Start(); err != nil {
 			log.Fatal("Error starting pbsCmd: ", err)
 		}
-		log.Println("Execute ", "qsub ", pbsFile)
+		fmt.Println("\tExecute ", "qsub ", pbsFile)
 		if err = pbsCmd.Wait(); err != nil {
 			log.Fatal("Error while waiting for pbsCmd: ", err)
 		}
-		fmt.Println(stdo.String())
-		fmt.Println(stde.String())
+		fmt.Println("\t" + stdo.String())
+		fmt.Println("\t" + stde.String())
 		if stde.Len() != 0 {
 			return errors.New(stde.String())
 		}
