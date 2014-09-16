@@ -41,6 +41,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 		regRes map[string]string
 		randomString string
 		timeTest int
+		project string
 	)
 	
 	
@@ -119,6 +120,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"export LD_LIBRARY_PATH\n"
 			queue = "parallel"
 			walltime = "4:00:00"
+			project = "IscrC_SCmerge"
 			
 			kiraString = "#echo $PWD\n" +
 				"#echo $LD_LIBRARY_PATH\n" +
@@ -134,6 +136,26 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 	// 			"<  " + filepath.Join(currentDir, icsName) + " \\\n" +
 	// 			">  " + filepath.Join(currentDir, stdOutFile) + " \\\n" +
 	// 			"2> " + filepath.Join(currentDir, stdErrFile) + " \n"
+		} else if machine == "g2swin" {
+					modules = "module purge\n" +
+// 					"module load profile/advanced\n" +
+					"module load gcc/4.6.4\n" +
+					"module load boost/x86_64/gnu/1.51.0-gcc4.6\n" +
+					"module load cuda/4.0\n\n" //+
+// 					"LD_LIBRARY_PATH=/cineca/prod/compilers/cuda/5.0.35/none/lib64:/cineca/prod/libraries/boost/1.53.0/gnu--4.6.3/lib\n" +
+// 					"export LD_LIBRARY_PATH\n"
+					queue = "gstar"
+					walltime = "07:00:00:00"
+					project = "p003_swin"
+					
+					kiraString = "#echo $PWD\n" +
+					"#echo $LD_LIBRARY_PATH\n" +
+					"#echo $HOSTNAME\n" +
+					"#date\n" +
+					filepath.Join(home, "bin", "kiraWrap") + " -i " +
+					filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
+					infoMap["remainingTime"] + " " +
+					randomString + "\n"
 		} else if machine == "plx" {
 			modules = "module purge\n" +
 				"module load gnu/4.1.2\n" +
@@ -147,6 +169,8 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"export LD_LIBRARY_PATH\n\n"
 			queue = "longpar"
 			walltime = "24:00:00"
+			project = "IscrC_SCmerge"
+			
 			home = "/plx/userexternal/bziosi00"
 			kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")
 			kiraString = "echo $PWD\n" +
@@ -164,7 +188,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 		
 		pbsString = "#!/bin/bash\n" +
 			"#PBS -N r" + shortName + "\n" +
-			"#PBS -A IscrC_SCmerge\n" +
+			"#PBS -A " + project + "\n" +
 			"#PBS -q " + queue + "\n" +
 			"#PBS -l walltime=" + walltime + "\n" +
 			"#PBS -l select=1:ncpus=1:ngpus=2\n\n" +

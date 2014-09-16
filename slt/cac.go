@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -47,6 +48,8 @@ func CAC() {
 		tmp1 string
 		toContinue = []map[string]string{}
 		completeFile *os.File
+		fileName string
+		fInfo os.FileInfo
 	)
 
 	log.Println("Try to discover machine name")
@@ -78,6 +81,8 @@ func CAC() {
 		machine = "auriga"
 	case strings.Contains(stdo.String(), "tesla"):
 		machine = "tesla"
+	case strings.Contains(stdo.String(), "swin"):
+		machine = "g2swin"
 	}
 
 	log.Println("machine set to: ", machine)
@@ -96,8 +101,8 @@ func CAC() {
 	runs, runMap, mapErr = FindLastRound(globName)
 	// Some round are present because of the ics ma don't have errs or outSize,
 	// probably they were run somewhere else (Spritz?)
-	if err != nil {
-		log.Println(err)
+	if mapErr != nil {
+		log.Println(mapErr)
 	}
 	
 	// Loop over the last rounds found and print infos
@@ -151,6 +156,34 @@ func CAC() {
 		}
 		if len(tmp) != 0 {
 			toContinue = append(toContinue, tmp)
+		} else {
+			// Check "Rounds" folder exists, in case create it
+			if fInfo, err = os.Stat("Rounds"); err != nil {
+				if os.IsNotExist(err) {
+					if err = os.Mkdir("Rounds", 0700); err != nil {
+						log.Fatal("Can't create folder ", err)
+					}
+					fmt.Println("\tCreated Rounds folder")
+				} else {
+					log.Fatal("Can't check Rounds folder existance: ", err)
+				}
+			} else {
+				if fInfo.IsDir() {
+					fmt.Println("\tRounds already exists and is a folder")
+				} else {
+					log.Fatal("Rounds already exists but is not a folder")
+				}
+			}
+			// Move all the rounds of this run to the "Rounds" folder
+			fmt.Printf("\tMove all the run %v files to Rounds", run)
+			for _, kindOfFile := range []string{"ics", "err", "out"} {
+				for _, fileName = range runMap[run][kindOfFile]{
+					if err = os.Rename(fileName, filepath.Join("Rounds", fileName)); err != nil {
+						log.Fatalf("Can't rename %v because %v\n", fileName, err)
+					}
+				}
+			}
+			
 		}
 		// Create start scripts
 		cssInfo1 <- tmp
