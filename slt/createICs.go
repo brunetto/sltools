@@ -127,12 +127,12 @@ func CreateICs(confChan chan *ConfigStruct, doneParent chan struct{}) {
 		// vedere anche http://play.golang.org/p/C608onvLWR
 
 		// ICs binaries with path
-		makeking := filepath.Join(os.Getenv("HOME"), "/bin/", "makeking") //filepath.Join(conf.BinFolder, "makeking") 
-		makemass := filepath.Join(os.Getenv("HOME"), "/bin/", "makemass")
-		makesecondary := filepath.Join(os.Getenv("HOME"), "/bin/", "makesecondary")
-		add_star := filepath.Join(os.Getenv("HOME"), "/bin/", "add_star")
-		scale := filepath.Join(os.Getenv("HOME"), "/bin/", "scale")
-		makebinary := filepath.Join(os.Getenv("HOME"), "/bin/", "makebinary")
+		makeking := filepath.Join(/*os.Getenv("HOME"), "/bin/", */"makeking") //filepath.Join(conf.BinFolder, "makeking") 
+		makemass := filepath.Join(/*os.Getenv("HOME"), "/bin/",*/ "makemass")
+		makesecondary := filepath.Join(/*os.Getenv("HOME"), "/bin/",*/ "makesecondary")
+		add_star := filepath.Join(/*os.Getenv("HOME"), "/bin/",*/ "add_star")
+		scale := filepath.Join(/*os.Getenv("HOME"), "/bin/",*/ "scale")
+		makebinary := filepath.Join(/*os.Getenv("HOME"), "/bin/",*/ "makebinary")
 
 		// Base ICs script commands in a string, it misses the ICs filename
 		icsBaseCmd = "#!/bin/bash\n" +

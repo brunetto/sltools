@@ -128,6 +128,18 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	outFile.WriteString(fmt.Sprintf("\n#   %v Start with kiraWrap.\n", time.Now().Format(time.RFC850)))
 	outFile.WriteString("\n#==============================\n")	
 		
+	
+	kiraArgs =  []string{"-t", timeLimit,// +  // number of timesteps to compute
+		"-d", "1",// +  // log output interval
+		"-D", "1",// +  // snapshot interval
+		// 				"-b", "1",// +  // frequency of full binary output
+		"-f", "0",// +  // dynamical friction (0 = no friction, 1 = friction)
+		"-n", "10",// +  // terminate if the cluster remains with only 10 particles
+		"-e", "0.000",// + // softening 
+		// 				"-B",// // switch on binary evolution
+		//"-s 36543" // random seed 
+	}
+	
 	if noGPU {
 		log.Println("Selected the no GPU integration.")
 		log.Println("Assuming kira is in $HOME/bin/kira-no-GPU, if not, please copy it there... for sake of simplicity!:P")
@@ -136,22 +148,14 @@ func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Selected TF versionn.")
 		log.Println("Assuming kira is in $HOME/bin/kiraTF, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kiraTF")
+		kiraArgs = append(kiraArgs, "-F")
 	} else {
 		log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira")
 	}
 	
 	
-	kiraArgs =  []string{"-t", timeLimit,// +  // number of timesteps to compute
-				"-d", "1",// +  // log output interval
-				"-D", "1",// +  // snapshot interval
-// 				"-b", "1",// +  // frequency of full binary output
-				"-f", "0",// +  // dynamical friction (0 = no friction, 1 = friction)
-				"-n", "10",// +  // terminate if the cluster remains with only 10 particles
-				"-e", "0.000",// + // softening 
-// 				"-B",// // switch on binary evolution
-				//"-s 36543" // random seed 
-	}
+	
 	
 	if !noBinaries {
 		log.Println("Binary evolution on, adding flags to kira")
