@@ -16,7 +16,7 @@ import (
 	
 )
 
-func kiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
+func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	var (
 		timeLimit string
 		err error

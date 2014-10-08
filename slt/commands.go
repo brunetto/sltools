@@ -387,7 +387,7 @@ var KiraWrapCmd = &cobra.Command{
 		if icsFileName == "" || intTime == "" {
 			log.Fatal("Provide an ICs file and the integration time.")
 		}
-		kiraWrap(icsFileName, intTime, randomNumber, noGPU)
+		KiraWrap(icsFileName, intTime, randomNumber, noGPU)
 	},
 }
 
@@ -475,7 +475,16 @@ var SimCleanCmd = &cobra.Command{
 	},
 }
 
-
+// ***
+var SLRecompileCmd = &cobra.Command{
+	Use:   "slrecompile",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		var confArgs = []string{"--with-f77=no"}
+		SLrecompile(confArgs)
+	},
+}
 
 
 
@@ -497,7 +506,7 @@ func InitCommands() {
 	SlToolsCmd.AddCommand(RestartFromHereCmd)
 	SlToolsCmd.AddCommand(SimCleanCmd)
 	SlToolsCmd.AddCommand(ComOrbitCmd)
-// 	SlToolsCmd.AddCommand(SLRecompileCmd)
+	SlToolsCmd.AddCommand(SLRecompileCmd)
 	
 	CutSimCmd.AddCommand(stdOutCutCmd)
 	CutSimCmd.AddCommand(stdErrCutCmd)

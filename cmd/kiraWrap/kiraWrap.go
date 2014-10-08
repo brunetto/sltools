@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 	
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ var kiraWrapCmd = &cobra.Command{
 		if icsFileName == "" || intTime == "" {
 			log.Fatal("Provide an ICs file and the integration time.")
 		}
-		slt.kiraWrap(icsFileName, intTime, randomNumber, noGPU)
+		slt.KiraWrap(icsFileName, intTime, randomNumber, noGPU)
 	},
 }
 

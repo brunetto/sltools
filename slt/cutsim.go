@@ -13,7 +13,7 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
-func cutStdBoth(inFileName, selectedSnapshot string) {
+func CutStdBoth(inFileName, selectedSnapshot string) {
 	log.Fatal("To be implemented")
 }
 
