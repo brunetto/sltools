@@ -18,7 +18,7 @@ func main () () {
 	defer debug.TimeMe(time.Now())
 	
 	var (
-		syncCmd, configureCmd, cleanCmd, cleanCmd2, cleanCmd3, makeCmd, makeCmd2, makeCmd3, rmBinCmd, installCmd *exec.Cmd
+		syncCmd, configureCmd, configureCmd2, cleanCmd, cleanCmd2, cleanCmd3, makeCmd, makeCmd2, makeCmd3, rmBinCmd, installCmd *exec.Cmd
 		confArgs []string
 		err error
 		files []string
@@ -57,6 +57,7 @@ func main () () {
 	
 	syncCmd = exec.Command("rsync", "-a", "-v", "-u", "-h", "-z",  "--progress", ".", workDir)
 	configureCmd = exec.Command("./configure", confArgs...)
+	configureCmd2 = exec.Command("./configure", confArgs...)
 	cleanCmd     = exec.Command("make", "clean")
 	cleanCmd2     = exec.Command("make", "clean")
 	cleanCmd3     = exec.Command("make", "clean")
@@ -68,6 +69,7 @@ func main () () {
 	
 	if syncCmd.Stderr = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if configureCmd.Stderr = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
+	if configureCmd2.Stderr = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if cleanCmd.Stderr     = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if cleanCmd2.Stderr     = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if cleanCmd3.Stderr     = os.Stderr; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
@@ -79,6 +81,7 @@ func main () () {
 	
 	if syncCmd.Stdout = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)} 
 	if configureCmd.Stdout = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)} 
+	if configureCmd2.Stdout = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)} 
 	if cleanCmd.Stdout     = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if cleanCmd2.Stdout     = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
 	if cleanCmd3.Stdout     = os.Stdout; err != nil {log.Fatal("Can't pipe STD* to os.Std*: ", err)}
@@ -101,6 +104,15 @@ func main () () {
 	
 	if err = os.Chdir(workDir); err != nil {
 		log.Fatalf("Can't cd to %v with error %v \n", filepath.Join(home, "Code", "Mapelli", wdBase), err)
+	}
+	
+	log.Println("Configure with args: ", confArgs)
+	
+	if err = configureCmd.Start(); err != nil {
+		log.Fatal("Error starting configureCmd: ", err)
+	}
+	if err = configureCmd.Wait(); err != nil {
+		log.Fatal("Error waiting configureCmd: ", err)
 	}
 	
 	log.Println("Make clean")
@@ -143,10 +155,10 @@ func main () () {
 		
 	log.Println("Configure with args: ", confArgs)
 	
-	if err = configureCmd.Start(); err != nil {
+	if err = configureCmd2.Start(); err != nil {
 		log.Fatal("Error starting configureCmd: ", err)
 	}
-	if err = configureCmd.Wait(); err != nil {
+	if err = configureCmd2.Wait(); err != nil {
 		log.Fatal("Error waiting configureCmd: ", err)
 	}
 	

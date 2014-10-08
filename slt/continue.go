@@ -9,7 +9,7 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
-// Continue provide a lazy function to prepare a simulation for he next run.
+// Continue provide a lazy function to prepare a simulation for the next run.
 // It will convert the last snapshot from a StarLab stdout file in an ICs file
 // by calling Out2ICs and then it will create the needed scripts for launching
 // the simulation (kiraLaunch and PBSlaunch) calling CreateStartScripts.

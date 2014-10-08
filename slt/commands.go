@@ -3,9 +3,14 @@ package slt
 import (
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/brunetto/goutils"
 )
+
+var err error
 
 // Verb control the package-wise verbosity.
 // Use with:
@@ -130,7 +135,7 @@ var (
 
 // CreateStartScriptsCmd create start scripts: kiraLaunch and PBSlaunch
 var CreateStartScriptsCmd = &cobra.Command{
-	Use:   "createStartScripts",
+	Use:   "css",
 	Short: "Prepare the new ICs from all the last STDOUTs",
 	Long: `StarLab can restart a simulation from the last complete output.
 	The createStartScripts write the necessary start scripts to start a 
@@ -250,10 +255,275 @@ var StichOutputCmd = &cobra.Command{
 	},
 }
 
+// ***
+var CacCmd = &cobra.Command{
+	Use:   "cac",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		CAC()
+	},
+}
+
+// ***
+var endOfSimMyrString string
+var CheckEndCmd = &cobra.Command{
+	Use:   "checkEnd",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		var endOfSimMyr float64 = 100
+		if inFileName == "" || endOfSimMyrString == "" {
+		log.Fatal("Provide a STDOUT file and a time in Myr to try to find the final timestep")
+	} else {
+		if endOfSimMyr, err = strconv.ParseFloat(os.Args[2], 64); err != nil {
+			log.Fatal(err)
+		}
+	}
+	CheckEnd (inFileName, endOfSimMyr)
+	},
+}
+
+
+// ***
+var CheckSnapshotCmd = &cobra.Command{
+	Use:   "checkSnapshot",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		if inFileName == "" {
+			log.Fatal("Provide a STDOUT from which to check")
+		}
+		CheckSnapshot(inFileName)
+	},
+}
+
+// ***
+var CheckStatusCmd = &cobra.Command{
+	Use:   "checkStatus",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		CheckStatus()
+	},
+}
+
+// ***
+var ComOrbitCmd = &cobra.Command{
+	Use:   "comorbit",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		if inFileName == "" {
+			log.Fatal("Provide a STDOUT from which to extract the center of mass coordinates for the orbit")
+		}
+		ComOrbit(inFileName)
+	},
+}
+
+var selectedSnapshot string
+// ***
+var CutSimCmd = &cobra.Command {
+	Use:   "cutsim",
+	Short: `Shorten a give snapshot to a certain timestep
+	Because I don't now how perverted names you gave to your files, 
+	you need to fix the STDOUT and STDERR by your own.
+	You can do this by running 
+	
+	cutsim out --inFile <STDOUT file> --cut <snapshot where to cut>
+	cutsim err --inFile <STDERR file> --cut <snapshot where to cut>
+	
+	The old STDERR will be saved as STDERR.bck, check it and then delete it.
+	It is YOUR responsible to provide the same snapshot name to the two subcommands
+	AND I suggest you to cut the simulation few timestep before it stalled.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Choose a sub-command or type restartFromHere help for help.")
+	},	
+}
+
+var stdOutCutCmd = &cobra.Command {
+	Use:   "out",
+	Short: "cut STDOUT",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		CutStdOut(inFileName, selectedSnapshot)
+	},	
+}
+
+var stdErrCutCmd = &cobra.Command {
+	Use:   "err",
+	Short: "cut STDERR",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		CutStdErr(inFileName, selectedSnapshot)
+	},	
+}	
+
+
+
+var (
+	noGPU, tf, noBinaries bool
+	icsFileName string
+	intTime string
+// 	randomNumber string // already present
+)
+var KiraWrapCmd = &cobra.Command{
+	Use:   "kiraWrap",
+	Short: "Wrapper for the kira integrator",
+	Long: `Wrap the kira integrator providing
+	environment monitoring.
+	The "no-GPU" flag allow you to run the non GPU version 
+	of kira if you installed kira-no-GPU in $HOME/bin/.
+	Run with:
+	
+	kiraWrap (--no-GPU)
+	
+	You can also specify you want our modify version with Allen-Santillan 
+	tidal field provided that you have that version of kira, named kiraTF in your
+	~/bin/ folder. Run with 
+	
+	kiraWrap -f.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if icsFileName == "" || intTime == "" {
+			log.Fatal("Provide an ICs file and the integration time.")
+		}
+		kiraWrap(icsFileName, intTime, randomNumber, noGPU)
+	},
+}
+
+// ***
+var PbsLaunchCmd = &cobra.Command{
+	Use:   "pbsLaunch",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := PbsLaunch(); err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+// ***
+var ReLaunchCmd = &cobra.Command{
+	Use:   "relaunch",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		// Clean folder
+		SimClean()
+		
+		if !goutils.Exists("complete") {
+			// Check and continue
+			CAC()
+			
+			// Submit: already included in CAC
+	// 		if err := slt.PbsLaunch(); err != nil {
+	// 			log.Fatal(err)
+	// 		}
+		} else {
+			log.Println("'complete' file found, assume simulations are complete.")
+		}
+	},
+}
+
+
+var RestartFromHereCmd = &cobra.Command {
+	Use:   "restartFromHere",
+	Short: "Prepare a pp3-stalled simulation to be restarted",
+	Long: `Too often StarLab stalled while integrating a binary,
+	this tool let you easily restart a stalled simulation.
+	Because I don't now how perverted names you gave to your files, 
+	you need to fix the STDOUT and STDERR by your own.
+	You can do this by running 
+	
+	restartFromHere out --inFile <STDOUT file> --cut <snapshot where to cut>
+	restartFromHere err --inFile <STDERR file> --cut <snapshot where to cut>
+	
+	The old STDERR will be saved as STDERR.bck, check it and then delete it.
+	It is YOUR responsible to provide the same snapshot name to the two subcommands
+	AND I suggest you to cut the simulation few timestep before it stalled.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Choose a sub-command or type restartFromHere help for help.")
+	},	
+}
+
+var stdOutRestartCmd = &cobra.Command {
+	Use:   "out",
+	Short: "Prepare a pp3-stalled stdout to restart the simulation",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		RestartStdOut(inFileName, selectedSnapshot)
+	},	
+}
+
+var stdErrRestartCmd = &cobra.Command {
+	Use:   "err",
+	Short: "Prepare a pp3-stalled stderr so that it is synced with the stdout",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		RestartStdErr(inFileName, selectedSnapshot)
+	},	
+}	
+
+// ***
+var SimCleanCmd = &cobra.Command{
+	Use:   "simClean",
+	Short: "...",
+	Long: ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		SimClean()
+	},
+}
+
+
+
+
+
 // Init commands and attach flags
 func InitCommands() {
 
 	SlToolsCmd.AddCommand(VersionCmd)
+	SlToolsCmd.AddCommand(CacCmd)
+	SlToolsCmd.AddCommand(CheckEndCmd)
+	SlToolsCmd.AddCommand(CheckSnapshotCmd)
+	SlToolsCmd.AddCommand(CheckStatusCmd)
+	SlToolsCmd.AddCommand(ComOrbitCmd)
+	SlToolsCmd.AddCommand(CutSimCmd)
+	SlToolsCmd.AddCommand(KiraWrapCmd)
+	SlToolsCmd.AddCommand(ComOrbitCmd)
+	SlToolsCmd.AddCommand(Out2ICsCmd)
+	SlToolsCmd.AddCommand(PbsLaunchCmd)
+	SlToolsCmd.AddCommand(ReLaunchCmd)
+	SlToolsCmd.AddCommand(RestartFromHereCmd)
+	SlToolsCmd.AddCommand(SimCleanCmd)
+	SlToolsCmd.AddCommand(ComOrbitCmd)
+// 	SlToolsCmd.AddCommand(SLRecompileCmd)
+	
+	CutSimCmd.AddCommand(stdOutCutCmd)
+	CutSimCmd.AddCommand(stdErrCutCmd)
+	
+	CheckSnapshotCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT to check")
+	ComOrbitCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to extract the center of mass coordinates for the orbit")
+	CheckEndCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to try to find the final timestep")
+	CheckEndCmd.Flags().StringVarP(&endOfSimMyrString, "endOfSimMyr", "e", "", "Time in Myr to try to find the final timestep")
+	CutSimCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
+	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
+	
+	KiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
+	KiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
+	KiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
+	KiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
+	KiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
+	KiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "s", "", "Random number.")
+	
+	Out2ICsCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the STDOUT file to parse")
+	
+	RestartFromHereCmd.AddCommand(stdOutRestartCmd)
+	RestartFromHereCmd.AddCommand(stdErrRestartCmd)
+	
+	RestartFromHereCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
+	RestartFromHereCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
+	
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	SlToolsCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug output")
 	SlToolsCmd.PersistentFlags().StringVarP(&ConfName, "confName", "c", "", "Name of the JSON config file")

@@ -21,7 +21,7 @@ func main () () {
 	)
 	
 	if len(os.Args) < 3 {
-		log.Fatal("Provide a file and a time to try to find the final timestep")
+		log.Fatal("Provide a STDOUT file and a time in Myr to try to find the final timestep")
 	} else {
 		inFileName = os.Args[1]
 		if endOfSimMyr, err = strconv.ParseFloat(os.Args[2], 64); err != nil {
