@@ -20,7 +20,7 @@ func main () () {
 		// Check and continue
 		slt.CAC()
 		
-		// Submit
+		// Submit // already in cac
 // 		if err := slt.PbsLaunch(); err != nil {
 // 			log.Fatal(err)
 // 		}
