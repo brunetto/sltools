@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 	
-	"bitbucket.org/brunetto/slpp/sla"
+	"github.com/brunetto/slpp/sla"
 )
 
 func main() {
