@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.12299.png)](http://dx.doi.org/10.5281/zenodo.12299)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.12299.png)](http://dx.doi.org/10.5281/zenodo.12299) 
 
 SlTools woud provide an easy way to do the most common operation needed to run StarLab simulations.
 All the commands are available as standalone commands or as subcommands of the `sltools` one. 
