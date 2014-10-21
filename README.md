@@ -1,6 +1,6 @@
 SlTools woud provide an easy way to do the most common operation needed to run StarLab simulations.
-All the commands will be soon available as standalone commands or as subcommands of the `sltools` one. 
-For now I'm work in progress and things are a bit confused!:P
+All the commands are available as standalone commands or as subcommands of the `sltools` one. 
+For now I'm still work in progress and some things can be a bit confused!:P
 
 ## Usage
 
