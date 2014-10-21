@@ -4,7 +4,7 @@ For now I'm still work in progress and some things can be a bit confused!:P
 
 ## Usage
 
-````bash
+````
 Usage: 
   sltools [flags]
   sltools [command]
