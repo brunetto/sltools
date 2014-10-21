@@ -7,7 +7,7 @@ import (
 	"time"
 	
 	"github.com/brunetto/goutils/debug"
-	"bitbucket.org/brunetto/sltools/slt"
+	"github.com/brunetto/sltools/slt"
 )
 
 func main () () {

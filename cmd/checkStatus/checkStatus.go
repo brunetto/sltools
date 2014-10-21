@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 	
-	"bitbucket.org/brunetto/sltools/slt"
+	"github.com/brunetto/sltools/slt"
 	"github.com/brunetto/goutils/debug"
 )
 
