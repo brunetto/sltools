@@ -115,6 +115,7 @@ func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Binary evolution on, adding flags to kira")
 		kiraArgs = append(kiraArgs, "-b", "1", "-B")
 	} else {
+		kiraArgs = append(kiraArgs, "-S")
 		log.Println("Binary evolution off")
 	}
 	
