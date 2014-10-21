@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	
 	"github.com/brunetto/goutils/debug"
-	"bitbucket.org/brunetto/sltools/slt"
+	"github.com/brunetto/sltools/slt"
 )
 
 
