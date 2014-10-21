@@ -1,4 +1,4 @@
-package slt
+package sla
 
 // https://groups.google.com/d/msg/golang-nuts/N2szzAFrcFM/s2WosyIDNP4J
 
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"path/filepath"
 )
 
 // Whoami print the name of the calling function.
@@ -21,8 +22,8 @@ func Whoami(print bool) string {
 	if print{
 		fmt.Println("###########################################")
 		fmt.Print("###\t\t\t")
-		log.Println(me.Name())
+		log.Println(filepath.Base(me.Name()))
 		fmt.Println("###########################################")
 	}
-	return me.Name()
+	return filepath.Base(me.Name())
 }
