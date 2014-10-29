@@ -32,9 +32,10 @@ func ComOrbit (inFileName string) () {
 		coords []string = []string{}
 	)
 	
-	outFileName = "coords-"+inFileName
-	
 	ext = filepath.Ext(inFileName)
+	
+	// Remove gz in case we are reading a zipped file
+	outFileName = "coords-"+strings.Trim(inFileName, ext)+".txt"
 	
 	if inFile, err = os.Open(inFileName); err != nil {
 		log.Fatal(err)
