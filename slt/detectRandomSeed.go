@@ -12,7 +12,7 @@ import (
 
 	"github.com/brunetto/goutils/debug"
 
-	"bitbucket.org/brunetto/goutils/readfile"
+	"github.com/brunetto/goutils/readfile"
 )
 
 // DetectRandomSeed read the initial random seed form the STDERR.
