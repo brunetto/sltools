@@ -504,7 +504,7 @@ func InitCommands() {
 	SlToolsCmd.AddCommand(CheckSnapshotCmd)
 	SlToolsCmd.AddCommand(CheckStatusCmd)
 	SlToolsCmd.AddCommand(ComOrbitCmd)
-	SlToolsCmd.AddCommand(CutSimCmd)
+// 	SlToolsCmd.AddCommand(CutSimCmd)
 	SlToolsCmd.AddCommand(KiraWrapCmd)
 	SlToolsCmd.AddCommand(ComOrbitCmd)
 	SlToolsCmd.AddCommand(Out2ICsCmd)
@@ -523,7 +523,7 @@ func InitCommands() {
 	CheckEndCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to try to find the final timestep")
 	CheckEndCmd.Flags().StringVarP(&endOfSimMyrString, "endOfSimMyr", "e", "", "Time in Myr to try to find the final timestep")
 	CutSimCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
-	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
+	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")
 	
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
@@ -538,7 +538,7 @@ func InitCommands() {
 	RestartFromHereCmd.AddCommand(stdErrRestartCmd)
 	
 	RestartFromHereCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
-	RestartFromHereCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cut", "c", "", "At which timestep stop")
+	RestartFromHereCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")
 	
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
 	SlToolsCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Debug output")
