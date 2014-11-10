@@ -109,6 +109,7 @@ var (
 	inFileName string
 )
 
+var force bool = false
 // Out2ICsCmd creates new ICs from STDOUT to restart the simulation
 var Out2ICsCmd = &cobra.Command{
 	Use:   "out2ics",
