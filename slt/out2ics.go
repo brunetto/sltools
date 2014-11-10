@@ -246,7 +246,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 
 		runString = "\nYou can run the new round from the terminal with:\n" +
 			"----------------------\n" +
-			"(" + os.Getenv("HOME") + "/bin/kira -F -t " +
+			"(" + os.Getenv("HOME") + "/bin/kira -t " +
 			strconv.Itoa(int(remainingTime)) +
 			" -d 1 -D 1 -b 1 -f 0 " +
 			"-n 10 -e 0.000 -B -s " + randomSeed +
