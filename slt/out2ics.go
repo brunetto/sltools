@@ -206,7 +206,7 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		remainingTime = simulationStop - thisTimestep
 
 		// Write last complete snapshot to file
-		if remainingTime < 1 {
+		if !force && remainingTime < 1 {
 			fmt.Println("\tNo need to create a new ICs, simulation complete.")
 			cssInfo <- map[string]string{} // empty map if no need to create css scripts
 			continue
