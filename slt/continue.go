@@ -42,7 +42,7 @@ func Continue(inFileName, machine string) {
 	// and not only on a selected one 
 	if inFileName == "all" || inFileName == "*" || 
 		inFileName == "" || strings.Contains(inFileName, "*") {
-		runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt")
+		runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*")
 		log.Println("Selected to continue round for all the runs in the folder")
 		log.Println("Found: ")
 		for _, run := range runs {

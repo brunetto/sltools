@@ -175,7 +175,8 @@ var CreateStartScriptsCmd = &cobra.Command{
 	simulation from the ICs specifying the machine name, the simulation time in timesteps and a ICs, 
 	or with -A will do this for all the ICs in the folder.
 	Use like:
-	sltools createStartScripts -i ics-cineca-comb18-NCM10000-fPB020-W5-Z010-run01-rnd00.txt -t 500 -m eurora [-r 36541656]
+	sltools css -i ics-cineca-comb18-NCM10000-fPB020-W5-Z010-run01-rnd00.txt -t 500 -m eurora [-r 36541656]
+	sltools css -A -t 500 -m eurora
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var (
@@ -199,7 +200,7 @@ var CreateStartScriptsCmd = &cobra.Command{
 		go CreateStartScripts(cssInfo, machine, pbsLaunchChannel, done)
 
 		if All {
-			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.txt")
+			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*")
 			log.Println("Selected to create start scripts for all the runs in the folder")
 			log.Println("Found: ")
 			for _, run := range runs {
@@ -461,12 +462,62 @@ var StichOutputCmd = &cobra.Command{
 	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
 	sltools stichOutput -c conf19.json -A # to stich all the outputs in the folder`,
 	Run: func(cmd *cobra.Command, args []string) {
+// 		if All {
+// 			log.Println("Stich all!")
+// 			StichThemAll(inFileName)
+// 		} else {
+// 			StichOutputSingle(inFileName)
+// 		}
+		var (
+			done             = make(chan struct{})
+			inFilesList = make(chan []string)
+			baseName   string
+			run        string
+			stdOuts    string
+			stdErrs    string
+		)
+		go run StdStich(inFilesList, done)
 		if All {
-			log.Println("Stich all!")
-			StichThemAll(inFileName)
+			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*")
+		} else if inFileName != "" {
+			// Extract parameters from the name
+			if tmp, err = Reg(inFileName); err != nil {
+				log.Fatal(err)
+			}
+			run = tmp["run"]
+			baseName = tmp["baseName"]
+			
+			runs, runMap, mapErr := FindLastRound("*-" + baseName + `-run` + run + `-rnd*.*`)
 		} else {
-			StichOutputSingle(inFileName)
+			log.Fatal("Please provide a -A flag or an inFile")
 		}
+		for _, run := range runs {
+			if mapErr != nil && len(runMap[run]["out"]) == 0 && len(runMap[run]["err"]) == 0 {
+				continue
+			}
+			if !OnlyErr {
+				//
+				// STDOUT
+				//
+				inFilesList <-runMap[run]["out"]
+			} else {
+				log.Println("Only stich STDERRs")
+			}
+			
+			// Check if only have to run STDOUT stich
+			if !OnlyOut {
+				//
+				// STDERR
+				//
+				inFilesList <-runMap[run]["err"]				
+			} else {
+				log.Println("Only stich STDOUTs")
+			}
+		}
+		// Clean goroutine
+		close(inFilesList)
+		<-done
+		close(done)
 	},
 }
 
