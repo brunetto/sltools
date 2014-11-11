@@ -107,7 +107,6 @@ func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Selected TF versionn.")
 		log.Println("Assuming kira is in $HOME/bin/kira-AS, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-AS")
-	}
 	} else {
 		log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira")
