@@ -52,7 +52,7 @@ var VersionCmd = &cobra.Command{
 	Short: "Print the version number of slt",
 	Long:  `All software has versions. This is sltools' one.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("StarLab Tools v1.0")
+		fmt.Println("StarLab Tools v1.1")
 	},
 }
 

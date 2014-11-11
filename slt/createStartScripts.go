@@ -131,7 +131,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
 				"#date\n" +
-				filepath.Join(home, "bin", "kiraWrap") + tidalString + " -i " +
+				filepath.Join(home, "bin", "sltools kiraWrap") + tidalString + " -i " +
 				filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
 				infoMap["remainingTime"] + " " +
 				randomString + "\n"
@@ -164,7 +164,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
 				"#date\n" +
-				filepath.Join(home, "bin", "kiraWrap") + tidalString + " -i " +
+				filepath.Join(home, "bin", "sltools kiraWrap") + tidalString + " -i " +
 				filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
 				infoMap["remainingTime"] + " " +
 				randomString + "\n"
