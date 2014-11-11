@@ -3,28 +3,36 @@ package slt
 import (
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/brunetto/goutils"
 )
 
-var err error
+var (
+	err error
+	Verb bool
+	All bool
+	Debug bool
+	ConfName string // ConfName is the name of the JSON configuration file.
+	RunICC bool
+	inFileName string
+	icsName      string
+	randomNumber string
+	simTime      string
+	machine string
+	OnlyOut  bool
+	OnlyErr  bool
+	noGPU bool = false
+	tf bool = false
+	as bool = false
+	noBinaries bool = false
+	icsFileName string
+	intTime string
+	endOfSimMyrString string = "110"
+	selectedSnapshot string
+)
 
-// Verb control the package-wise verbosity.
-// Use with:
-// if Verb { ...
-var Verb bool
-var All bool
-
-// Debug activate the package-wise debug verbosity.
-// Use with:
-// if Verb { ...
-var Debug bool
-
-// ConfName is the name of the JSON configuration file.
-var ConfName string
 
 // SlToolsCmd is the main command.
 var SlToolsCmd = &cobra.Command{
@@ -81,10 +89,6 @@ var ReadConfCmd = &cobra.Command{
 	},
 }
 
-var (
-	RunICC bool
-)
-
 // CreateICsCmd will launch the functions to create the ICs from JSON configuration file.
 var CreateICsCmd = &cobra.Command{
 	Use:   "createICs",
@@ -105,9 +109,6 @@ var CreateICsCmd = &cobra.Command{
 	},
 }
 
-var (
-	inFileName string
-)
 
 var force bool = false
 // Out2ICsCmd creates new ICs from STDOUT to restart the simulation
@@ -134,12 +135,6 @@ var Out2ICsCmd = &cobra.Command{
 	},
 }
 
-var (
-	icsName      string
-	randomNumber string
-	simTime      string
-	machine string
-)
 
 // CreateStartScriptsCmd create start scripts: kiraLaunch and PBSlaunch
 var CreateStartScriptsCmd = &cobra.Command{
@@ -235,10 +230,6 @@ var ContinueCmd = &cobra.Command{
 	},
 }
 
-var (
-	OnlyOut  bool
-	OnlyErr  bool
-)
 
 // StichOutputCmd stiches STDOUT and STDERR from different round of the same simulation
 // (if you restarded your simulation). Can be run serially or in parallel on all the
@@ -275,7 +266,6 @@ var CacCmd = &cobra.Command{
 }
 
 // ***
-var endOfSimMyrString string
 var CheckEndCmd = &cobra.Command{
 	Use:   "checkEnd",
 	Short: "Check the number of timesteps necessary to reach a given time in Myr. Need the files to have standard names.",
@@ -285,7 +275,7 @@ var CheckEndCmd = &cobra.Command{
 		if inFileName == "" || endOfSimMyrString == "" {
 		log.Fatal("Provide a STDOUT file and a time in Myr to try to find the final timestep")
 	} else {
-		if endOfSimMyr, err = strconv.ParseFloat(os.Args[2], 64); err != nil {
+		if endOfSimMyr, err = strconv.ParseFloat(endOfSimMyrString, 64); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -330,7 +320,7 @@ var ComOrbitCmd = &cobra.Command{
 	},
 }
 
-var selectedSnapshot string
+
 // ***
 var CutSimCmd = &cobra.Command {
 	Use:   "cutsim",
@@ -369,13 +359,6 @@ var stdErrCutCmd = &cobra.Command {
 }	
 
 
-
-var (
-	noGPU, tf, as, noBinaries bool = false
-	icsFileName string
-	intTime string
-// 	randomNumber string // already present
-)
 var KiraWrapCmd = &cobra.Command{
 	Use:   "kiraWrap",
 	Short: "Wrapper for the kira integrator",
@@ -525,7 +508,7 @@ func InitCommands() {
 	CheckSnapshotCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT to check")
 	ComOrbitCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to extract the center of mass coordinates for the orbit")
 	CheckEndCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to try to find the final timestep")
-	CheckEndCmd.Flags().StringVarP(&endOfSimMyrString, "endOfSimMyr", "e", "", "Time in Myr to try to find the final timestep")
+	SlToolsCmd.PersistentFlags().StringVarP(&endOfSimMyrString, "endOfSimMyr", "e", "", "Time in Myr to try to find the final timestep")
 	CutSimCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the input file")
 	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")
 	
