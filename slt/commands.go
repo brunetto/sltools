@@ -371,7 +371,7 @@ var stdErrCutCmd = &cobra.Command {
 
 
 var (
-	noGPU, tf, noBinaries bool
+	noGPU, tf, as, noBinaries bool = false
 	icsFileName string
 	intTime string
 // 	randomNumber string // already present
@@ -508,7 +508,7 @@ func InitCommands() {
 	SlToolsCmd.AddCommand(CheckSnapshotCmd)
 	SlToolsCmd.AddCommand(CheckStatusCmd)
 	SlToolsCmd.AddCommand(ComOrbitCmd)
-// 	SlToolsCmd.AddCommand(CutSimCmd)
+	SlToolsCmd.AddCommand(CutSimCmd)
 	SlToolsCmd.AddCommand(KiraWrapCmd)
 	SlToolsCmd.AddCommand(ComOrbitCmd)
 	SlToolsCmd.AddCommand(Out2ICsCmd)
@@ -531,12 +531,14 @@ func InitCommands() {
 	
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
+	KiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
 	KiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
 	KiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
 	KiraWrapCmd.PersistentFlags().StringVarP(&randomNumber, "random", "s", "", "Random number.")
 	
-	Out2ICsCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "Name of the STDOUT file to parse")
+	ReLaunchCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
+	CreateStartScriptsCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	
 	RestartFromHereCmd.AddCommand(stdOutRestartCmd)
 	RestartFromHereCmd.AddCommand(stdErrRestartCmd)
@@ -559,7 +561,7 @@ func InitCommands() {
 	ContinueCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 
 	SlToolsCmd.AddCommand(Out2ICsCmd)
-	Out2ICsCmd.Flags().StringVarP(&inFileName, "stdOut", "o", "", "Last STDOUT to be used as input")
+	Out2ICsCmd.Flags().StringVarP(&inFileName, "inFile", "i", "", "Last STDOUT to be used as input")
 	Out2ICsCmd.Flags().BoolVarP(&force, "force", "f", false, "Disable end-of-simulaiton check")
 	
 	SlToolsCmd.AddCommand(CreateStartScriptsCmd)

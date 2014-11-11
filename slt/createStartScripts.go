@@ -42,6 +42,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 		randomString   string
 		timeTest       int
 		project        string
+		tidalString string = ""
 	)
 
 	if home = os.Getenv("HOME"); home == "" {
@@ -107,6 +108,10 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 		kiraOutName = "kiraLaunch-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
 		pbsOutName = "PBS-" + baseName + "-run" + run + "-rnd" + rnd + ".sh"
 
+		if as {
+				tidalString = " -a "
+		}
+		
 		if machine == "eurora" {
 			modules = "module purge\n" +
 				"module load profile/advanced\n" +
@@ -121,13 +126,12 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"export LD_LIBRARY_PATH\n"
 			queue = "parallel"
 			walltime = "4:00:00"
-			project = "IscrC_SCmerge"
-
+			project = "IscrC_SCmerge"			
 			kiraString = "#echo $PWD\n" +
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
 				"#date\n" +
-				filepath.Join(home, "bin", "kiraWrap") + " -i " +
+				filepath.Join(home, "bin", "kiraWrap") + tidalString + " -i " +
 				filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
 				infoMap["remainingTime"] + " " +
 				randomString + "\n"
@@ -160,7 +164,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
 				"#date\n" +
-				filepath.Join(home, "bin", "kiraWrap") + " -i " +
+				filepath.Join(home, "bin", "kiraWrap") + tidalString + " -i " +
 				filepath.Join(currentDir, infoMap["newICsFileName"]) + " -t " +
 				infoMap["remainingTime"] + " " +
 				randomString + "\n"
