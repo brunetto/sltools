@@ -39,7 +39,7 @@ var kiraWrapCmd = &cobra.Command{
 func InitCommands() {
 	kiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
 	kiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
-	KiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
+	kiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	kiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&icsFileName, "ics", "i", "", "ICs file to start with.")
 	kiraWrapCmd.PersistentFlags().StringVarP(&intTime, "time", "t", "", "Number of timestep to integrate before stop the simulation.")
