@@ -102,14 +102,16 @@ func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Selected TF versionn.")
 		log.Println("Assuming kira is in $HOME/bin/kiraTF, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kiraTF")
-		kiraArgs = append(kiraArgs, "-F")
+// 		kiraArgs = append(kiraArgs, "-F") // F now means dynamical friction
+	} else if as {
+		log.Println("Selected TF versionn.")
+		log.Println("Assuming kira is in $HOME/bin/kira-AS, if not, please copy it there... for sake of simplicity!:P")
+		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-AS")
+	}
 	} else {
 		log.Println("Assuming kira is in $HOME/bin/kira, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira")
 	}
-	
-	
-	
 	
 	if !noBinaries {
 		log.Println("Binary evolution on, adding flags to kira")
