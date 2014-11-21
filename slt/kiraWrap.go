@@ -99,12 +99,12 @@ func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 		log.Println("Assuming kira is in $HOME/bin/kira-no-GPU, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-no-GPU")
 	} else if tf {
-		log.Println("Selected TF versionn.")
+		log.Println("Selected TF version.")
 		log.Println("Assuming kira is in $HOME/bin/kiraTF, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kiraTF")
 // 		kiraArgs = append(kiraArgs, "-F") // F now means dynamical friction
 	} else if as {
-		log.Println("Selected TF versionn.")
+		log.Println("Selected TF version.")
 		log.Println("Assuming kira is in $HOME/bin/kira-AS, if not, please copy it there... for sake of simplicity!:P")
 		kiraString = filepath.Join(os.Getenv("HOME"), "/bin/", "kira-AS")
 	} else {

@@ -473,12 +473,16 @@ var StichOutputCmd = &cobra.Command{
 			inFilesList = make(chan []string)
 			baseName   string
 			run        string
-			stdOuts    string
-			stdErrs    string
+// 			stdOuts    string
+// 			stdErrs    string
+			runs []string
+			runMap map[string]map[string][]string
+			mapErr error
+			tmp map[string]string
 		)
-		go run StdStich(inFilesList, done)
+		go StdStich(inFilesList, done)
 		if All {
-			runs, runMap, mapErr := FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*")
+			runs, runMap, mapErr = FindLastRound("*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*")
 		} else if inFileName != "" {
 			// Extract parameters from the name
 			if tmp, err = Reg(inFileName); err != nil {
@@ -487,7 +491,7 @@ var StichOutputCmd = &cobra.Command{
 			run = tmp["run"]
 			baseName = tmp["baseName"]
 			
-			runs, runMap, mapErr := FindLastRound("*-" + baseName + `-run` + run + `-rnd*.*`)
+			runs, runMap, mapErr = FindLastRound("*-" + baseName + `-run` + run + `-rnd*.*`)
 		} else {
 			log.Fatal("Please provide a -A flag or an inFile")
 		}
@@ -529,6 +533,7 @@ func InitCommands() {
 	SlToolsCmd.PersistentFlags().StringVarP(&endOfSimMyrString, "endOfSimMyr", "e", "", "Time in Myr to try to find the final timestep")
 	SlToolsCmd.PersistentFlags().StringVarP(&inFileName, "inFile", "i", "", "STDOUT from which to try to find the final timestep")
 	SlToolsCmd.PersistentFlags().BoolVarP(&Verb, "verb", "v", false, "Verbose and persistent output")
+	SlToolsCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 
 	SlToolsCmd.AddCommand(VersionCmd)
 	SlToolsCmd.AddCommand(CacCmd)
@@ -548,7 +553,7 @@ func InitCommands() {
 	CreateICsCmd.Flags().BoolVarP(&RunICC, "runIcc", "C", false, "Run the creation of the ICs instad of only create scripts")
 
 	SlToolsCmd.AddCommand(CreateStartScriptsCmd)
-	CreateStartScriptsCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
+// 	CreateStartScriptsCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	CreateStartScriptsCmd.Flags().StringVarP(&machine, "machine", "m", "", "Machine where to run")
 	CreateStartScriptsCmd.Flags().StringVarP(&randomNumber, "random", "r", "", "Init random seed provided by the out2ics command")
 	CreateStartScriptsCmd.Flags().StringVarP(&simTime, "simTime", "t", "500", "Remaining simulation time provided by the out2ics command")
@@ -559,7 +564,7 @@ func InitCommands() {
 	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")
 
 	SlToolsCmd.AddCommand(KiraWrapCmd)
-	KiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
+// 	KiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&tf, "tf", "f", false, "Run TF version of kira (debug strings).")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noGPU, "no-GPU", "n", false, "Run without GPU support if kira-no-GPU installed in $HOME/bin/.")
@@ -574,7 +579,7 @@ func InitCommands() {
 	SlToolsCmd.AddCommand(ReadConfCmd)
 
 	SlToolsCmd.AddCommand(ReLaunchCmd)
-	ReLaunchCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
+// 	ReLaunchCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 
 	SlToolsCmd.AddCommand(RestartFromHereCmd)
 	RestartFromHereCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")

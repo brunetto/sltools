@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
-	"sort"
+// 	"runtime"
+// 	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -179,6 +179,7 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 	var (
 		fZip                                  *gzip.Reader
 		inFile                                *os.File
+		inFiles []string
 		snapshot/*s = make([]*/ *DumbSnapshot /*, 2)*/
 		outFileName                           string
 		outFile                               *os.File
@@ -188,6 +189,7 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 		timestep                              int64
 		timesteps                             = make([]int64, 0)
 		ext                                   string
+		stdWhat string
 	)
 	
 	for inFiles = range inFilesList {

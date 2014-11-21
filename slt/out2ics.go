@@ -138,8 +138,11 @@ func Out2ICs(inFileNameChan chan string, cssInfo chan map[string]string) {
 		// m1 / m2 approximated with the number of stars, so m2 = NCM * (1 + fPB) and m1 = 5500
 		// FIXME maybe leng should be timeUnit or something similar????
 
+		if endOfSimMyrString == "" {
+			endOfSimMyrString = "110"
+		}
 		if endOfSimMyr, err = strconv.ParseFloat(endOfSimMyrString, 64); err != nil {
-			log.Fatal(err)
+			log.Fatal("Can't parse endOfSimMyrString:", err)
 		}
 		
 		lengthUnit = math.Sqrt(0.25*0.25*math.Pow(length, 3)*(5500./nStars))
