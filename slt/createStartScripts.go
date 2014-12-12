@@ -126,7 +126,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"export LD_LIBRARY_PATH\n"
 			queue = "parallel"
 			walltime = "4:00:00"
-			project = "IscrC_SCmerge"			
+			project = "IscrC_SCdisTF"			
 			kiraString = "#echo $PWD\n" +
 				"#echo $LD_LIBRARY_PATH\n" +
 				"#echo $HOSTNAME\n" +
@@ -189,7 +189,7 @@ func CreateStartScripts(cssInfo chan map[string]string, machine string, pbsLaunc
 				"export LD_LIBRARY_PATH\n\n"
 			queue = "longpar"
 			walltime = "24:00:00"
-			project = "IscrC_SCmerge"
+			project = "IscrC_SCdisTF"
 
 			home = "/plx/userexternal/bziosi00"
 			kiraBinPath = filepath.Join(home, "slpack", "starlab", "usr", "bin", "kira")

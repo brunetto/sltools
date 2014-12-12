@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 // 	"runtime"
 // 	"sort"
 	"strconv"
@@ -193,9 +194,9 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 	)
 	
 	for inFiles = range inFilesList {
-		
-		tmp := strings.TrimSuffix(inFiles[0], "-rnd*.*")
-		log.Println("Stich std" + tmp)
+		r := regexp.MustCompile(`-rnd\S+.\S+`)
+		tmp := r.ReplaceAllString(inFiles[0], "")
+		log.Println("Stich " + tmp)
 
 		outFileName = tmp + "-all.txt"
 		log.Println("Output file will be ", outFileName)
@@ -327,6 +328,7 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 		fmt.Println("\n")
 		log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
 		fmt.Println(timesteps)
+		timesteps = nil
 	}
 	// Send end signal
 	done <- struct{}{}
