@@ -17,7 +17,8 @@ func main () () {
 	}
 	
 	var inFileName string = os.Args[1]
-	slt.ComOrbit(inFileName)
+	var outFileName string = os.Args[2]
+	slt.ComOrbit(inFileName, outFileName)
 }
 
 

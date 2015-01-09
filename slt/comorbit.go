@@ -14,12 +14,12 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
-func ComOrbit (inFileName string) () {
+func ComOrbit (inFileName, outFileName string) () {
 	defer debug.TimeMe(time.Now())
 	
 	var (
 		err error
-		outFileName string
+// 		outFileName string
 		inFile, outFile *os.File
 		ext string
 		nReader *bufio.Reader
@@ -35,8 +35,9 @@ func ComOrbit (inFileName string) () {
 	ext = filepath.Ext(inFileName)
 	
 	// Remove gz in case we are reading a zipped file
-	outFileName = "coords-"+strings.Trim(inFileName, ext)+".txt"
-	
+	if outFileName == "" {
+		outFileName = "coords-"+strings.Trim(inFileName, ext)+".txt"
+	}
 	if inFile, err = os.Open(inFileName); err != nil {
 		log.Fatal(err)
 	}
@@ -82,6 +83,7 @@ func ComOrbit (inFileName string) () {
 		coordRes = []string{}
 	}
 	
+	log.Println("Writing to ", outFileName)
 	if outFile, err = os.Create(outFileName); err != nil {
 		log.Fatal("Can't create outfile with error: ", err)
 	}

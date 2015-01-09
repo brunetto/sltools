@@ -3,6 +3,7 @@ package slt
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 
 	"github.com/brunetto/goutils"
@@ -116,7 +117,7 @@ var ComOrbitCmd = &cobra.Command{
 		if inFileName == "" {
 			log.Fatal("Provide a STDOUT from which to extract the center of mass coordinates for the orbit")
 		}
-		ComOrbit(inFileName)
+		ComOrbit(inFileName, "")
 	},
 }
 
@@ -238,19 +239,26 @@ var CreateStartScriptsCmd = &cobra.Command{
 // ***
 var CutSimCmd = &cobra.Command{
 	Use: "cutsim",
-	Short: `Shorten a give snapshot to a certain timestep
-	Because I don't now how perverted names you gave to your files, 
-	you need to fix the STDOUT and STDERR by your own.
+	Short: `Shorten a give snapshot to a certain timestep.
 	You can do this by running 
 	
-	cutsim out --inFile <STDOUT file> --cut <snapshot where to cut>
-	cutsim err --inFile <STDERR file> --cut <snapshot where to cut>
+	cutsim     --inFile <STD file> --cutTime <snapshot where to cut>
+	
+	to cut both STDOUT and STDERR (assuming out and err prefix!), or
+	
+	cutsim out --inFile <STDOUT file> --cutTime <snapshot where to cut>
+	cutsim err --inFile <STDERR file> --cutTime <snapshot where to cut>
+	
+	to cut them separately.
 	
 	The old STDERR will be saved as STDERR.bck, check it and then delete it.
 	It is YOUR responsible to provide the same snapshot name to the two subcommands
 	AND I suggest you to cut the simulation few timestep before it stalled.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Choose a sub-command or type restartFromHere help for help.")
+		r := regexp.MustCompile(`^out|^err`)
+		tmp := r.ReplaceAllString(inFileName, "")
+		CutStdOut("out" + tmp, selectedSnapshot)
+		CutStdErr("err" + tmp, selectedSnapshot)
 	},
 }
 
