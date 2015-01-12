@@ -102,6 +102,8 @@ type DataSlice []*Data
 // DCOB data from all_the_fishes files + 
 // data calculated or extrapolated from the folders
 type Data struct {
+	// ID of the binary (Comb+N+ids of the objects)
+	Binary_ids string
 	// Parameter combination, identifies the simulation
 	Comb string
 	// Random realization (simulation run/file) number
@@ -116,8 +118,6 @@ type Data struct {
 	W0 int64
 	// External tidal field string identifier
 	Tf string
-	// ID of the binary (Comb+N+ids of the objects)
-	Binary_ids string
 	// System (=N-body) time-step
 	SysTime int64
 	// Physical time in [Myr]
@@ -215,7 +215,7 @@ func (d *Data) Fill (lineRes []string, addData map[string]string) (err error) {
 		return fmt.Errorf("Can't parse %v into Data.Fpb\n", addData["fpb"])
 	}
 	
-	if d.W0, err = strconv.ParseInt(lineRes[4], 10, 0); err != nil {
+	if d.W0, err = strconv.ParseInt(addData["W0"], 10, 0); err != nil {
 		return fmt.Errorf("Can't parse %v into Data.W0\n", lineRes[4])
 	}
 	
@@ -328,7 +328,7 @@ func  (ds *DataSlice) CollectData (inFileName string) (nLines int) {
 								`(\d+\.*\d*e*-*\d*)\s+` +		// Group(10): Mass_1
 								`(\d+\.*\d*e*-*\d*)\s+` +		// Group(11): Sma
 								`(\d+\.*\d*e*-*\d*)\s+` +		// Group(12): Period
-								`(\d+\.*\d*e*-*\d*)`			// Group(13): Sma
+								`(\d+\.*\d*e*-*\d*)`			// Group(13): Ecc
 		lineReg *regexp.Regexp = regexp.MustCompile(lineRegString)
 		lineRes []string
 		newData *Data
@@ -369,6 +369,7 @@ func  (ds *DataSlice) CollectData (inFileName string) (nLines int) {
 			"rv": dirRes[3],
 			"fpb": dirRes[5],
 			"tf": dirRes[2],
+			"W0":dirRes[6],
 		}); err != nil {
 			log.Fatal("Can't fill with err: ", err)
 		}
