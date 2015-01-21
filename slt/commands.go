@@ -31,6 +31,7 @@ var (
 	simTime           string
 	tf                bool = false
 	Verb              bool
+	targetHost        string
 )
 
 // SlToolsCmd is the main command.
@@ -277,6 +278,39 @@ var stdErrCutCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		CutStdErr(inFileName, selectedSnapshot)
+	},
+}
+
+var DockerBuildCmd = &cobra.Command{
+	Use:   "dockerBuild",
+	Short: "Write Dockerfile and build a docker container with starlab",
+	Long: `Use like:
+	sltools dockerBuild <hostname>
+	
+	where valid hostnames are (until now):
+	* spritz
+	* longisland
+	* uno
+	
+	It assumes to be in a folder with
+	
+	-starlabDoocker
+	     |-sapporo
+	     |-starlab
+	     |-starlabAS
+		      |-add_tidal.C
+		      |-dyn_external.C
+		      |-dyn.h
+		      |-dyn_io.C
+		      |-dyn_story.C
+		      |-set_com.C
+
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if targetHost == "" {
+			log.Fatal("Provide a target host.")
+		}
+		DockerBuild(targetHost)
 	},
 }
 
@@ -571,6 +605,9 @@ func InitCommands() {
 	CutSimCmd.AddCommand(stdErrCutCmd)
 	CutSimCmd.PersistentFlags().StringVarP(&selectedSnapshot, "cutTime", "t", "", "At which timestep stop")
 
+	SlToolsCmd.AddCommand(DockerBuildCmd)
+	DockerBuildCmd.Flags().StringVarP(&targetHost, "host", "t", "", "Docker build target host")
+	
 	SlToolsCmd.AddCommand(KiraWrapCmd)
 // 	KiraWrapCmd.PersistentFlags().BoolVarP(&as, "as", "a", false, "Run Allen-Santillan version of kira (debug strings).")
 	KiraWrapCmd.PersistentFlags().BoolVarP(&noBinaries, "no-binaries", "b", false, "Switch off binary evolution.")
