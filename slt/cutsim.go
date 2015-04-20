@@ -63,7 +63,7 @@ func CutStdOut(inFileName, selectedSnapshot string) {
 		{
 			fZip, err = gzip.NewReader(inFile)
 			if err != nil {
-				log.Fatalf("Can't open %s: error: %s\n", inFile, err)
+				log.Fatalf("Can't open %s: error: %s\n", inFileName, err)
 			}
 			nReader = bufio.NewReader(fZip)
 			
@@ -77,7 +77,7 @@ func CutStdOut(inFileName, selectedSnapshot string) {
 	{
 		fZip, err = gzip.NewReader(inFile)
 		if err != nil {
-			log.Fatalf("Can't open %s: error: %s\n", inFile, err)
+			log.Fatalf("Can't open %s: error: %s\n", inFileName, err)
 		}
 		nReader = bufio.NewReader(fZip)
 		
