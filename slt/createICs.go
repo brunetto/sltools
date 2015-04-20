@@ -143,8 +143,8 @@ func CreateICs(confChan chan *ConfigStruct, doneParent chan struct{}) {
 			"| " + makemass + " -f 8  -l 0.1 -u 150 \\\n" +
 			"| " + makesecondary + " -f " + conf.FpbStr() +
 			" -q -l 0.1 \\\n" +
-			"| " + add_star + " -R " + conf.RvStr() + " -Z " + conf.ZStr() + " \\\n" +
-			"| " + scale + " -R 1 -M 1\\\n" +
+			"| " + add_star + " -R 1 -Z " + conf.ZStr() + " \\\n" +
+			"| " + scale + " -R " + conf.RvStr() + " -M 1\\\n" +
 			"| " + makebinary + " -f 2 -o 1 -l 1 -u 107836.09 \\\n" +
 			"> " // Redirect output to the proper ICs file
 
