@@ -69,3 +69,89 @@ Available Commands:
 Use "sltools help [command]" for more information about that command.
 
 ````
+
+## Example of use
+### Configuration file
+
+Create one or more `json` configuration files for your runs, like:
+
+```bash
+$ cat conf86.json 
+{
+    "Runs": 10,
+    "Comb": 86,
+    "Ncm" : 10000,
+    "Fpb" : 0.05,
+    "W"   : 3,
+    "Z"   : 0.10,
+    "Rv": 5,
+    "EndTime" : 500,
+    "Machine" : "g2",
+    "UserName" : "bziosi",
+    "PName": <name of the project if you use PBS or similar>,
+    "BinFolder": "/home/bziosi/bin/"
+}
+```
+
+Run
+
+```bash
+sltools createICs -v -A
+```
+
+to generate, for each configuration file, a folder containing the script to create the initial conditions.
+
+Run the script (unless you ran `createICs` with `-C` flags (not working very well):
+
+```bash
+for ICscript in $(ls create*); do bash $ICscript; done;
+```
+
+Now you can transfer you fresh ICs to the machine where you will run your jobs.
+
+It is now time to create the scripts to submit the jobs:
+
+```bash
+sltools css -A -m <machine>
+```
+
+At the moment the available machines are `eurora`, `g2swin`, `plx`.
+
+Submit all the PBS scripts with 
+
+```bash
+sltools pbsLaunch
+```
+
+and wait for them to complete.
+
+Relaunch them with 
+
+```
+sltools relaunch
+```
+
+if necessary.
+
+At the end run 
+
+```bash
+sltools stichOutput -c conf<configuration number>.json -A
+```
+
+to have your outputs files nicely checked and stiched.
+
+## TODO
+
+* ICs creation with Docker (see on spritz)
+
+
+
+
+
+
+
+
+
+
+
