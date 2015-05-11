@@ -35,9 +35,6 @@ var (
 	dbug         bool = false
 )
 
-// TODO: intercetto la size_scale
-// then size scale = ceil ( 6.955e5 / (size_scale * 3.08...e13) ) = ceil ( 1 Rsun in km / (size_scale * 1 pc in km) )
-
 func main() {
 	if true {defer debug.TimeMe(time.Now())}
 
@@ -51,8 +48,29 @@ func main() {
 		ext string
 		fZip *gzip.Reader
 		binaryPrefix string
+		folders []string
+		folder string
 	)
 
+	if folders, err = filepath.Glob("comb*"); err != nil {
+		log.Fatal("Error globbing: ", err)
+	}
+	
+	if len(folders) == 0 {
+		log.Fatal("No folders found")
+	}
+	
+	// Loop over found folders
+	for _, folder = range folders {
+		if info, err := os.Stat(folder); err == nil && info.IsDir() {
+			if err = os.Chdir(folder); err != nil {
+				log.Fatalf("Can't change dir to %v with err: %v\n", folder, err)
+			}
+		} else if err != nil {
+			log.Fatalf("Error checking if %v is dir: %v\n", folder, err)
+		}
+	}
+	
 	if len(os.Args) < 3 {
 		log.Fatal("Provide a STDOUT and a outfile")
 	}
