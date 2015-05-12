@@ -54,16 +54,7 @@ func main() {
 		folders                 []string
 		folder                  string
 		files                   []string
-		// 		file string
 	)
-
-	// 	if len(os.Args) < 3 {
-	// 		log.Fatal("Provide a STDOUT and a outfile")
-	// 	}
-	// 	inFileName = os.Args[1]
-	// 	ext = filepath.Ext(inFileName)
-
-	// 	outFileName = os.Args[2]
 
 	outFileName = "allBinaryPositions.csv"
 	log.Println("Creating outfile: ", outFileName)
@@ -80,7 +71,7 @@ func main() {
 	linesChan = make(chan string, 1000)
 
 	log.Println("Launching goroutines")
-	go Readline(newFilesChan /*nReader*/, linesChan, done)
+	go Readline(newFilesChan, linesChan, done)
 	go ClusterParsing(linesChan, particleChan, done)
 	go ClusterPrinting(nWriter, particleChan, done)
 
@@ -120,7 +111,7 @@ func main() {
 				log.Fatal("Can't reg: ", inFileName)
 			}
 
-			// Remove unnecessary zeros
+			// Remove unnecessary zeros from the cluster number
 			tmp0, err := strconv.ParseInt(combRes[2], 10, 64)
 			if err != nil {
 				log.Fatalf("Can't parse int in binary prefix %v with err: %v \n", tmp0, err)
@@ -137,7 +128,9 @@ func main() {
 				log.Fatal(err)
 			}
 			defer inFile.Close()
+
 			ext = filepath.Ext(inFileName)
+
 			switch ext {
 			case ".txt":
 				{
@@ -185,9 +178,9 @@ type Particle struct {
 	X, Y, Z      float64
 	Dist         float64
 	BinaryPrefix string
-	/*	Vx, Vy, Vz string
-		Ax, Ay, Az string
-		Mass*/string
+	// 	Vx, Vy, Vz string
+	// 	Ax, Ay, Az string
+	// 	Mass string
 	// 	Multiple bool
 	// 	Sons []&Particle
 	// 	HasParent bool
@@ -199,7 +192,7 @@ type NewFile struct {
 	binaryPrefix string
 }
 
-func Readline(newFilesChan chan /*nReader*/ NewFile, linesChan chan string, done chan string) {
+func Readline(newFilesChan chan NewFile, linesChan chan string, done chan string) {
 	if dbug {
 		defer debug.TimeMe(time.Now())
 	}
