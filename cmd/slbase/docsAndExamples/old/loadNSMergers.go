@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"strconv"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -15,29 +14,17 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
-type BinaryData struct {
-	SysTime  int64   `bson:"systime"`
-	PhysTime float64 `bson:"phystime"`
+type NSBinaryData struct {
 	BinaryId string  `bson:"binaryid"`
-	X        float64 `bson:"x"`
-	Y        float64 `bson:"y"`
-	Z        float64 `bson:"z"`
-	R        float64 `bson:"r"`
 }
 
 func main() {
 	defer debug.TimeMe(time.Now())
 	var (
 		// Regexp string for all_the_fishes
-		regStringPos string = `^(\d+),` + // 1: SysTime
-			`(-*\d+\.*\d*e*[-\+]*\d*),` + // 2: PhysTime
-			`(\S+?),` + // 3: BinaryId
-			`(-*\d+\.*\d*e*[-\+]*\d*),` + // 4: X
-			`(-*\d+\.*\d*e*[-\+]*\d*),` + // 5: Y
-			`(-*\d+\.*\d*e*[-\+]*\d*),` + // 6: Z
-			`(-*\d+\.*\d*e*[-\+]*\d*)` // 7: R
+		regStringNSMgr string = `^(\S+)` // 1: BinaryId
 
-		binaryRegexp = regexp.MustCompile(regStringPos)
+		binaryRegexp = regexp.MustCompile(regStringNSMgr)
 		regexResult  []string
 		fileObj      *os.File
 		err          error
@@ -46,11 +33,11 @@ func main() {
 		database     *mgo.Database
 		collection   *mgo.Collection
 		readLine     string
-		binary       *BinaryData
+		binary       *NSBinaryData
 	)
 
 	if len(os.Args) < 2 {
-		log.Fatal("Provide the file with the positions.")
+		log.Fatal("Provide the file with the NS merger.")
 	}
 
 	// Open the file
@@ -73,14 +60,14 @@ func main() {
 	session.SetMode(mgo.Monotonic, true)
 
 	database = session.DB("phd")
-	collection = database.C("positions")
+	collection = database.C("ns_mergers")
 
 	// Clean
-	// 	if err = collection.DropCollection(); err != nil {
-	// 		log.Println("Error droppping collection: ", err)
-	// 	}
-	//
-	// 	collection = database.C("binaries")
+	if err = collection.DropCollection(); err != nil {
+		log.Println("Error droppping collection: ", err)
+	}
+
+	collection = database.C("ns_mergers")
 
 	// Read the file and fill the starMap slice
 	log.Println("Start reading file and populating the DB...")
@@ -100,18 +87,12 @@ func main() {
 		if regexResult == nil {
 			log.Println("With regexp ", binaryRegexp)
 			log.Println("no match, nil regex result on line ", line)
-			log.Println("Reg is:", regStringPos)
+			log.Println("Reg is:", regStringNSMgr)
 			log.Fatal("Line is:", readLine)
 		}
 
-		binary = &BinaryData{}
-		binary.BinaryId = regexResult[3]
-		binary.SysTime, err = strconv.ParseInt(regexResult[1], 10, 64)
-		binary.PhysTime, err = strconv.ParseFloat(regexResult[2], 64)
-		binary.X, err = strconv.ParseFloat(regexResult[4], 64)
-		binary.Y, err = strconv.ParseFloat(regexResult[5], 64)
-		binary.Z, err = strconv.ParseFloat(regexResult[6], 64)
-		binary.R, err = strconv.ParseFloat(regexResult[7], 64)
+		binary = &NSBinaryData{}
+		binary.BinaryId = regexResult[1]
 
 		if err != nil {
 			log.Fatalf("Error parsing binary %+v: %v \n", binary, err)
@@ -121,9 +102,8 @@ func main() {
 			log.Fatalf("Error inserting binary %+v into database: %v \n", binary, err)
 		}
 
-		if line%1000 == 0 {
-			fmt.Printf("\r Inserted line #: %v with id %v at time %v ", line, binary.BinaryId, binary.PhysTime)
-		}
+		fmt.Printf("\r Inserted line #: %v with id %v", line, binary.BinaryId)
+		
 		line++
 
 	}

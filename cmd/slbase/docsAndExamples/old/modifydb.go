@@ -8,7 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type BinaryData struct {
+type CompleteBinaryData struct {
 	BinaryId string   `bson:"binaryid"`
 	Comb     int64    `bson:"comb"`
 	N        int64    `bson:"n"`
@@ -29,6 +29,10 @@ type BinaryData struct {
 	Tgw      float64  `bson:"tgw"`
 	Mchirp   float64  `bson:"mchirp"`
 	Ecc      float64  `bson:"ecc"`
+	X        float64  `bson:"X"`
+	Y        float64  `bson:"Y"`
+	Z        float64  `bson:"Z"`
+	R        float64  `bson:"R"`
 	Merge    bool     `bson:"merge"`
 }
 
@@ -38,9 +42,11 @@ func main() {
 		err        error
 		session    *mgo.Session
 		database   *mgo.Database
-		collection *mgo.Collection
-		binary     BinaryData
-		binaries   []BinaryData
+		cBinaries  *mgo.Collection
+		cPositions *mgo.Collection
+		cNSmergers *mgo.Collection
+		binary     CompleteBinaryData
+		binaries   []CompleteBinaryData
 		query      bson.M
 		q          *mgo.Query
 	)
@@ -58,27 +64,23 @@ func main() {
 	database = session.DB("phd")
 
 	log.Println("Open collection")
-	collection = database.C("binaries")
+	cBinaries  = database.C("binaries")
+	cPositions = database.C("positions")
+	cNSmergers = database.C("ns_mergers")
 
-	log.Println("Search for one binary")
-	binary = BinaryData{}
-	if err = collection.Find(bson.M{"binaryid": "c76n4a103540b3540"}).One(&binary); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("One binary: %+v\n", binary)
+	log.Println("Retrieve each binary, check for position and NS merger and update the document")
 
-	log.Println("Search for merger candidates")
-	query = bson.M{"$and": []bson.M{bson.M{"binaryid": "c76n4a103540b3540"}, bson.M{"systime": 13}}}
-
-	q = collection.Find(query) //.Sort("phystime")
-
-	q.All(&binaries)
-
-	var i int
-	var item BinaryData
-
-	for i, item = range binaries {
-		fmt.Printf("%v: %+v\n", i, item)
-	}
+	// 1. Iterate over the binaries that are record of binaries collections
+	// 2. For each binary search if it is a NS merger, in case, update
+	// 3. Search if it has a position, in case update
+	
+// 	query = bson.M{"$and": []bson.M{bson.M{"binaryid": "c76n4a103540b3540"}, bson.M{"systime": 13}}}
+// 	q = collection.Find(query) //.Sort("phystime")
+// 	q.All(&binaries)
+// 	var i int
+// 	var item CompleteBinaryData
+// 	for i, item = range binaries {
+// 		fmt.Printf("%v: %+v\n", i, item)
+// 	}
 
 }

@@ -16,7 +16,7 @@ import (
 	"github.com/brunetto/goutils/debug"
 )
 
-type BinaryData struct {
+type PartialBinaryData struct {
 	BinaryId string
 	Comb     int64
 	N        int64
@@ -118,7 +118,7 @@ defer debug.TimeMe(time.Now())
 		database     *mgo.Database
 		collection   *mgo.Collection
 		readLine     string
-		binary       *BinaryData
+		binary       *PartialBinaryData
 	)
 
 	// Open the file
@@ -172,7 +172,7 @@ defer debug.TimeMe(time.Now())
 			log.Fatal("Line is:", readLine)
 		}
 
-		binary = &BinaryData{}
+		binary = &PartialBinaryData{}
 		binary.BinaryId = regexResult[regGroups.Id]
 		binary.Comb, err = strconv.ParseInt(regexResult[regGroups.Comb], 10, 64)
 		binary.N, err = strconv.ParseInt(regexResult[regGroups.N], 10, 64)
