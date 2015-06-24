@@ -214,7 +214,7 @@ func CAC(stdOutFileName string) () {
 		fmt.Println(".................................")
 	}
 	
-	if len(toContinue) == 0 {
+	if len(toContinue) == 0 && stdOutFileName == "" {
 		log.Println("It seems that all the runs are complete, creating the 'complete' file")
 		
 		if completeFile, err = os.Create("complete"); err != nil {
