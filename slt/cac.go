@@ -15,7 +15,7 @@ import (
 )
 
 // Check And Continue
-func CAC() {
+func CAC(stdOutFileName string) () {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -95,14 +95,33 @@ func CAC() {
 		go PbsLaunchOnTheFly(pbsLaunchChannel1, done1)
 	}
 	
-	log.Println("Searching for files in the form: ", globName)
-	// Find last round for each run in the folder
-	// Runs are sorted
-	runs, runMap, mapErr = FindLastRound(globName)
-	// Some round are present because of the ics ma don't have errs or outSize,
-	// probably they were run somewhere else (Spritz?)
-	if mapErr != nil {
-		log.Println(mapErr)
+	// CAC only on one run
+	if stdOutFileName != "" {
+		if !strings.HasPrefix(stdOutFileName, "out-") {
+			log.Fatal(`Please provide a STDOUT in the canonical form, e.g.:
+			out-comb88-TFno-Rv3-NCM10000-fPB01-W5-Z100-run49-rnd00.txt
+			`)
+		}
+		
+		log.Println("Searching for files in the form: ", strings.Replace(stdOutFileName, "out-", "*-", 1))
+		
+		runs, runMap, mapErr = FindLastRound(strings.Replace(stdOutFileName, "out-", "*-", 1))
+		// Some round are present because of the ics ma don't have errs or outSize,
+		// probably they were run somewhere else (Spritz?)
+		if mapErr != nil {
+			log.Println(mapErr)
+		}
+	} else {
+		// CAC on all the runs
+		log.Println("Searching for files in the form: ", globName)
+		// Find last round for each run in the folder
+		// Runs are sorted
+		runs, runMap, mapErr = FindLastRound(globName)
+		// Some round are present because of the ics ma don't have errs or outSize,
+		// probably they were run somewhere else (Spritz?)
+		if mapErr != nil {
+			log.Println(mapErr)
+		}
 	}
 	
 	// Loop over the last rounds found and print infos

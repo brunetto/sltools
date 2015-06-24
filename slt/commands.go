@@ -64,7 +64,7 @@ var CacCmd = &cobra.Command{
 	Short: "Check and continue, will check the last simulations outputs, prepare the restat and restart.",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		CAC()
+		CAC("")
 	},
 }
 
@@ -418,7 +418,7 @@ var ReLaunchCmd = &cobra.Command{
 
 		if !goutils.Exists("complete") {
 			// Check and continue
-			CAC()
+			CAC(inFileName)
 
 			// Submit: already included in CAC
 			// 		if err := slt.PbsLaunch(); err != nil {

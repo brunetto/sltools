@@ -102,7 +102,7 @@ func main () () {
 			// Continue good runs
 			////////////////////////
 			log.Println("Check and continue good runs")
-			slt.CAC()
+			slt.CAC("")
 			
 			////////////////////////
 			// Launch new runs

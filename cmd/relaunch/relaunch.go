@@ -18,7 +18,7 @@ func main () () {
 	
 	if !goutils.Exists("complete") {
 		// Check and continue
-		slt.CAC()
+		slt.CAC("")
 		
 		// Submit // already in cac
 // 		if err := slt.PbsLaunch(); err != nil {
