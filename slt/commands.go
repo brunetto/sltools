@@ -501,8 +501,8 @@ var StichOutputCmd = &cobra.Command{
 	You just need to select one of the files to stich or the --all flag to stich 
 	all the files in the folder accordingly to their names.
 	Use like:
-	sltools stichOutput -c conf19.json -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
-	sltools stichOutput -c conf19.json -A # to stich all the outputs in the folder`,
+	sltools stichOutput -i out-cineca-comb19-NCM10000-fPB005-W9-Z010-run09-rnd00.txt
+	sltools stichOutput -A # to stich all the outputs in the folder`,
 	Run: func(cmd *cobra.Command, args []string) {
 // 		if All {
 // 			log.Println("Stich all!")
@@ -545,6 +545,9 @@ var StichOutputCmd = &cobra.Command{
 				//
 				// STDOUT
 				//
+				if len(runMap[run]["out"]) == 0 {
+					log.Fatal("Empty STDOUT files list, maybe you forgot the '--onlyErr' flag")
+				}
 				inFilesList <-runMap[run]["out"]
 			} else {
 				log.Println("Only stich STDERRs")
@@ -555,6 +558,9 @@ var StichOutputCmd = &cobra.Command{
 				//
 				// STDERR
 				//
+				if len(runMap[run]["err"]) == 0 {
+					log.Fatal("Empty STDOUT files list, maybe you forgot the '--onlyOut' flag")
+				}
 				inFilesList <-runMap[run]["err"]				
 			} else {
 				log.Println("Only stich STDOUTs")

@@ -8,167 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-// 	"runtime"
-// 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/brunetto/goutils/debug"
 )
-/*
-// StichThemAll launch the stiching in parallel on all the simulation files in
-// the folder, accordingly to their names (run 01 is different from run 02 and so on).
-func StichThemAll(sampleFile string) {
-	if Debug {
-		defer debug.TimeMe(time.Now())
-	}
-
-	var (
-		err            error
-		inFiles        []string
-		prefixes       = []string{"out-", "err-"}
-		run, baseName  string
-		tmp            map[string]string
-		runs           StringSet // set = list of unique objects (run numbers)
-		nRuns          []int
-		globName       string
-		maxProcs       int = 1
-		inFileNameChan     = make(chan string, maxProcs)
-		done               = make(chan struct{})
-	)
-
-	runtime.GOMAXPROCS(maxProcs)
-
-	nRuns = make([]int, 0)
-
-	if tmp, err = Reg(sampleFile); err != nil {
-		log.Fatal(err)
-	}
-	baseName = tmp["baseName"]
-
-	// Search for all the STDOUT and STDERR files in the folder
-	for idx := 0; idx < 2; idx++ {
-		globName = "*-comb*-NCM*-fPB*-W*-Z*-run*-rnd*.*"
-		if Verb {
-			log.Println("Searching for: ", globName)
-		}
-		if inFiles, err = filepath.Glob(globName); err != nil {
-			log.Fatal("Error globbing for stiching all the run outputs, ", globName, " ,  in this folder: ", err)
-		}
-		// Sort file names
-		sort.Strings(inFiles)
-
-		runs = NewStringSet()
-
-		// Find the numbers of the different runs
-		for _, inFileName := range inFiles {
-			if tmp, err = Reg(inFileName); err != nil {
-				log.Fatal(err)
-			}
-			run = tmp["run"]
-			// Add the new number in the set
-			runs.Add(run)
-		}
-		if Verb {
-			log.Println("Found runs:")
-			fmt.Println(runs.String())
-		}
-		nRuns = append(nRuns, len(runs))
-	}
-
-	// Launch maxProcs goroutines
-	for idx := 0; idx < maxProcs; idx++ {
-		go StichOutput(inFileNameChan, done)
-	}
-
-	// Launch all the stiching
-	for _, runIdx := range runs.Sorted() {
-		name := "out-" + baseName + "-run" + runIdx + "-rnd00.*"
-		if Verb {
-			log.Println("Launching stich based on ", name)
-		}
-		inFileNameChan <- name
-	}
-	close(inFileNameChan)
-	for idx := 0; idx < maxProcs; idx++ {
-		<-done // wait the goroutines to finish
-	}
-}
-
-// FIXME: Workaround to call StichOutput not in parallel
-// because now StichOutput contain a call to wg.Done
-// and I don't want to import "sync" in command.go
-func StichOutputSingle(inFileName string) {
-	if Debug {
-		defer debug.TimeMe(time.Now())
-	}
-	var (
-		inFileNameChan = make(chan string, 1)
-		done           = make(chan struct{})
-	)
-	go StichOutput(inFileNameChan, done)
-	inFileNameChan <- inFileName
-	close(inFileNameChan)
-	<-done // wait the goroutine to finish
-}
-
-// StichOutput stiches the STDOUT and STDERR of a simulation.
-func StichOutput(inFileNameChan chan string, done chan struct{}) {
-	if Debug {
-		defer debug.TimeMe(time.Now())
-	}
-
-	var (
-		inFileName string
-		run        string
-		stdOuts    string
-		stdErrs    string
-		baseName   string
-		tmp        map[string]string
-		err        error
-	)
-
-	for inFileName = range inFileNameChan {
-
-		if inFileName == "" {
-			log.Fatal("You need to specify an input file template with the -i flag!!!")
-		}
-
-		// Extract parameters from the name
-		if tmp, err = Reg(inFileName); err != nil {
-			log.Fatal(err)
-		}
-		run = tmp["run"]
-		baseName = tmp["baseName"]
-
-		log.Println("Stiching *-" + baseName + `-run` + run + `-rnd*.*`)
-
-		// Check if only have to run STDERR stich
-		if !OnlyErr {
-			//
-			// STDOUT
-			//
-			stdOuts = "out-" + baseName + `-run` + run + `-rnd*.*`
-			StdStich(stdOuts, "out")
-		} else {
-			log.Println("Only stich STDERRs")
-		}
-
-		// Check if only have to run STDOUT stich
-		if !OnlyOut {
-			//
-			// STDERR
-			//
-			stdErrs = "err-" + baseName + `-run` + run + `-rnd*.*`
-			StdStich(stdErrs, "err")
-
-		} else {
-			log.Println("Only stich STDOUTs")
-		}
-	}
-	done <- struct{}{}
-}*/
 
 // StdStich stiches a given STD??? according to the type passed with stdWhat.
 // func StdStich(stdFiles, stdWhat string) {
@@ -178,15 +23,15 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 	}
 
 	var (
-		fZip                                  *gzip.Reader
+		nReader *bufio.Reader
 		inFile                                *os.File
 		inFiles []string
 		snapshot/*s = make([]*/ *DumbSnapshot /*, 2)*/
 		outFileName                           string
 		outFile                               *os.File
 		err                                   error
-		nReader                               *bufio.Reader
 		nWriter                               *bufio.Writer
+		gzipWriter                            *gzip.Writer
 		timestep                              int64
 		timesteps                             = make([]int64, 0)
 		ext                                   string
@@ -194,11 +39,12 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 	)
 	
 	for inFiles = range inFilesList {
+		// Remove suffix to create the output name
 		r := regexp.MustCompile(`-rnd\S+.\S+`)
 		tmp := r.ReplaceAllString(inFiles[0], "")
 		log.Println("Stich " + tmp)
 
-		outFileName = tmp + "-all.txt"
+		outFileName = tmp + "-all.txt.gz"
 		log.Println("Output file will be ", outFileName)
 
 		log.Println("Opening STDOUT output file...")
@@ -208,9 +54,12 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 			log.Fatal(err)
 		}
 		defer outFile.Close()
-
+		gzipWriter = gzip.NewWriter(outFile)
+		defer gzipWriter.Close()
+		defer gzipWriter.Flush()
+	
 		// Create reader and writer
-		nWriter = bufio.NewWriter(outFile)
+		nWriter = bufio.NewWriter(gzipWriter)
 		defer nWriter.Flush()
 
 		if strings.HasPrefix(inFiles[0], "out") {
@@ -221,14 +70,6 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 			log.Fatal("Wrong prefix in ", inFiles[0])
 		}
 		
-// 		log.Println("Globbing and sorting " + stdWhat + " input files")
-// 		// Open infiles
-// 		if inFiles, err = filepath.Glob(stdFiles); err != nil {
-// 			log.Fatal("Error globbing "+stdWhat+" files for output stiching: ", err)
-// 		}
-
-// 		sort.Strings(inFiles)
-
 		if Verb {
 			log.Println("Found:")
 			for idx, file := range inFiles {
@@ -253,8 +94,8 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 				}
 			case ".gz":
 				{
-					fZip, err = gzip.NewReader(inFile)
-					if err != nil {
+					var fZip *gzip.Reader
+					if fZip, err = gzip.NewReader(inFile); err != nil {
 						log.Fatal("Can't open %s: error: %s\n", inFileName, err)
 					}
 					nReader = bufio.NewReader(fZip)
