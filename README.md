@@ -141,7 +141,7 @@ if necessary.
 At the end run 
 
 ```bash
-sltools stichOutput -c conf<configuration number>.json -A
+sltools stichOutput -A
 ```
 
 to have your outputs files nicely checked and stiched.
