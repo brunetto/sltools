@@ -1,5 +1,5 @@
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.12299.png)](http://dx.doi.org/10.5281/zenodo.12299)    
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18980.png)](http://dx.doi.org/10.5281/zenodo.18980) 
+Release 1.1 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.12299.png)](http://dx.doi.org/10.5281/zenodo.12299)    
+Release 1.2 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18980.png)](http://dx.doi.org/10.5281/zenodo.18980) 
 
 SlTools incorporates several piece of software I developed to manage and analyse simulations for my [PhD project](http://brunettoziosi.eu/pages/research/phd/). Most of the tools have been developed to deal with  [StarLab](http://www.sns.ias.edu/~starlab/index.html) problems (struggling with the installation? try have a look at [this](http://http://brunettoziosi.eu/posts/starlab-gpu-installation/)) and Cineca clusters. Some other try to automatize some tasks of running hundreds of simulations. There are also some tools I used to analyze the data (in Python, I am slowly rewriting them in Go the embed them in sltools).
 
