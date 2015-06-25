@@ -3,6 +3,8 @@ Release 1.2 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18980.png)](http
 
 SlTools incorporates several piece of software I developed to manage and analyse simulations for my [PhD project](http://brunettoziosi.eu/pages/research/phd/). Most of the tools have been developed to deal with  [StarLab](http://www.sns.ias.edu/~starlab/index.html) problems (struggling with the installation? try have a look at [this](http://http://brunettoziosi.eu/posts/starlab-gpu-installation/)) and Cineca clusters. Some other try to automatize some tasks of running hundreds of simulations. There are also some tools I used to analyze the data (in Python, I am slowly rewriting them in Go the embed them in sltools).
 
+See also [this post](http://brunettoziosi.eu/posts/starlab-simulations-with-sltools) and [this guide on how to create ICs with Dockerized StarLab](http://brunettoziosi.eu/posts/dockerized-starlab).
+
 The dev repo is [here](https://github.com/brunetto/sltools-dev).
 
 ---
@@ -141,10 +143,6 @@ sltools stichOutput -c conf<configuration number>.json -A
 ```
 
 to have your outputs files nicely checked and stiched.
-
-## TODO
-
-* ICs creation with Docker (see on spritz)
 
 
 
