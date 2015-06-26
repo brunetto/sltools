@@ -86,11 +86,11 @@ func KiraWrap(icsFileName, intTime, randomNumber string, noGPU bool) () {
 	kiraArgs =  []string{"-t", timeLimit,// +  // number of timesteps to compute
 		"-d", "1",// +  // log output interval
 		"-D", "1",// +  // snapshot interval
-		// 				"-b", "1",// +  // frequency of full binary output
+		// "-b", "1",// +  // frequency of full binary output
 		"-f", "0",// +  // dynamical friction (0 = no friction, 1 = friction)
 		"-n", "10",// +  // terminate if the cluster remains with only 10 particles
 		"-e", "0.000",// + // softening 
-		// 				"-B",// // switch on binary evolution
+		// "-B",// // switch on binary evolution
 		//"-s 36543" // random seed 
 	}
 	
