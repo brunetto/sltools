@@ -57,7 +57,7 @@ func main () () {
 	
 	_, err = outFile.WriteString("# Binary_ids, comb, N, Z, Rv, Fpb, W0, Tf, " + 
 									"SysTime, PhysTime, Objects_ids, Hardflag, " +
-									"Types, Mass_0, Mass_1, Sma, Period, Ecc, Tgw\n")
+									"Types, Mass_0, Mass_1, Sma, Period, Ecc, Tgw, Mchirp\n")
 	if err != nil {
 		log.Fatalf("Can't write to %v with error %v\n", outFileName, err)
 	}
