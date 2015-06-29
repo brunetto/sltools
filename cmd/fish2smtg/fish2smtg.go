@@ -148,6 +148,8 @@ type Data struct {
 	// Peters' coalescence timescale 
 	// see http://journals.aps.org/pr/pdf/10.1103/PhysRev.136.B1224, Eq. 5.9
 	Tgw float64
+	// Chirp mass
+	Mchirp float64
 }
 
 func (d *Data) Fill (lineRes []string, addData map[string]string) (err error) {
@@ -224,6 +226,8 @@ func (d *Data) Fill (lineRes []string, addData map[string]string) (err error) {
     d.Binary_ids = "c" + d.Comb + "n" + strconv.FormatInt(d.N, 10) + strings.Split(lineRes[3], "ids")[1]
 	
 	d.Tgw = CONSTANT * math.Pow(d.Sma, 4) * math.Pow((1 - math.Pow(d.Ecc,2)), (7./2)) / (d.Mass_0 * d.Mass_1 * (d.Mass_0 + d.Mass_1))
+	
+	d.Mchirp = ChirpMass(d.Mass_0, d.Mass_0)
 		
 	return nil
 }
@@ -255,7 +259,7 @@ func (ds *DataSlice) ToCsv (outFileName string) (err error) {
 	
 	fmt.Println("Start writing lines: ", len(*ds))
 	for _, record := range *ds {
-		outputLine = fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v\n",
+		outputLine = fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v\n",
 										record.Binary_ids, 
 										record.Comb, 
 										record.N, 
@@ -274,7 +278,9 @@ func (ds *DataSlice) ToCsv (outFileName string) (err error) {
 										record.Sma, 
 										record.Period, 
 										record.Ecc, 
-										record.Tgw)
+										record.Tgw,
+										record.Mchirp,
+								)
 		_, err = nWriter.WriteString(outputLine)
 		if err != nil {
 			log.Fatalf("Can't write %v to %v with error: %v\n", outputLine, outFileName, err)
@@ -379,7 +385,13 @@ func  (ds *DataSlice) CollectData (inFileName string) (nLines int) {
 	return nLines
 }
 
+func ChirpMass(m0, m1 float64) (chirpmass float64) {
+	mTot := m0 + m1
+	mu := (m0 * m1) / mTot
 
+	chirpmass = math.Pow(mu, 3./5) * math.Pow(mTot, 2./5)
+	return chirpmass
+}
 
 // func (ds DataSlice) ToH5 (outFileName string) (err error) {
 // 	var (
