@@ -77,6 +77,11 @@ func main() {
 	// Single reg string for testing and checking purpose
 	// ^(\S+?),(\d+?),(\d+?),(\d+\.*\d*),(\d+\.*\d*),(\d+\.*\d*),(\d+?),(\S+?),(\d+?),(\d+\.*\d*),(\S+\|\S+),(\S),(\S+\|\S+?),(\d+\.*\d*e*[-\+]*\d*),(\d+\.*\d*e*[-\+]*\d*?),(\d+\.*\d*e*[-\+]*\d*?),(\d+\.*\d*e*[-\+]*\d*?),(\d+\.*\d*e*[-\+]*\d*?),(\d+\.*\d*e*[-\+]*\d*?),(\d+\.*\d*e*[-\+]*\d*?)
 	)
+	
+	if len(os.Args) < 2{
+		log.Fatal("Please provide a data CSV file.")
+	}
+	
 	inPath = ""
 	inFile = os.Args[1]
 
