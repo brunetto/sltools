@@ -41,6 +41,10 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) {
+		if len(c.Args()) == 0 {
+			cli.ShowAppHelp(c)
+			os.Exit(1)
+		}
 		if c.String("type") != "out" && c.String("type") != "err" {
 			log.Fatal("Please provide the type of the file to split, either 'out' for STDOUT or 'err' for STDERR.")
 		}
