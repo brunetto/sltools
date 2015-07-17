@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 	
-	"bitbucket.org/brunetto/sltools/standAlone/simman"
+	"github.com/brunetto/sltools/cmd/simman"
 	
 	"github.com/brunetto/goutils/debug"
 	"github.com/brunetto/goutils/notify"
