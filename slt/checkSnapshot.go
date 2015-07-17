@@ -103,7 +103,7 @@ func CheckSnapshot(inFileName string) {
 	}
 
 	for {
-		if _, err = ReadOutSnapshot(nReader); err != nil {
+		if _, err = ReadOutSnapshot(nReader, true); err != nil {
 			break
 		}
 	}

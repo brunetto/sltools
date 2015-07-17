@@ -18,9 +18,9 @@ import (
 type DumbSnapshot struct {
 	Timestep     string
 	Integrity    bool
-	CheckRoot bool
 	NestingLevel int
 	MaxNesting int
+	CheckRoot bool
 	Lines        []string
 }
 
@@ -43,7 +43,7 @@ func (snap *DumbSnapshot) WriteSnapshot(nWriter *bufio.Writer) (err error) {
 }
 
 // ReadOutSnapshot read one and only one snapshot at a time
-func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
+func ReadOutSnapshot(nReader *bufio.Reader, checkRoot bool) (*DumbSnapshot, error) {
 	if Debug {
 		defer debug.TimeMe(time.Now())
 	}
@@ -54,6 +54,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		regSysTime = regexp.MustCompile(`system_time\s*=\s*(\d+)`)
 		resSysTime []string
 		cumulativeNesting int = 0
+		CheckRoot bool
 	)
 
 	// Init snapshot container
@@ -100,7 +101,7 @@ func ReadOutSnapshot(nReader *bufio.Reader) (*DumbSnapshot, error) {
 		// the nesting is 0 and no root is found but only
 		// because we are not into the particles section
 		if snap.NestingLevel == 0 && cumulativeNesting != 0 {
-			if !snap.CheckRoot {
+			if CheckRoot && !snap.CheckRoot {
 				outFile, err := os.Create("badTimestep.txt")
 				defer outFile.Close()
 				if err != nil {log.Fatal(err)}

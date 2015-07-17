@@ -98,7 +98,7 @@ func CutStdOut(inFileName, selectedSnapshot string) {
 	// Read two snapshot each loop to ensure at least one of them is complete
 	// (= I keep the previous read in memory in case the last is corrupted)
 	for {
-		if snapshots[0], err = ReadOutSnapshot(nReader); err != nil {
+		if snapshots[0], err = ReadOutSnapshot(nReader, true); err != nil {
 			break
 		}
 		
@@ -109,7 +109,7 @@ func CutStdOut(inFileName, selectedSnapshot string) {
 			} 
 		}
 		if snapshots[0].Timestep == selectedSnapshot {break}
-		if snapshots[1], err = ReadOutSnapshot(nReader); err != nil {
+		if snapshots[1], err = ReadOutSnapshot(nReader, true); err != nil {
 			break
 		}
 		

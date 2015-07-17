@@ -64,7 +64,7 @@ func ComOrbit (inFileName, outFileName string) () {
 	}
 	
 	for {
-		if snap, err = ReadOutSnapshot(nReader); err != nil {
+		if snap, err = ReadOutSnapshot(nReader, true); err != nil {
 			break
 		}
 		// Loop over the snap lines

@@ -110,7 +110,7 @@ func StdStich(inFilesList chan []string, done chan struct{}) {
 		SnapLoop: // label
 			for {
 				if stdWhat == "out" {
-					snapshot, err = ReadOutSnapshot(nReader)
+					snapshot, err = ReadOutSnapshot(nReader, true)
 				} else if stdWhat == "err" {
 					snapshot, err = ReadErrSnapshot(nReader)
 				} else {
