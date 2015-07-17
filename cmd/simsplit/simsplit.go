@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	defer debug.TimeMe(time.Now())
 	app := cli.NewApp()
 	app.Name = "simsplit"
 	app.Usage = "Split a Starlab simulation STDOUT or STDERR in the single snapshots."
@@ -32,6 +33,11 @@ func main() {
 			Value: "",
 			Usage: "File to split",
 		},
+		cli.StringFlag{
+			Name:  "extract, e",
+			Value: "",
+			Usage: "Extract only the specify snapshot",
+		},
 	}
 
 	app.Action = func(c *cli.Context) {
@@ -41,25 +47,27 @@ func main() {
 		if c.String("infile") == "" {
 			log.Fatal("Please provide the name of the file to split.")
 		}
-		cutStd(c.String("infile"), c.String("type"))
+		cutStd(c.String("infile"), c.String("type"), c.String("extract"))
 	}
 
 	app.Run(os.Args)
 
 }
 
-func cutStd(inFileName, stdWhat string) {
-	defer debug.TimeMe(time.Now())
+func cutStd(inFileName, stdWhat, extract string) {
+	// 	defer debug.TimeMe(time.Now())
 	var (
-		baseName, ext, outFileName  string
-		inFile, outFile    *os.File
-		nWriter   *bufio.Writer
-		nReader *bufio.Reader
-		err       error
-		snapshot  *slt.DumbSnapshot
-		timestep  int64
-		timesteps                             = make([]int64, 0)
-		
+		baseName, ext  string
+		inFile         *os.File
+		nReader        *bufio.Reader
+		err            error
+		snapshot       *slt.DumbSnapshot
+		timestep       int64
+		timesteps          = make([]int64, 0)
+		wroteTimesteps     = make([]string, 0)
+		snapChan           = make(chan *slt.DumbSnapshot)
+		done               = make(chan struct{}, 1)
+		nProcs         int = 4
 	)
 
 	if inFile, err = os.Open(inFileName); err != nil {
@@ -87,6 +95,11 @@ func cutStd(inFileName, stdWhat string) {
 			log.Fatal("Unrecognized file type", inFileName)
 		}
 	}
+	
+	// Start gorutines
+	for idx := 0; idx < nProcs; idx++ {
+		go write(baseName, snapChan, done)
+	}
 
 SnapLoop: // label
 	for {
@@ -98,7 +111,10 @@ SnapLoop: // label
 			log.Fatal("Unrecognized stdWhat: ", stdWhat)
 		}
 		if err != nil {
-			log.Fatal("Incomplete snapshot.")
+			if err.Error() != "EOF" {
+				log.Fatal("Incomplete snapshot.", err)
+			}
+			break
 		}
 		// -1 is the "ICs to 0" timestep, skipping
 		// I will skip this also because it creates problems of duplication
@@ -129,18 +145,11 @@ SnapLoop: // label
 				}
 			}
 			timesteps = append(timesteps, timestep) // Write the snapshot
-			outFileName = baseName + "-part_" + snapshot.Timestep + ".txt"
-			if outFile, err = os.Create(outFileName); err != nil {
-				log.Fatal(err)
+			if extract == "" || extract == snapshot.Timestep {
+				snapChan <- snapshot
+				wroteTimesteps = append(wroteTimesteps, snapshot.Timestep)
 			}
 
-			// Create reader and writer
-			nWriter = bufio.NewWriter(outFile)
-			if err = snapshot.WriteSnapshot(nWriter); err != nil {
-				log.Fatal("Error while writing snapshot to file: ", err)
-			}
-			nWriter.Flush()
-			outFile.Close()
 		} else {
 			// This shouldn't happend because of the break in reading the snapshots
 			// This shoud be a redundant check
@@ -148,9 +157,42 @@ SnapLoop: // label
 			log.Fatal("Bad snapshot.")
 		}
 	} // end reading snapshot from a single file loop
+	
+	// Close channel and shutdown gorutines
+	close(snapChan)
+	for idx := 0; idx < nProcs; idx++ {
+		<-done 
+	}
+
 	fmt.Println("\n")
-	log.Println("Wrote ", len(timesteps), "snapshots to ", outFileName)
-	fmt.Println(timesteps)
-	timesteps = nil
+	fmt.Println("Analyzed timesteps, \n", timesteps)
+	fmt.Println("\n\n")
+	fmt.Println("Wrote timesteps, \n", wroteTimesteps)
+	fmt.Println("\n\n")
 }
 
+func write(baseName string, snapChan chan *slt.DumbSnapshot, done chan struct{}) {
+	var (
+		outFileName string
+		outFile     *os.File
+		nWriter     *bufio.Writer
+		err         error
+	)
+	
+	for snapshot := range snapChan {
+		outFileName = baseName + "-part_" + snapshot.Timestep + ".txt"
+		if outFile, err = os.Create(outFileName); err != nil {
+			log.Fatal(err)
+		}
+
+		// Create reader and writer
+		nWriter = bufio.NewWriter(outFile)
+		if err = snapshot.WriteSnapshot(nWriter); err != nil {
+			log.Fatal("Error while writing snapshot to file: ", err)
+		}
+		nWriter.Flush()
+		outFile.Close()
+	}
+	// Halt signal
+	done <- struct{}{}
+}
