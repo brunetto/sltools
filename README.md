@@ -146,7 +146,9 @@ sltools stichOutput -A
 
 to have your outputs files nicely checked and stiched.
 
+## TODO
 
+* Check errors in [stichOutput](https://github.com/brunetto/sltools/blob/master/slt/stichOutput.go), [readSnapshot](https://github.com/brunetto/sltools/blob/master/slt/readSnapshot.go) and all dependants, it seems that returning the error is not useful since I halt the program if the snapshot has problems. 
 
 
 
